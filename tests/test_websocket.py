@@ -6,7 +6,7 @@
 
 import unittest
 
-from cbprotk.websocket import Channel
+from copra.websocket import Channel
 
 
 class TestChannel(unittest.TestCase):
