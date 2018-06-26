@@ -15,10 +15,11 @@ class Channel:
 
     Attributes:
         name (str): The name of the websocket channel.
+        product_ids (list of str): List of product ids for the channel.
 
     """
 
-    def __init__(self, name):
+    def __init__(self, name, product_ids):
         """Channel __init__ method.
 
         Args:
@@ -29,8 +30,18 @@ class Channel:
                 (eg., 'BTC-USD') or list of product ids (eg., ['BTC-USD',
                 'ETH-EUR', 'LTC-BTC'])
 
+        Raises:
+            ValueError: If name not valid or product ids is empty.
+
         """
         self.name = name.lower()
         if self.name not in ('heartbeat', 'ticker', 'level2',
                              'full', 'matches', 'user'):
             raise ValueError("invalid name {}".format(name))
+
+        if not product_ids:
+            raise ValueError("must include at least one product id")
+
+        if not isinstance(product_ids, list):
+            product_ids = [product_ids]
+        self.product_ids = product_ids
