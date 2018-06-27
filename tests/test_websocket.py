@@ -60,6 +60,12 @@ class TestChannel(unittest.TestCase):
             
         #empty product_ids list
         with self.assertRaises(ValueError):
-            channel = Channel('heartbeat', [])        
-        
+            channel = Channel('heartbeat', [])
+            
+    def test_as_dict(self):
+        channel = Channel('heartbeat', ['BTC-USD', 'LTC-USD'])
+        d = channel.as_dict()
+        self.assertIsInstance(d, dict)
+        self.assertEqual(d, {'name': 'heartbeat', 
+                             'product_ids': ['BTC-USD', 'LTC-USD']})
         

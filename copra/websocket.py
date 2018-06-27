@@ -45,3 +45,11 @@ class Channel:
         if not isinstance(product_ids, list):
             product_ids = [product_ids]
         self.product_ids = product_ids
+
+    def as_dict(self):
+        """Returns the Channel as a dictionary.
+
+        Returns:
+            dict: The Channel as a dict with keys name & product_ids.
+        """
+        return {'name': self.name, 'product_ids': self.product_ids}
