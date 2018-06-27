@@ -5,6 +5,8 @@
 
 import logging
 
+from autobahn.asyncio.websocket import WebSocketClientProtocol
+
 logger = logging.getLogger(__name__)
 
 
@@ -57,3 +59,13 @@ class Channel:
             dict: The Channel as a dict with keys name & product_ids.
         """
         return {'name': self.name, 'product_ids': self.product_ids}
+
+
+class ClientProtocol(WebSocketClientProtocol):
+    """Websocket client protocol.
+
+    This is a subclass of autobahn.asyncio.websocket.WebSocketClientProtocol.
+    In most cases this should not need to be subclassed or even accessed
+    directly.
+    """
+    pass
