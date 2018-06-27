@@ -5,6 +5,7 @@
 
 import logging
 
+from autobahn.asyncio.websocket import WebSocketClientFactory
 from autobahn.asyncio.websocket import WebSocketClientProtocol
 
 logger = logging.getLogger(__name__)
@@ -38,7 +39,6 @@ class Channel:
 
         Raises:
             ValueError: If name not valid or product ids is empty.
-
         """
         self.name = name.lower()
         if self.name not in ('heartbeat', 'ticker', 'level2',
@@ -68,4 +68,20 @@ class ClientProtocol(WebSocketClientProtocol):
     In most cases this should not need to be subclassed or even accessed
     directly.
     """
-    pass
+
+    def __init__(self, channels):
+        """ClientProtocol initialization
+
+        Args:
+            channels (list of Channel objects): The channels to subscribe to.
+        """
+        super().__init__()
+
+
+class Client(WebSocketClientFactory):
+    """Asyncronous websocket client for Coinbase Pro.
+
+    """
+
+    def __init__(self):
+        pass

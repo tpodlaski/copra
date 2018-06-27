@@ -6,7 +6,7 @@
 
 import unittest
 
-from copra.websocket import Channel
+from copra.websocket import Channel, ClientProtocol, Client
 
 
 class TestChannel(unittest.TestCase):
@@ -69,3 +69,28 @@ class TestChannel(unittest.TestCase):
         self.assertEqual(d, {'name': 'heartbeat', 
                              'product_ids': ['BTC-USD', 'LTC-USD']})
         
+
+class TestClientProtocol(unittest.TestCase):
+    """Tests for cbprotk.websocket.ClientProtocol"""
+
+    def setUp(self):
+        """Set up test fixtures, if any."""
+
+    def tearDown(self):
+        """Tear down test fixtures, if any."""
+
+    def test__init__(self):
+        pass
+    
+
+class TestClient(unittest.TestCase):
+    """Tests for cbprotk.websocket.ClientProtocol"""
+
+    def setUp(self):
+        """Set up test fixtures, if any."""
+
+    def tearDown(self):
+        """Tear down test fixtures, if any."""
+
+    def test__init__(self):
+        pass
