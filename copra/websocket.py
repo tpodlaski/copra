@@ -10,6 +10,9 @@ from autobahn.asyncio.websocket import WebSocketClientProtocol
 
 logger = logging.getLogger(__name__)
 
+FEED_URL = 'wss://ws-feed.gdax.com'
+SANDBOX_FEED_URL = 'wss://ws-feed-public.sandbox.gdax.com'
+
 
 class Channel:
     """A websocket channel.
@@ -52,6 +55,9 @@ class Channel:
             product_ids = [product_ids]
         self.product_ids = product_ids
 
+    def __call__(self):
+        return self
+
     def as_dict(self):
         """Returns the Channel as a dictionary.
 
@@ -70,7 +76,7 @@ class ClientProtocol(WebSocketClientProtocol):
     """
 
     def __init__(self, channels):
-        """ClientProtocol initialization
+        """ClientProtocol initialization.
 
         Args:
             channels (list of Channel objects): The channels to subscribe to.
@@ -83,5 +89,12 @@ class Client(WebSocketClientFactory):
 
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, loop, feed_url=FEED_URL):
+        """ Client initialization.
+
+        Args:
+            loop (asyncio event loop): The event loop that the websocket client
+               runs in.
+        """
+        self.loop = loop
+        self.feed_url = feed_url

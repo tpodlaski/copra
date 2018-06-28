@@ -3,11 +3,11 @@
 
 """Tests for `cbprotk.websocket` module."""
 
-
+import asyncio
 import unittest
 
 from copra.websocket import Channel, ClientProtocol, Client
-
+from copra.websocket import SANDBOX_FEED_URL
 
 class TestChannel(unittest.TestCase):
     """Tests for cbprotk.websocket.Channel"""
@@ -62,6 +62,10 @@ class TestChannel(unittest.TestCase):
         with self.assertRaises(ValueError):
             channel = Channel('heartbeat', [])
             
+    def test___call__(self):
+        channel = Channel('heartbeat', ['BTC-USD', 'LTC-USD'])
+        self.assertIs(channel(), channel)
+            
     def test_as_dict(self):
         channel = Channel('heartbeat', ['BTC-USD', 'LTC-USD'])
         d = channel.as_dict()
@@ -87,10 +91,15 @@ class TestClient(unittest.TestCase):
     """Tests for cbprotk.websocket.ClientProtocol"""
 
     def setUp(self):
-        """Set up test fixtures, if any."""
+        self.event_loop = asyncio.get_event_loop()
 
     def tearDown(self):
-        """Tear down test fixtures, if any."""
+        self.event_loop.close()
 
     def test__init__(self):
-        pass
+        client = Client(self.event_loop)
+        self.assertIs(client.loop, self.event_loop)
+        self.assertEqual(client.feed_url, 'wss://ws-feed.gdax.com')
+        
+        client = Client(self.event_loop, SANDBOX_FEED_URL)
+        self.assertEqual(client.feed_url, SANDBOX_FEED_URL)
