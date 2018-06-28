@@ -4,6 +4,7 @@
 """
 
 import logging
+from urllib.parse import urlparse
 
 from autobahn.asyncio.websocket import WebSocketClientFactory
 from autobahn.asyncio.websocket import WebSocketClientProtocol
@@ -75,13 +76,11 @@ class ClientProtocol(WebSocketClientProtocol):
     directly.
     """
 
-    def __init__(self, channels):
-        """ClientProtocol initialization.
+    def onOpen(self):
+        """Callback fired on initial webSocket opening handshake completion.
 
-        Args:
-            channels (list of Channel objects): The channels to subscribe to.
+        You now can send and receive webSocket messages.
         """
-        super().__init__()
 
 
 class Client(WebSocketClientFactory):
@@ -102,8 +101,11 @@ class Client(WebSocketClientFactory):
         """
         if not isinstance(channels, list):
             channels = [channels]
+
         self._initial_channels = channels
         self.feed_url = feed_url
+
+        self.channels = {}
 
         super().__init__(self.feed_url)
 
@@ -117,3 +119,8 @@ class Client(WebSocketClientFactory):
             loop (asyncio event loop): The event loop that the websocket client
                 runs in.
         """
+        self.protocol = ClientProtocol()
+
+
+if __name__ == '__main__':
+    pass
