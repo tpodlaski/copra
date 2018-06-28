@@ -25,7 +25,7 @@ class Channel:
 
     Attributes:
         name (str): The name of the websocket channel.
-        product_ids (list of str): List of product ids for the channel.
+        product_ids (set of str): Set of product ids for the channel.
 
     """
 
@@ -53,7 +53,7 @@ class Channel:
 
         if not isinstance(product_ids, list):
             product_ids = [product_ids]
-        self.product_ids = product_ids
+        self.product_ids = set(product_ids)
 
     def __call__(self):
         return self
@@ -64,7 +64,7 @@ class Channel:
         Returns:
             dict: The Channel as a dict with keys name & product_ids.
         """
-        return {'name': self.name, 'product_ids': self.product_ids}
+        return {'name': self.name, 'product_ids': list(self.product_ids)}
 
 
 class ClientProtocol(WebSocketClientProtocol):

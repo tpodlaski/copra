@@ -41,18 +41,18 @@ class TestChannel(unittest.TestCase):
         
         #product_ids as str
         channel = Channel('heartbeat', 'BTC-USD')
-        self.assertIsInstance(channel.product_ids, list)
-        self.assertEqual(channel.product_ids, ['BTC-USD'])
+        self.assertIsInstance(channel.product_ids, set)
+        self.assertEqual(channel.product_ids, set(['BTC-USD']))
         
         #product_ids as list length 1
         channel = Channel('heartbeat', ['BTC-USD'])
-        self.assertIsInstance(channel.product_ids, list)
-        self.assertEqual(channel.product_ids, ['BTC-USD'])
+        self.assertIsInstance(channel.product_ids, set)
+        self.assertEqual(channel.product_ids, set(['BTC-USD']))
         
         #product_ids as list length 2
         channel = Channel('heartbeat', ['BTC-USD', 'LTC-USD'])
-        self.assertIsInstance(channel.product_ids, list)
-        self.assertEqual(channel.product_ids, ['BTC-USD', 'LTC-USD'])
+        self.assertIsInstance(channel.product_ids, set)
+        self.assertEqual(channel.product_ids, set(['BTC-USD', 'LTC-USD']))
         
         #empty product_ids string
         with self.assertRaises(ValueError):
@@ -70,8 +70,10 @@ class TestChannel(unittest.TestCase):
         channel = Channel('heartbeat', ['BTC-USD', 'LTC-USD'])
         d = channel.as_dict()
         self.assertIsInstance(d, dict)
-        self.assertEqual(d, {'name': 'heartbeat', 
-                             'product_ids': ['BTC-USD', 'LTC-USD']})
+        self.assertEqual(d['name'], 'heartbeat')
+        self.assertEqual(len(d['product_ids']), 2)
+        self.assertIn('BTC-USD', d['product_ids'])
+        self.assertIn('LTC-USD', d['product_ids'])
         
 
 class TestClientProtocol(unittest.TestCase):
