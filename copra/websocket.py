@@ -87,14 +87,24 @@ class ClientProtocol(WebSocketClientProtocol):
 class Client(WebSocketClientFactory):
     """Asyncronous websocket client for Coinbase Pro.
 
+       Attributes:
+           loop (asyncio event loop): The event loop the client is running in.
+           feed_url (str): The url of the websocket server.
     """
 
-    def __init__(self, loop, feed_url=FEED_URL):
+    def __init__(self, loop, channels, feed_url=FEED_URL):
         """ Client initialization.
 
         Args:
             loop (asyncio event loop): The event loop that the websocket client
-               runs in.
+                runs in.
+            channels (Channel or list of Channel): The initial channels to
+                subscribe to.
+            feed_url (str): The url of the websocket server. The defualt is
+                copra.websocket.FEED_URL (wss://ws-feed.gdax.com)
         """
         self.loop = loop
+        if not isinstance(channels, list):
+            channels = [channels]
+        self._initial_channels = channels
         self.feed_url = feed_url
