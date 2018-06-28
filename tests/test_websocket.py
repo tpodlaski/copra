@@ -102,16 +102,15 @@ class TestClient(unittest.TestCase):
         channel1 = Channel('heartbeat', ['BTC-USD', 'LTC-USD'])
         channel2 = Channel('level2', ['LTC-USD'])
         
-        client = Client(self.event_loop, channel1)
-        self.assertIs(client.loop, self.event_loop)
+        client = Client(channel1)
         self.assertEqual(client._initial_channels, [channel1])
         self.assertEqual(client.feed_url, 'wss://ws-feed.gdax.com')
         
-        client = Client(self.event_loop, channel1, SANDBOX_FEED_URL)
+        client = Client(channel1, SANDBOX_FEED_URL)
         self.assertEqual(client.feed_url, SANDBOX_FEED_URL)
         
-        client = Client(self.event_loop, [channel1])
+        client = Client([channel1])
         self.assertEqual(client._initial_channels, [channel1])
         
-        client = Client(self.event_loop, [channel1, channel2])
+        client = Client([channel1, channel2])
         self.assertEqual(client._initial_channels, [channel1, channel2])
