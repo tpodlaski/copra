@@ -125,6 +125,8 @@ class Client(WebSocketClientFactory):
         self.name = name
 
         self.channels = {}
+        for channel in channels:
+            self.channels[channel.name] = channel
 
         super().__init__(self.feed_url)
 

@@ -109,11 +109,18 @@ class TestClient(unittest.TestCase):
         client = Client(self.loop, channel1, SANDBOX_FEED_URL)
         self.assertEqual(client.feed_url, SANDBOX_FEED_URL)
         
+        client = Client(self.loop, channel1)
+        self.assertEqual(client._initial_channels, [channel1])
+        self.assertEqual(client.channels, {channel1.name: channel1})
+                              
         client = Client(self.loop, [channel1])
         self.assertEqual(client._initial_channels, [channel1])
+        self.assertEqual(client.channels, {channel1.name: channel1})
         
         client = Client(self.loop, [channel1, channel2])
         self.assertEqual(client._initial_channels, [channel1, channel2])
+        self.assertEqual(client.channels,
+                         {channel1.name: channel1, channel2.name: channel2})
         
         client = Client(self.loop, [channel1, channel2], name="Test")
         self.assertEqual(client.name, "Test")        
