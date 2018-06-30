@@ -4,6 +4,7 @@
 """
 
 import asyncio
+import json
 import logging
 from urllib.parse import urlparse
 
@@ -82,6 +83,18 @@ class ClientProtocol(WebSocketClientProtocol):
 
         You now can send and receive webSocket messages.
         """
+        self.factory.on_open()
+
+    def onMessage(self, payload, isBinary):
+        """Callback fired when a complete WebSocket message was received.
+
+        Args:
+            payload (bytes): The WebSocket message received.
+            isBinary (bool): Flag indicating whether payload is binary or UTF-8
+            encoded text.
+        """
+        msg = json.loads(payload.decode('utf8'))
+        self.factory.on_message(msg)
 
 
 class Client(WebSocketClientFactory):
