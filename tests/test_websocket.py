@@ -93,24 +93,24 @@ class TestClient(unittest.TestCase):
     """Tests for cbprotk.websocket.ClientProtocol"""
 
     def setUp(self):
-        self.event_loop = asyncio.get_event_loop()
+        self.loop = asyncio.get_event_loop()
 
     def tearDown(self):
-        self.event_loop.close()
+        self.loop.close()
 
     def test__init__(self):
         channel1 = Channel('heartbeat', ['BTC-USD', 'LTC-USD'])
         channel2 = Channel('level2', ['LTC-USD'])
         
-        client = Client(channel1)
+        client = Client(self.loop, channel1)
         self.assertEqual(client._initial_channels, [channel1])
         self.assertEqual(client.feed_url, 'wss://ws-feed.gdax.com')
         
-        client = Client(channel1, SANDBOX_FEED_URL)
+        client = Client(self.loop, channel1, SANDBOX_FEED_URL)
         self.assertEqual(client.feed_url, SANDBOX_FEED_URL)
         
-        client = Client([channel1])
+        client = Client(self.loop, [channel1])
         self.assertEqual(client._initial_channels, [channel1])
         
-        client = Client([channel1, channel2])
+        client = Client(self.loop, [channel1, channel2])
         self.assertEqual(client._initial_channels, [channel1, channel2])

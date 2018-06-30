@@ -3,6 +3,7 @@
 
 """
 
+import asyncio
 import logging
 from urllib.parse import urlparse
 
@@ -90,15 +91,17 @@ class Client(WebSocketClientFactory):
            feed_url (str): The url of the websocket server.
     """
 
-    def __init__(self, channels, feed_url=FEED_URL):
+    def __init__(self, loop, channels, feed_url=FEED_URL):
         """ Client initialization.
 
         Args:
+            loop (asyncio loop): The asyncio loop that the client runs in.
             channels (Channel or list of Channel): The initial channels to
                 subscribe to.
             feed_url (str): The url of the websocket server. The defualt is
                 copra.websocket.FEED_URL (wss://ws-feed.gdax.com)
         """
+        self.loop = loop
         if not isinstance(channels, list):
             channels = [channels]
 
@@ -120,7 +123,24 @@ class Client(WebSocketClientFactory):
                 runs in.
         """
         self.protocol = ClientProtocol()
+        url = urlparse(self.url)
+        self.coro = self.loop.create_connection(self, url.hostname, url.port,
+                                                ssl=(url.scheme == 'wss'))
+        self.loop.create_task(self.coro)
 
 
 if __name__ == '__main__':
-    pass
+
+    logging.getLogger().setLevel(logging.DEBUG)
+    logging.getLogger().addHandler(logging.StreamHandler())
+
+    loop = asyncio.get_event_loop()
+
+    ws = Client(loop, [Channel('heartbeat', 'BTC-USD')])
+    ws.add_as_task_to_loop()
+
+    try:
+        loop.run_forever()
+    except KeyboardInterrupt:
+        loop.run_until_complete(ws.disconnect())
+        loop.close()
