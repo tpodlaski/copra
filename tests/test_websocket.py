@@ -114,3 +114,6 @@ class TestClient(unittest.TestCase):
         
         client = Client(self.loop, [channel1, channel2])
         self.assertEqual(client._initial_channels, [channel1, channel2])
+        
+        client = Client(self.loop, [channel1, channel2], name="Test")
+        self.assertEqual(client.name, "Test")        

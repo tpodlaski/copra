@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Asynchronous websocket client for the Coinbase Pro platform.
+"""Asynchronous WebSocket client for the Coinbase Pro platform.
 
 """
 
@@ -18,16 +18,16 @@ SANDBOX_FEED_URL = 'wss://ws-feed-public.sandbox.gdax.com'
 
 
 class Channel:
-    """A websocket channel.
+    """A WebSocket channel.
 
-    A Channel object encapsulates the Coinbase Pro websocket channel name
+    A Channel object encapsulates the Coinbase Pro WebSocket channel name
     *and* one or more Coinbase Pro product ids.
 
     To read about Coinbase Pro channels and the data they return, visit:
     https://docs.gdax.com/#channels
 
     Attributes:
-        name (str): The name of the websocket channel.
+        name (str): The name of the WebSocket channel.
         product_ids (set of str): Set of product ids for the channel.
 
     """
@@ -36,7 +36,7 @@ class Channel:
         """Channel __init__ method.
 
         Args:
-            name (str): The name of the websocket channel. Possible values
+            name (str): The name of the WebSocket channel. Possible values
                 are heatbeat, ticker, level2, full, matches, or user
 
             product_ids (str or list of str): A single product id
@@ -73,15 +73,15 @@ class Channel:
 class ClientProtocol(WebSocketClientProtocol):
     """Websocket client protocol.
 
-    This is a subclass of autobahn.asyncio.websocket.WebSocketClientProtocol.
+    This is a subclass of autobahn.asyncio.WebSocket.WebSocketClientProtocol.
     In most cases this should not need to be subclassed or even accessed
     directly.
     """
 
     def onOpen(self):
-        """Callback fired on initial webSocket opening handshake completion.
+        """Callback fired on initial WebSocket opening handshake completion.
 
-        You now can send and receive webSocket messages.
+        You now can send and receive WebSocket messages.
         """
         self.factory.on_open()
 
@@ -98,21 +98,23 @@ class ClientProtocol(WebSocketClientProtocol):
 
 
 class Client(WebSocketClientFactory):
-    """Asyncronous websocket client for Coinbase Pro.
+    """Asyncronous WebSocket client for Coinbase Pro.
 
        Attributes:
-           feed_url (str): The url of the websocket server.
+           feed_url (str): The url of the WebSocket server.
     """
 
-    def __init__(self, loop, channels, feed_url=FEED_URL):
+    def __init__(self, loop, channels, feed_url=FEED_URL,
+                 name='WebSocket Client'):
         """ Client initialization.
 
         Args:
             loop (asyncio loop): The asyncio loop that the client runs in.
             channels (Channel or list of Channel): The initial channels to
                 subscribe to.
-            feed_url (str): The url of the websocket server. The defualt is
-                copra.websocket.FEED_URL (wss://ws-feed.gdax.com)
+            feed_url (str): The url of the WebSocket server. The defualt is
+                copra.WebSocket.FEED_URL (wss://ws-feed.gdax.com)
+            name (str): A name to identify this client in logging, etc.
         """
         self.loop = loop
         if not isinstance(channels, list):
@@ -120,6 +122,7 @@ class Client(WebSocketClientFactory):
 
         self._initial_channels = channels
         self.feed_url = feed_url
+        self.name = name
 
         self.channels = {}
 
@@ -128,11 +131,11 @@ class Client(WebSocketClientFactory):
     def add_as_task_to_loop(self, loop):
         """Add the client to the asyncio loop.
 
-        Creates a coroutine for making a connection to the websocket server and
+        Creates a coroutine for making a connection to the WebSocket server and
         adds it as a task to the asyncio loop.
 
         Args:
-            loop (asyncio event loop): The event loop that the websocket client
+            loop (asyncio event loop): The event loop that the WebSocket client
                 runs in.
         """
         self.protocol = ClientProtocol()
@@ -140,6 +143,13 @@ class Client(WebSocketClientFactory):
         self.coro = self.loop.create_connection(self, url.hostname, url.port,
                                                 ssl=(url.scheme == 'wss'))
         self.loop.create_task(self.coro)
+
+    def on_open(self):
+        """Callback fired on initial WebSocket opening handshake completion.
+
+        The WebSocket is open. This method sends the subscription message to
+        the server.
+        """
 
 
 if __name__ == '__main__':
