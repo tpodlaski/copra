@@ -4,6 +4,7 @@
 """Tests for `cbprotk.websocket` module."""
 
 import asyncio
+import json
 import unittest
 
 from copra.websocket import Channel, ClientProtocol, Client
@@ -123,4 +124,16 @@ class TestClient(unittest.TestCase):
                          {channel1.name: channel1, channel2.name: channel2})
         
         client = Client(self.loop, [channel1, channel2], name="Test")
-        self.assertEqual(client.name, "Test")        
+        self.assertEqual(client.name, "Test")
+        
+    def test_get_subscribe_message(self):
+        channel1 = Channel('heartbeat', ['BTC-USD', 'LTC-USD'])
+        channel2 = Channel('level2', ['LTC-USD'])
+        
+        client = Client(self.loop, [channel1, channel2])
+        msg = json.loads(client.get_subscribe_message(client.channels.values()).decode('utf8'))
+        self.assertIn('type', msg)
+        self.assertEqual(msg['type'], 'subscribe')
+        self.assertIn('channels', msg)
+        self.assertIn(channel1.as_dict(), msg['channels'])
+        self.assertIn(channel2.as_dict(), msg['channels'])

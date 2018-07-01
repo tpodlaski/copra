@@ -130,6 +130,20 @@ class Client(WebSocketClientFactory):
 
         super().__init__(self.feed_url)
 
+    def get_subscribe_message(self, channels):
+        """Create and return the subscription message for the provided channels.
+
+        Args:
+            channels (list of Channel): List of channels to subscribe to.
+
+        Returns:
+            bytes: JSON-formatted, UTF-8 encoded bytes object representing the
+                subscription message for the provided channels.
+        """
+        msg = {'type': 'subscribe',
+               'channels': [channel.as_dict() for channel in channels]}
+        return json.dumps(msg).encode('utf8')
+
     def add_as_task_to_loop(self, loop):
         """Add the client to the asyncio loop.
 
