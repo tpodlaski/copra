@@ -13,8 +13,8 @@ from autobahn.asyncio.websocket import WebSocketClientProtocol
 
 logger = logging.getLogger(__name__)
 
-FEED_URL = 'wss://ws-feed.gdax.com'
-SANDBOX_FEED_URL = 'wss://ws-feed-public.sandbox.gdax.com'
+FEED_URL = 'wss://ws-feed.gdax.com:443'
+SANDBOX_FEED_URL = 'wss://ws-feed-public.sandbox.gdax.com:443'
 
 
 class Channel:
@@ -58,9 +58,6 @@ class Channel:
             product_ids = [product_ids]
         self.product_ids = set(product_ids)
 
-    def __call__(self):
-        return self
-
     def as_dict(self):
         """Returns the Channel as a dictionary.
 
@@ -78,6 +75,9 @@ class ClientProtocol(WebSocketClientProtocol):
     directly.
     """
 
+    def __call__(self):
+        return self
+
     def onOpen(self):
         """Callback fired on initial WebSocket opening handshake completion.
 
@@ -87,6 +87,9 @@ class ClientProtocol(WebSocketClientProtocol):
 
     def onMessage(self, payload, isBinary):
         """Callback fired when a complete WebSocket message was received.
+
+        Call its factory's (the client's) on_message method with a
+        dict representing the JSON message receieved.
 
         Args:
             payload (bytes): The WebSocket message received.
@@ -144,7 +147,7 @@ class Client(WebSocketClientFactory):
                'channels': [channel.as_dict() for channel in channels]}
         return json.dumps(msg).encode('utf8')
 
-    def add_as_task_to_loop(self, loop):
+    def add_as_task_to_loop(self):
         """Add the client to the asyncio loop.
 
         Creates a coroutine for making a connection to the WebSocket server and
@@ -158,6 +161,7 @@ class Client(WebSocketClientFactory):
         url = urlparse(self.url)
         self.coro = self.loop.create_connection(self, url.hostname, url.port,
                                                 ssl=(url.scheme == 'wss'))
+        print(self.coro)
         self.loop.create_task(self.coro)
 
     def on_open(self):
@@ -166,6 +170,18 @@ class Client(WebSocketClientFactory):
         The WebSocket is open. This method sends the subscription message to
         the server.
         """
+        logger.info('{} connected to {}'.format(self.name, self.url))
+        self.protocol.sendMessage(self.get_subscribe_message(self.channels))
+
+    def on_message(self, msg):
+        """Callback fired when a complete WebSocket message was received.
+
+        You will likely want to override this method.
+
+        Args:
+            msg (dict): Dictionary representing the message.
+        """
+        print(msg)
 
 
 if __name__ == '__main__':

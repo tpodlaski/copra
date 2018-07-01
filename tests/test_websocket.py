@@ -63,10 +63,6 @@ class TestChannel(unittest.TestCase):
         with self.assertRaises(ValueError):
             channel = Channel('heartbeat', [])
             
-    def test___call__(self):
-        channel = Channel('heartbeat', ['BTC-USD', 'LTC-USD'])
-        self.assertIs(channel(), channel)
-            
     def test_as_dict(self):
         channel = Channel('heartbeat', ['BTC-USD', 'LTC-USD'])
         d = channel.as_dict()
@@ -89,6 +85,10 @@ class TestClientProtocol(unittest.TestCase):
     def test__init__(self):
         pass
     
+    def test___call__(self):
+        prot = ClientProtocol()
+        self.assertIs(prot(), prot)    
+    
 
 class TestClient(unittest.TestCase):
     """Tests for cbprotk.websocket.ClientProtocol"""
@@ -105,7 +105,7 @@ class TestClient(unittest.TestCase):
         
         client = Client(self.loop, channel1)
         self.assertEqual(client._initial_channels, [channel1])
-        self.assertEqual(client.feed_url, 'wss://ws-feed.gdax.com')
+        self.assertEqual(client.feed_url, 'wss://ws-feed.gdax.com:443')
         
         client = Client(self.loop, channel1, SANDBOX_FEED_URL)
         self.assertEqual(client.feed_url, SANDBOX_FEED_URL)
