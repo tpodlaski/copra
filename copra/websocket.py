@@ -13,8 +13,8 @@ from autobahn.asyncio.websocket import WebSocketClientProtocol
 
 logger = logging.getLogger(__name__)
 
-FEED_URL = 'wss://ws-feed.gdax.com:443'
-SANDBOX_FEED_URL = 'wss://ws-feed-public.sandbox.gdax.com:443'
+FEED_URL = 'wss://ws-feed.pro.coinbase.com:443'
+SANDBOX_FEED_URL = 'wss://ws-feed-public.sandbox.pro.coinbase.com:443'
 
 
 class Channel:
@@ -171,7 +171,7 @@ class Client(WebSocketClientFactory):
         the server.
         """
         logger.info('{} connected to {}'.format(self.name, self.url))
-        self.protocol.sendMessage(self.get_subscribe_message(self.channels))
+        self.protocol.sendMessage(self.get_subscribe_message(self.channels.values()))
 
     def on_message(self, msg):
         """Callback fired when a complete WebSocket message was received.
