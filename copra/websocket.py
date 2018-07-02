@@ -171,7 +171,8 @@ class Client(WebSocketClientFactory):
         the server.
         """
         logger.info('{} connected to {}'.format(self.name, self.url))
-        self.protocol.sendMessage(self.get_subscribe_message(self.channels.values()))
+        msg = self.get_subscribe_message(self.channels.values())
+        self.protocol.sendMessage(msg)
 
     def on_message(self, msg):
         """Callback fired when a complete WebSocket message was received.

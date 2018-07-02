@@ -105,7 +105,7 @@ class TestClient(unittest.TestCase):
         
         client = Client(self.loop, channel1)
         self.assertEqual(client._initial_channels, [channel1])
-        self.assertEqual(client.feed_url, 'wss://ws-feed.gdax.com:443')
+        self.assertEqual(client.feed_url, 'wss://ws-feed.pro.coinbase.com:443')
         
         client = Client(self.loop, channel1, SANDBOX_FEED_URL)
         self.assertEqual(client.feed_url, SANDBOX_FEED_URL)
