@@ -85,6 +85,19 @@ class ClientProtocol(WebSocketClientProtocol):
         """
         self.factory.on_open()
 
+    def onClose(self, wasClean, code, reason):
+        """Callback fired when the WebSocket connection has been closed.
+
+        (WebSocket closing handshake has been finished or the connection was
+        closed uncleanly).
+
+        Args:
+          wasClean (bool): True iff the WebSocket connection closed cleanly.
+          code (int or None): Close status code as sent by the WebSocket peer.
+          reason (str or None): Close reason as sent by the WebSocket peer.
+        """
+        self.factory.on_close(wasClean, code, reason)
+
     def onMessage(self, payload, isBinary):
         """Callback fired when a complete WebSocket message was received.
 
@@ -175,7 +188,20 @@ class Client(WebSocketClientFactory):
         logger.info('{} connected to {}'.format(self.name, self.url))
         msg = self.get_subscribe_message(self.channels.values())
         self.protocol.sendMessage(msg)
-        
+
+    def on_close(self, was_clean, code, reason):
+        """Callback fired when the WebSocket connection has been closed.
+
+        (WebSocket closing handshake has been finished or the connection was
+        closed uncleanly).
+
+        Args:
+          was_clean (bool): True iff the WebSocket connection closed cleanly.
+          code (int or None): Close status code as sent by the WebSocket peer.
+          reason (str or None): Close reason as sent by the WebSocket peer.
+        """
+        logger.info('Connection to {} closed. {}'.format(self.url, reason))
+
     def on_error(self, message, reason=''):
         """Callback fired when an error message is received.
 
@@ -203,7 +229,7 @@ if __name__ == '__main__':
 
     loop = asyncio.get_event_loop()
 
-    ws = Client(loop, [Channel('heartbeat', 'BTC-USD')])
+    ws = Client(loop, [Channel('heartbeat', 'BTC-USDER')])
     ws.add_as_task_to_loop()
 
     try:
