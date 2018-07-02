@@ -26,8 +26,13 @@ Prerequisites
 * Python 3.4 or greater
 * Autobahn|Python
 
-copra is built upon Autobahn|Python (https://github.com/crossbario/autobahn-python), the open-source (MIT) real-time framework for web, mobile & the Internet of Things.
+The base websocket functionality for copra is provided by **Autobahn|Python**, the open-source (MIT) real-time framework for web, mobile & the Internet of Things.
 
+If you install copra using pip, Autobahn will be installed automatically. To install Autobahn manually using pip:
+
+
+
+copra is built upon Autobahn|Python (https://github.com/crossbario/autobahn-python), 
 ```
 Give examples
 ```
