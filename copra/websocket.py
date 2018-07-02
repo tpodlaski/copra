@@ -97,7 +97,10 @@ class ClientProtocol(WebSocketClientProtocol):
             encoded text.
         """
         msg = json.loads(payload.decode('utf8'))
-        self.factory.on_message(msg)
+        if msg['type'] == 'error':
+            self.factory.on_error(msg['message'], msg.get('reason', ''))
+        else:
+            self.factory.on_message(msg)
 
 
 class Client(WebSocketClientFactory):
@@ -161,7 +164,6 @@ class Client(WebSocketClientFactory):
         url = urlparse(self.url)
         self.coro = self.loop.create_connection(self, url.hostname, url.port,
                                                 ssl=(url.scheme == 'wss'))
-        print(self.coro)
         self.loop.create_task(self.coro)
 
     def on_open(self):
@@ -173,6 +175,15 @@ class Client(WebSocketClientFactory):
         logger.info('{} connected to {}'.format(self.name, self.url))
         msg = self.get_subscribe_message(self.channels.values())
         self.protocol.sendMessage(msg)
+        
+    def on_error(self, message, reason=''):
+        """Callback fired when an error message is received.
+
+        Args:
+            message (str): A general description of the error.
+            reason (str): A more detailed description of the error.
+        """
+        logger.error('{}. {}'.format(message, reason))
 
     def on_message(self, msg):
         """Callback fired when a complete WebSocket message was received.
