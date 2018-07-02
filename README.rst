@@ -30,15 +30,13 @@ The base websocket functionality for copra is provided by **Autobahn|Python**, t
 
 If you install copra using pip, Autobahn will be installed automatically. To install Autobahn manually using pip:
 
-``pip install autobahn``
+``pip3 install autobahn``
+
+Autobahn can also be installed from source by downnloading the code from: https://github.com/crossbario/autobahn-python .
 
 
-copra is built upon Autobahn|Python (https://github.com/crossbario/autobahn-python), 
-```
-Give examples
-```
-
-### Installing
+Installing
+~~~~~~~~~~
 
 A step by step series of examples that tell you how to get a development env running
 
