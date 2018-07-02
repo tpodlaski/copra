@@ -20,11 +20,13 @@ copra \(**co**\ inbase **pr**\ o **a**\ sync\) is an asyncronous websocket clien
 Getting Started
 ---------------
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+Prerequisites
+~~~~~~~~~~~~~
 
-### Prerequisites
+* Python 3.4 or greater
+* Autobahn|Python
 
-copra is built upon and requires Autobahn|Python (https://github.com/crossbario/autobahn-python), the open-source (MIT) real-time framework for web, mobile & the Internet of Things.
+copra is built upon Autobahn|Python (https://github.com/crossbario/autobahn-python), the open-source (MIT) real-time framework for web, mobile & the Internet of Things.
 
 ```
 Give examples
