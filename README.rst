@@ -16,7 +16,11 @@ Coinbase Pro Asyncronous Websocket Client
 
 
 
-copra \(**co**\ inbase **pr**\ o **a**\ sync\) is an Python asyncronous websocket client for use with the Coinbase Pro virtual currency trading platform.
+copra \(**co**\ inbase **pr**\ o **a**\ sync\) is an asyncronous websocket client written in Python for use with the Coinbase Pro virtual currency trading platform.
+
+It is built upon and requires Autobahn|Python (https://github.com/crossbario/autobahn-python), the open-source (MIT) real-time framework for web, mobile & the Internet of Things.
+
+To learn about Coinbase Pro's websocket service including the available channels and the data they provide, please see Coinbase Pro's API documentation at: https://docs.pro.coinbase.com/#websocket-feed.
 
 
 * Free software: MIT license
