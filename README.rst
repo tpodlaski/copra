@@ -38,19 +38,11 @@ Autobahn can also be installed from source by downnloading the code from: https:
 Installing
 ~~~~~~~~~~
 
-A step by step series of examples that tell you how to get a development env running
+The easiest way to install copra (and its dependencies) is by using pip:
 
-Say what the step will be
+``pip3 install copra```
 
-```
-Give the example
-```
 
-And repeat
-
-```
-until finished
-```
 
 End with an example of getting some data out of the system or using it for a little demo
 
