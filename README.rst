@@ -50,7 +50,7 @@ Authors
 
 See also the list of contributors_  who participated in this project.
 
-See also the list of contributers_
+See also the list of contributers_ who 
 
 
 ## Built With
