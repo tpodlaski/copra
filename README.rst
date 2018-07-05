@@ -69,8 +69,20 @@ You will likely want to override ``copra.websocket.client``, but it can be used 
     except KeyboardInterrupt:
         loop.run_until_complete(ws.close())
         loop.close()
-  
-  
+
+Running the above::
+
+    $ python3 example.py
+    {'type': 'subscriptions', 'channels': [{'name': 'heartbeat', 'product_ids': ['BTC-USD']}]}
+    {'type': 'heartbeat', 'last_trade_id': 45950713, 'product_id': 'BTC-USD', 'sequence': 6254273323, 'time': '2018-07-05T22:36:30.823000Z'}
+    {'type': 'heartbeat', 'last_trade_id': 45950714, 'product_id': 'BTC-USD', 'sequence': 6254273420, 'time': '2018-07-05T22:36:31.823000Z'}
+    {'type': 'heartbeat', 'last_trade_id': 45950715, 'product_id': 'BTC-USD', 'sequence': 6254273528, 'time': '2018-07-05T22:36:32.823000Z'}
+    {'type': 'heartbeat', 'last_trade_id': 45950715, 'product_id': 'BTC-USD', 'sequence': 6254273641, 'time': '2018-07-05T22:36:33.823000Z'}
+    {'type': 'heartbeat', 'last_trade_id': 45950715, 'product_id': 'BTC-USD', 'sequence': 6254273758, 'time': '2018-07-05T22:36:34.823000Z'}
+    {'type': 'heartbeat', 'last_trade_id': 45950720, 'product_id': 'BTC-USD', 'sequence': 6254273910, 'time': '2018-07-05T22:36:35.824000Z'}
+    .
+    .
+    .
 
 Versioning
 ----------
