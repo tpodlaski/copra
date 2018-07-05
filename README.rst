@@ -48,8 +48,6 @@ Authors
 -------
 **Tony Podlaski** http://www.neuraldump.net 
 
-See also the list of contributors_  who participated in this project.
-
 See also the list of contributers_ who participated in this project.
 
 
