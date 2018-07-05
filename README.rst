@@ -47,8 +47,8 @@ copra can also be installed from source:
 
 
 Examples
-~~~~~~~~
-::
+~~~~~~~~::
+    
     from copra.websocket import Channel, Client
   
   
