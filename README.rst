@@ -49,7 +49,7 @@ Authors
 **Tony Podlaski** http://www.neuraldump.net 
 
 See also the list of contributors_ who participated in this project
-.. _contributors https://github.com/tpodlaski/copra/blob/master/CONTRIBUTING.rst
+
 
 ## Built With
 
@@ -78,8 +78,6 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 * Inspiration
 * etc
 
-
-
 * Free software: MIT license
 * Documentation: https://copra.readthedocs.io.
 
@@ -94,5 +92,6 @@ Credits
 
 This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
 
+.. _contributors https://github.com/tpodlaski/copra/blob/master/CONTRIBUTING.rst
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
