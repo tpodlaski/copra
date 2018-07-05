@@ -29,9 +29,9 @@ Prerequisites
 
 The base websocket functionality for copra is provided by **Autobahn|Python**, the open-source (MIT) real-time framework for web, mobile & the Internet of Things.
 
-If you install copra using pip, Autobahn will be installed automatically. To install Autobahn manually using pip:
+If you install copra using pip, Autobahn will be installed automatically. To install Autobahn manually using pip::
 
-``$ pip3 install autobahn``
+    $ pip3 install autobahn
 
 Autobahn can also be installed from source by downnloading the code from: https://github.com/crossbario/autobahn-python .
 
@@ -39,9 +39,9 @@ Autobahn can also be installed from source by downnloading the code from: https:
 Installing
 ~~~~~~~~~~
 
-The easiest way to install copra (and its dependencies) is by using pip:
+The easiest way to install copra (and its dependencies) is by using pip::
 
-``$ pip3 install copra``
+    $ pip3 install copra
 
 copra can also be installed from source:
 
