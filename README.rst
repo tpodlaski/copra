@@ -52,8 +52,24 @@ Examples
 You will likely want to override `copra.websocket.client`, but it can be used as to test the module through the command line::
 
     import asyncio
+    import logging
     
     from copra.websocket import Channel, Client
+    
+    
+    logging.getLogger().setLevel(logging.DEBUG)
+    logging.getLogger().addHandler(logging.StreamHandler())
+
+    loop = asyncio.get_event_loop()
+
+    ws = Client(loop, [Channel('heartbeat', 'BTC-USD')])
+    ws.add_as_task_to_loop()
+
+    try:
+        loop.run_forever()
+    except KeyboardInterrupt:
+        loop.run_until_complete(ws.disconnect())
+        loop.close()
   
   
 
