@@ -46,6 +46,12 @@ The easiest way to install copra (and its dependencies) is by using pip:
 copra can also be installed from source:
 
 
+Versioning
+----------
+
+We use SemVer_ for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
+
+
 License
 -------
 
@@ -62,41 +68,20 @@ Contributing
 ------------
 Please read `CONTRIBUTING.rst`_ for details on our code of conduct, and the process for submitting pull requests to us.
 
-## Built With
-
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
-
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
-
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
-
-* Free software: MIT license
-* Documentation: https://copra.readthedocs.io.
-
 
 Features
 --------
 
 * TODO
 
+
 Credits
 -------
 
 This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
 
+
+.. _SemVer: http://semver.org/
 .. _`LICENSE`: https://github.com/tpodlaski/copra/blob/master/LICENSE
 .. _contributers: https://github.com/tpodlaski/copra/blob/master/CONTRIBUTING.rst
 .. _`CONTRIBUTING.rst`: https://github.com/tpodlaski/copra/blob/master/CONTRIBUTING.rst
