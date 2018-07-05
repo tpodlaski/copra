@@ -220,7 +220,7 @@ class Client(WebSocketClientFactory):
             msg (dict): Dictionary representing the message.
         """
         print(msg)
-        
+
     async def close(self):
         """Close the WebSocket connection.
         """
