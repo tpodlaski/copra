@@ -48,9 +48,8 @@ copra can also be installed from source:
 
 Examples
 ~~~~~~~~
-
-.. code-block:: python
-  from copra.websocket import Channel, Client::
+::
+    from copra.websocket import Channel, Client
   
   
 
