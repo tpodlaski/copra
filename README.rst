@@ -58,7 +58,6 @@ You will likely want to override ``copra.websocket.client``, but it can be used 
     
     from copra.websocket import Channel, Client
     
-    
     loop = asyncio.get_event_loop()
 
     ws = Client(loop, [Channel('heartbeat', 'BTC-USD')])
