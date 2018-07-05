@@ -17,6 +17,7 @@ Coinbase Pro Asyncronous Websocket Client
 
 copra \(**co**\ inbase **pr**\ o **a**\ sync\) is an asyncronous websocket client written in Python for use with the Coinbase Pro virtual currency trading platform. To learn about Coinbase Pro's websocket service including the available channels and the data they provide, please see Coinbase Pro's API documentation at: https://docs.pro.coinbase.com/#websocket-feed.
 
+
 Getting Started
 ---------------
 
@@ -44,6 +45,13 @@ The easiest way to install copra (and its dependencies) is by using pip:
 
 copra can also be installed from source:
 
+
+License
+-------
+
+This project is licensed under the MIT License - see the `LICENSE`_ file for details
+
+
 Authors
 -------
 **Tony Podlaski** http://www.neuraldump.net 
@@ -54,16 +62,11 @@ Contributing
 ------------
 Please read `CONTRIBUTING.rst`_ for details on our code of conduct, and the process for submitting pull requests to us.
 
-
 ## Built With
 
 * [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
 * [Maven](https://maven.apache.org/) - Dependency Management
 * [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
-
-## Contributing
-
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Versioning
 
@@ -94,6 +97,7 @@ Credits
 
 This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
 
+.. _`LICENSE`: https://github.com/tpodlaski/copra/blob/master/LICENSE
 .. _contributers: https://github.com/tpodlaski/copra/blob/master/CONTRIBUTING.rst
 .. _`CONTRIBUTING.rst`: https://github.com/tpodlaski/copra/blob/master/CONTRIBUTING.rst
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
