@@ -69,12 +69,6 @@ Contributing
 Please read `CONTRIBUTING.rst`_ for details on our code of conduct, and the process for submitting pull requests to us.
 
 
-Features
---------
-
-* TODO
-
-
 Credits
 -------
 
