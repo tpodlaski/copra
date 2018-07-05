@@ -50,6 +50,10 @@ Authors
 
 See also the list of contributers_ who participated in this project.
 
+Contributing
+------------
+Please read `CONTRIBUTING.rst`_ for details on our code of conduct, and the process for submitting pull requests to us.
+
 
 ## Built With
 
@@ -91,5 +95,6 @@ Credits
 This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
 
 .. _contributers: https://github.com/tpodlaski/copra/blob/master/CONTRIBUTING.rst
+.. _`CONTRIBUTING.rst`: https://github.com/tpodlaski/copra/blob/master/CONTRIBUTING.rst
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
