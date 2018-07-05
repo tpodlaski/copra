@@ -48,7 +48,7 @@ Authors
 -------
 **Tony Podlaski** http://www.neuraldump.net 
 
-See also the list of `contributors`_ who participated in this project
+See also the list of contributors_ who participated in this project.
 
 
 ## Built With
