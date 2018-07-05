@@ -79,7 +79,7 @@ We use SemVer_ for versioning. For the versions available, see the `tags on this
 License
 -------
 
-This project is licensed under the MIT License - see the `LICENSE`_ file for details
+This project is licensed under the **MIT License** - see the `LICENSE`_ file for details
 
 
 Authors
