@@ -220,6 +220,11 @@ class Client(WebSocketClientFactory):
             msg (dict): Dictionary representing the message.
         """
         print(msg)
+        
+    async def close(self):
+        """Close the WebSocket connection.
+        """
+        self.protocol.sendClose()
 
 
 if __name__ == '__main__':
@@ -229,11 +234,11 @@ if __name__ == '__main__':
 
     loop = asyncio.get_event_loop()
 
-    ws = Client(loop, [Channel('heartbeat', 'BTC-USDER')])
+    ws = Client(loop, [Channel('heartbeat', 'BTC-USD')])
     ws.add_as_task_to_loop()
 
     try:
         loop.run_forever()
     except KeyboardInterrupt:
-        loop.run_until_complete(ws.disconnect())
+        loop.run_until_complete(ws.close())
         loop.close()
