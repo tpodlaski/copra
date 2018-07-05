@@ -50,6 +50,7 @@ Examples
 ~~~~~~~~
 
 You will likely want to override `copra.websocket.client`, but it can be used as to test the module through the command line::
+
     import asyncio
     
     from copra.websocket import Channel, Client
