@@ -24,7 +24,7 @@ Getting Started
 Prerequisites
 ~~~~~~~~~~~~~
 
-* Python 3.4 or greater
+* Python 3.5 or greater
 * Autobahn|Python
 
 The base websocket functionality for copra is provided by **Autobahn|Python**, the open-source (MIT) real-time framework for web, mobile & the Internet of Things.
