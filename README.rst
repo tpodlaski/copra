@@ -49,7 +49,7 @@ copra can also be installed from source:
 Examples
 ~~~~~~~~
 
-You will likely want to override `copra.websocket.client`, but it can be used as to test the module through the command line::
+You will likely want to override ``copra.websocket.client``, but it can be used as to test the module through the command line::
 
     import asyncio
     import logging
@@ -65,7 +65,7 @@ You will likely want to override `copra.websocket.client`, but it can be used as
     try:
         loop.run_forever()
     except KeyboardInterrupt:
-        loop.run_until_complete(ws.disconnect())
+        loop.run_until_complete(ws.close())
         loop.close()
   
   
