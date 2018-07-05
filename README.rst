@@ -47,7 +47,9 @@ copra can also be installed from source:
 
 
 Examples
-~~~~~~~~::
+~~~~~~~~
+  ::
+    import asyncio
     
     from copra.websocket import Channel, Client
   
