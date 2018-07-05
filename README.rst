@@ -84,7 +84,7 @@ This project is licensed under the MIT License - see the `LICENSE`_ file for det
 
 Authors
 -------
-**Tony Podlaski** http://www.neuraldump.net 
+**Tony Podlaski** - http://www.neuraldump.net 
 
 See also the list of contributers_ who participated in this project.
 
