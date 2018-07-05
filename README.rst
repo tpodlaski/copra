@@ -49,7 +49,7 @@ copra can also be installed from source:
 Versioning
 ----------
 
-We use SemVer_ for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
+We use SemVer_ for versioning. For the versions available, see the `tags on this repository`_.
 
 
 License
@@ -82,6 +82,7 @@ This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypack
 
 
 .. _SemVer: http://semver.org/
+.. _`tags on this repository`: https://github.com/tpodlaski/copra/tags
 .. _`LICENSE`: https://github.com/tpodlaski/copra/blob/master/LICENSE
 .. _contributers: https://github.com/tpodlaski/copra/blob/master/CONTRIBUTING.rst
 .. _`CONTRIBUTING.rst`: https://github.com/tpodlaski/copra/blob/master/CONTRIBUTING.rst
