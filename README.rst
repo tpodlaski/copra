@@ -50,7 +50,7 @@ Examples
 ~~~~~~~~
 
 .. code-block:: python
-  from copra.websocket import Channel, Client
+  from copra.websocket import Channel, Client::
   
   
 
