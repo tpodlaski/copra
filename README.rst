@@ -46,6 +46,14 @@ The easiest way to install copra (and its dependencies) is by using pip:
 copra can also be installed from source:
 
 
+Examples
+~~~~~~~~
+
+.. code-block:: language
+  from copra.websocket import Channel, Client
+  
+  
+
 Versioning
 ----------
 
