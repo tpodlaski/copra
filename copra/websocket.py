@@ -4,8 +4,12 @@
 """
 
 import asyncio
+import base64
+import hashlib
+import hmac
 import json
 import logging
+import time
 from urllib.parse import urlparse
 
 from autobahn.asyncio.websocket import WebSocketClientFactory
@@ -182,6 +186,21 @@ class Client(WebSocketClientFactory):
         """
         msg = {'type': 'subscribe',
                'channels': [channel.as_dict() for channel in channels]}
+
+        if self.auth:
+            timestamp = str(time.time())
+            message = timestamp + 'GET' + '/users/self/verify'
+            message = message.encode('ascii')
+            hmac_key = base64.b64decode(self.secret)
+            signature = hmac.new(hmac_key, message, hashlib.sha256)
+            signature_b64 = base64.b64encode(signature.digest())
+            signature_b64 = signature_b64.decode('utf-8').rstrip('\n')
+
+            msg['signature'] = signature_b64
+            msg['key'] = self.key
+            msg['passphrase'] = self.passphrase
+            msg['timestamp'] = timestamp
+
         return json.dumps(msg).encode('utf8')
 
     def add_as_task_to_loop(self):
