@@ -15,7 +15,7 @@ Coinbase Pro Asyncronous Websocket Client
         
 
 
-copra \(**co**\ inbase **pr**\ o **a**\ sync\) is an asyncronous websocket client written in Python for use with the Coinbase Pro virtual currency trading platform. To learn about Coinbase Pro's websocket service including the available channels and the data they provide, please see Coinbase Pro's API documentation at: https://docs.pro.coinbase.com/#websocket-feed.
+CoPrA \(**Co**\ inbase **Pr**\ o **A**\ sync\) is an asyncronous websocket client written in Python for use with the **Coinbase Pro** virtual currency trading platform. To learn about Coinbase Pro's websocket service including the available channels and the data they provide, please see Coinbase Pro's API documentation at: https://docs.pro.coinbase.com/#websocket-feed.
 
 
 Getting Started
@@ -27,7 +27,7 @@ Prerequisites
 * Python 3.5 or greater
 * Autobahn|Python
 
-The base websocket functionality for copra is provided by **Autobahn|Python**, the open-source (MIT) real-time framework for web, mobile & the Internet of Things.
+The base websocket functionality for CoPrA is provided by **Autobahn|Python**, the open-source (MIT) real-time framework for web, mobile & the Internet of Things.
 
 If you install copra using pip, Autobahn will be installed automatically. To install Autobahn manually using pip::
 
@@ -39,11 +39,9 @@ Autobahn can also be installed from source by downnloading the code from: https:
 Installing
 ~~~~~~~~~~
 
-The easiest way to install copra (and its dependencies) is by using pip::
+The easiest way to install CoPrA (and its dependencies) is by using pip::
 
     $ pip3 install copra
-
-copra can also be installed from source:
 
 
 Examples
