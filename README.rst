@@ -81,6 +81,46 @@ Running the above::
     .
     .
 
+CoPrA supports authentication allowing you to receive only messages specific to your use account. (NOTE: This requires registering an API key at Coinbase Pro)::
+
+    # example2.py
+
+    import asyncio
+    import logging
+
+    from copra.websocket import Channel, Client
+
+    KEY = YOUR_KEY
+    SECRET = YOUR_SECRET
+    PASSPHRASE = YOUR_PASSPHRASE
+
+    logging.getLogger().setLevel(logging.DEBUG)
+    logging.getLogger().addHandler(logging.StreamHandler())
+
+    loop = asyncio.get_event_loop()
+
+    channel = Channel('user', 'LTC-USD')
+
+    ws = Client(loop, channel, auth=True, key=KEY, secret=SECRET, passphrase=PASSPHRASE)
+    ws.add_as_task_to_loop()
+
+    try:
+        loop.run_forever()
+    except KeyboardInterrupt:
+        loop.run_until_complete(ws.close())
+        loop.close()
+        
+
+Running the above::
+
+    $python3 example2.py
+    {'type': 'subscriptions', 'channels': [{'name': 'user', 'product_ids': ['LTC-USD']}]}
+    {'type': 'received', 'order_id': '42d2677d-0d37-435f-a776-e9e7f81ff22b', 'order_type': 'limit', 'size': '50.00000000', 'price': '1.00000000', 'side': 'buy', 'client_oid': '00098b59-4ac9-4ff8-ba16-bd2ef673f7b7', 'product_id': 'LTC-USD', 'sequence': 2311323871, 'user_id': '642394321fdf8343c4006432', 'profile_id': '039ff148-d490-45f9-9aed-0d1f6412884', 'time': '2018-07-07T17:33:29.755000Z'}
+    {'type': 'open', 'side': 'buy', 'price': '1.00000000', 'order_id': '42d2677d-0d37-435f-a776-e9e7f81ff22b', 'remaining_size': '50.00000000', 'product_id': 'LTC-USD', 'sequence': 2311323872, 'user_id': '642394321fdf8343c4006432', 'profile_id': '039ff148-d490-45f9-9aed-0d1f6412884', 'time': '2018-07-07T17:33:29.755000Z'}
+    .
+    .
+    .
+
 Versioning
 ----------
 
