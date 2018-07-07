@@ -126,6 +126,42 @@ class TestClient(unittest.TestCase):
         client = Client(self.loop, [channel1, channel2], name="Test")
         self.assertEqual(client.name, "Test")
         
+        #auth, no key, secret, or passphrase
+        with self.assertRaises(ValueError):
+            client = Client(self.loop, channel1, auth=True)
+            
+        #auth, key, no secret or passphrase
+        with self.assertRaises(ValueError):
+            client = Client(self.loop, channel1, auth=True, key='MyKey')
+            
+        #auth, key, secret, no passphrase
+        with self.assertRaises(ValueError):
+            client = Client(self.loop, channel1, auth=True, key='MyKey',
+                            secret='MySecret')
+                            
+        #auth, secret, no key or passphrase
+        with self.assertRaises(ValueError):
+            client = Client(self.loop, channel1, auth=True, secret='MySecret')
+            
+        #auth, secret, passphrase, no key
+        with self.assertRaises(ValueError):
+            client = Client(self.loop, channel1, auth=True, secret='MySecret',
+                            passphrase='MyPassphrase')
+                            
+        #auth, passphrase, no key or secret
+        with self.assertRaises(ValueError):
+            client = Client(self.loop, channel1, auth=True, 
+                            passphrase='MyPassphrase')
+                            
+        #auth, key, secret, passphrase
+        client = Client(self.loop, channel1, auth=True, key='MyKey', 
+                        secret='MySecret', passphrase='MyPassphrase')
+        self.assertTrue(client.auth)
+        self.assertEqual(client.key, 'MyKey')
+        self.assertEqual(client.secret, 'MySecret')
+        self.assertEqual(client.passphrase, 'MyPassphrase')
+                        
+        
     def test_get_subscribe_message(self):
         channel1 = Channel('heartbeat', ['BTC-USD', 'LTC-USD'])
         channel2 = Channel('level2', ['LTC-USD'])

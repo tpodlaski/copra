@@ -38,7 +38,6 @@ class Channel:
         Args:
             name (str): The name of the WebSocket channel. Possible values
                 are heatbeat, ticker, level2, full, matches, or user
-
             product_ids (str or list of str): A single product id
                 (eg., 'BTC-USD') or list of product ids (eg., ['BTC-USD',
                 'ETH-EUR', 'LTC-BTC'])
@@ -124,6 +123,7 @@ class Client(WebSocketClientFactory):
     """
 
     def __init__(self, loop, channels, feed_url=FEED_URL,
+                 auth=False, key='', secret='', passphrase='',
                  name='WebSocket Client'):
         """ Client initialization.
 
@@ -134,6 +134,19 @@ class Client(WebSocketClientFactory):
             feed_url (str): The url of the WebSocket server. The defualt is
                 copra.WebSocket.FEED_URL (wss://ws-feed.gdax.com)
             name (str): A name to identify this client in logging, etc.
+            auth (bool): Whether or not the (entire) WebSocket session is
+                authenticated. If True, you will need an API key from the
+                Coinbase Pro website. The default is False.
+            key (str): The API key to use for authentication. Required if auth
+                is True. The default is ''.
+            secret (str): The secret string for the API key used for
+                authenticaiton. Required if auth is True. The default is ''.
+            passphrase (str): The passphrase for the API key used for
+                authentication. Required if auth is True. The default is ''.
+
+        Raises:
+            ValueError: If auth is True and key, secret, and passphrase are
+                not provided.
         """
         self.loop = loop
         if not isinstance(channels, list):
@@ -146,6 +159,14 @@ class Client(WebSocketClientFactory):
         self.channels = {}
         for channel in channels:
             self.channels[channel.name] = channel
+
+        if auth and not (key and secret and passphrase):
+            raise ValueError('auth requires key, secret, and passphrase')
+
+        self.auth = auth
+        self.key = key
+        self.secret = secret
+        self.passphrase = passphrase
 
         super().__init__(self.feed_url)
 
