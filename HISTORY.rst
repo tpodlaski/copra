@@ -11,3 +11,8 @@ History
 ------------------
 
 * Added Client authentication.
+
+0.3.0 (2018-07-09)
+------------------
+
+* Added reconnect option to Client.
