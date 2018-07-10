@@ -25,39 +25,12 @@ Features
 * compatible with Python 3.5 or greater
 * built on **Autobahn|Python**, the open-source (MIT) real-time framework for web, mobile & the Internet of Things.
 * utilizes Python's `asyncio <https://docs.python.org/3/library/asyncio.html>`__ concurrency framework
-* open source (_`MIT <https://github.com/tpodlaski/copra/blob/master/LICENSE>`__ license)
-
-
-Getting Started
----------------
-
-Prerequisites
-~~~~~~~~~~~~~
-
-* Python 3.5 or greater
-* Autobahn|Python
-
-The base websocket functionality for CoPrA is provided by **Autobahn|Python**, the open-source (MIT) real-time framework for web, mobile & the Internet of Things.
-
-If you install copra using pip, Autobahn will be installed automatically. To install Autobahn manually using pip::
-
-    $ pip3 install autobahn
-
-Autobahn can also be installed from source by downnloading the code from: https://github.com/crossbario/autobahn-python .
-
-
-Installing
-~~~~~~~~~~
-
-The easiest way to install CoPrA (and its dependencies) is by using pip::
-
-    $ pip3 install copra
-
+* open source (_MIT <https://github.com/tpodlaski/copra/blob/master/LICENSE>`__ license)
 
 Examples
-~~~~~~~~
+--------
 
-You will likely want to override ``copra.websocket.client``, but it can be used 'as is' to test the module through the command line::
+While ``copra.websocket.Client`` is meant to be overridden, but it can be used 'as is' to test the module through the command line::
 
     # example.py
 
