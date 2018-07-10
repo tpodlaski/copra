@@ -7,10 +7,6 @@ CoPrA
 
 -----------------------------------------
 
-| **Quick Links**: `Documentation <https://copra.readthedocs.io/en/latest/>`__ - `Source Code <https://github.com/tpodlaski/copra>`__
-
-| **Related**: `Coinbase Pro Digital Currency Exchange <https://pro.coinbase.com/>`__ - `Coinbase Pro API <https://docs.pro.coinbase.com/>`__
-
 Introduction
 ------------
 
