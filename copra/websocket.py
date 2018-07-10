@@ -167,7 +167,7 @@ class Client(WebSocketClientFactory):
                 authentication. Required if auth is True. The default is ''.
             auto_connect (bool): If True, the Client will automatically add
                 itself to its event loop (ie., open a connection if the loop
-                is running or as soon as it starts). If False, 
+                is running or as soon as it starts). If False,
                 add_as_task_to_loop() needs to be explicitly called to add the
                 client to the loop.
             name (str): A name to identify this client in logging, etc.
@@ -195,13 +195,12 @@ class Client(WebSocketClientFactory):
         self.key = key
         self.secret = secret
         self.passphrase = passphrase
-        
+
         self.auto_connect = auto_connect
         self.name = name
 
         super().__init__(self.feed_url)
 
-        
         if self.auto_connect:
             self.add_as_task_to_loop()
 
@@ -214,7 +213,7 @@ class Client(WebSocketClientFactory):
         """
         if not isinstance(channels, list):
             channels = [channels]
-            
+
         sub_channels = []
 
         for channel in channels:
