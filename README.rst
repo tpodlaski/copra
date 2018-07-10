@@ -7,7 +7,7 @@ CoPrA
 
 -----------------------------------------
 
-| **Quick Links**: _`Documentation <https://copra.readthedocs.io/en/latest/>`__ - `Source Code <https://github.com/tpodlaski/copra>`__
+| **Quick Links**: `Documentation <https://copra.readthedocs.io/en/latest/>`__ - `Source Code <https://github.com/tpodlaski/copra>`__
 
 Introduction
 ------------
