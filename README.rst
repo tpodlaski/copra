@@ -41,7 +41,7 @@ While ``copra.websocket.Client`` is meant to be overridden, but it can be used '
     
     loop = asyncio.get_event_loop()
 
-    ws = Client(loop, [Channel('heartbeat', 'BTC-USD')])
+    ws = Client(loop, Channel('heartbeat', 'BTC-USD'))
 
     try:
         loop.run_forever()
