@@ -59,7 +59,6 @@ You will likely want to override ``copra.websocket.client``, but it can be used 
     loop = asyncio.get_event_loop()
 
     ws = Client(loop, [Channel('heartbeat', 'BTC-USD')])
-    ws.add_as_task_to_loop()
 
     try:
         loop.run_forever()
@@ -102,7 +101,6 @@ CoPrA supports authentication allowing you to receive only messages specific to 
     channel = Channel('user', 'LTC-USD')
 
     ws = Client(loop, channel, auth=True, key=KEY, secret=SECRET, passphrase=PASSPHRASE)
-    ws.add_as_task_to_loop()
 
     try:
         loop.run_forever()

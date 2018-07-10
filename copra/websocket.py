@@ -147,16 +147,15 @@ class Client(WebSocketClientFactory):
 
     def __init__(self, loop, channels, feed_url=FEED_URL,
                  auth=False, key='', secret='', passphrase='',
-                 name='WebSocket Client'):
+                 auto_connect=True, name='WebSocket Client'):
         """ Client initialization.
 
         Args:
             loop (asyncio loop): The asyncio loop that the client runs in.
             channels (Channel or list of Channel): The initial channels to
-                subscribe to.
+                initially subscribe to.
             feed_url (str): The url of the WebSocket server. The defualt is
                 copra.WebSocket.FEED_URL (wss://ws-feed.gdax.com)
-            name (str): A name to identify this client in logging, etc.
             auth (bool): Whether or not the (entire) WebSocket session is
                 authenticated. If True, you will need an API key from the
                 Coinbase Pro website. The default is False.
@@ -166,6 +165,13 @@ class Client(WebSocketClientFactory):
                 authenticaiton. Required if auth is True. The default is ''.
             passphrase (str): The passphrase for the API key used for
                 authentication. Required if auth is True. The default is ''.
+            auto_connect (bool): If True, the Client will automatically add
+                itself to its event loop (ie., open a connection if the loop
+                is running or as soon as it starts). If False, 
+                add_as_task_to_loop() needs to be explicitly called to add the
+                client to the loop.
+            name (str): A name to identify this client in logging, etc.
+
 
         Raises:
             ValueError: If auth is True and key, secret, and passphrase are
@@ -177,7 +183,6 @@ class Client(WebSocketClientFactory):
 
         self._initial_channels = channels
         self.feed_url = feed_url
-        self.name = name
 
         self.channels = {}
         for channel in channels:
@@ -190,8 +195,15 @@ class Client(WebSocketClientFactory):
         self.key = key
         self.secret = secret
         self.passphrase = passphrase
+        
+        self.auto_connect = auto_connect
+        self.name = name
 
         super().__init__(self.feed_url)
+
+        
+        if self.auto_connect:
+            self.add_as_task_to_loop()
 
     def subscribe(self, channels):
         """Subscribe to the given channels.
@@ -202,13 +214,19 @@ class Client(WebSocketClientFactory):
         """
         if not isinstance(channels, list):
             channels = [channels]
+            
+        sub_channels = []
 
         for channel in channels:
             if channel.name in self.channels:
-                pass
+                sub_channel = channel - self.channels[channel.name]
+                if sub_channel:
+                    self.channels[channel.name] += channel
+                    sub_channels.append(sub_channel)
 
             else:
                 self.channels[channel.name] = channel
+                sub_channels.append(channel)
 
     def get_subscribe_message(self, channels):
         """Create and return the subscription message for the provided channels.
@@ -311,7 +329,6 @@ if __name__ == '__main__':
     loop = asyncio.get_event_loop()
 
     ws = Client(loop, [Channel('heartbeat', 'BTC-USD')])
-    ws.add_as_task_to_loop()
 
     try:
         loop.run_forever()
