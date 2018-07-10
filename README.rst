@@ -102,7 +102,7 @@ Running the above::
 Versioning
 ----------
 
-We use `SemVer <http://semver.org/>`__ for versioning. For the versions available, see the `tags on this repository`_.
+We use `SemVer <http://semver.org/>`__ for versioning. For the versions available, see the `tags on this repository <https://github.com/tpodlaski/copra/tags>`__.
 
 
 License
@@ -138,7 +138,6 @@ This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypack
    :target: https://copra.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
    
-.. _`tags on this repository`: https://github.com/tpodlaski/copra/tags
 .. _contributers: https://github.com/tpodlaski/copra/blob/master/CONTRIBUTING.rst
 .. _`CONTRIBUTING.rst`: https://github.com/tpodlaski/copra/blob/master/CONTRIBUTING.rst
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
