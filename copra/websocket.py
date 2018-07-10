@@ -177,6 +177,7 @@ class Client(WebSocketClientFactory):
             ValueError: If auth is True and key, secret, and passphrase are
                 not provided.
         """
+        self.connected = False
         self.loop = loop
         if not isinstance(channels, list):
             channels = [channels]
@@ -185,8 +186,7 @@ class Client(WebSocketClientFactory):
         self.feed_url = feed_url
 
         self.channels = {}
-        for channel in channels:
-            self.channels[channel.name] = channel
+        self.subscribe(channels)
 
         if auth and not (key and secret and passphrase):
             raise ValueError('auth requires key, secret, and passphrase')
@@ -226,6 +226,13 @@ class Client(WebSocketClientFactory):
             else:
                 self.channels[channel.name] = channel
                 sub_channels.append(channel)
+
+        if self.connected:
+            pass
+        else:
+            # The client isn't currently connected. self.channels has been
+            # updated and a subscribe message for them will be sent on_open.
+            pass
 
     def get_subscribe_message(self, channels):
         """Create and return the subscription message for the provided channels.
@@ -278,6 +285,7 @@ class Client(WebSocketClientFactory):
         The WebSocket is open. This method sends the subscription message to
         the server.
         """
+        self.connected = True
         logger.info('{} connected to {}'.format(self.name, self.url))
         msg = self.get_subscribe_message(self.channels.values())
         self.protocol.sendMessage(msg)
@@ -293,6 +301,7 @@ class Client(WebSocketClientFactory):
           code (int or None): Close status code as sent by the WebSocket peer.
           reason (str or None): Close reason as sent by the WebSocket peer.
         """
+        self.connected = False
         logger.info('Connection to {} closed. {}'.format(self.url, reason))
 
     def on_error(self, message, reason=''):
