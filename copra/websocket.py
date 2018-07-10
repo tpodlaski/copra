@@ -147,7 +147,8 @@ class Client(WebSocketClientFactory):
 
     def __init__(self, loop, channels, feed_url=FEED_URL,
                  auth=False, key='', secret='', passphrase='',
-                 auto_connect=True, name='WebSocket Client'):
+                 auto_connect=True, auto_reconnect=True,
+                 name='WebSocket Client'):
         """ Client initialization.
 
         Args:
@@ -169,7 +170,11 @@ class Client(WebSocketClientFactory):
                 itself to its event loop (ie., open a connection if the loop
                 is running or as soon as it starts). If False,
                 add_as_task_to_loop() needs to be explicitly called to add the
-                client to the loop.
+                client to the loop. The default is True.
+            auto_reconnect (bool): If True, the Client will attemp to autom-
+                matically reconnect and resubscribe if the connection is closed
+                any way but by the Client explicitly itself. The default is 
+                True.
             name (str): A name to identify this client in logging, etc.
 
 
@@ -178,6 +183,7 @@ class Client(WebSocketClientFactory):
                 not provided.
         """
         self.connected = False
+
         self.loop = loop
         if not isinstance(channels, list):
             channels = [channels]
@@ -197,6 +203,7 @@ class Client(WebSocketClientFactory):
         self.passphrase = passphrase
 
         self.auto_connect = auto_connect
+        self.auto_reconnect = auto_reconnect
         self.name = name
 
         super().__init__(self.feed_url)
@@ -228,7 +235,8 @@ class Client(WebSocketClientFactory):
                 sub_channels.append(channel)
 
         if self.connected:
-            pass
+            msg = self.get_subscribe_message(sub_channels)
+            self.protocol.sendMessage(msg)
         else:
             # The client isn't currently connected. self.channels has been
             # updated and a subscribe message for them will be sent on_open.
@@ -286,6 +294,7 @@ class Client(WebSocketClientFactory):
         the server.
         """
         self.connected = True
+        self.closing = False
         logger.info('{} connected to {}'.format(self.name, self.url))
         msg = self.get_subscribe_message(self.channels.values())
         self.protocol.sendMessage(msg)
@@ -302,7 +311,17 @@ class Client(WebSocketClientFactory):
           reason (str or None): Close reason as sent by the WebSocket peer.
         """
         self.connected = False
-        logger.info('Connection to {} closed. {}'.format(self.url, reason))
+        
+        msg = '{} connection to {} {}closed. {}'
+        expected = 'unexpectedly ' if self.closing == False else ''
+
+        logger.info(msg.format(self.name, self.url, expected, reason))
+
+        if not self.closing and self.auto_reconnect:
+            msg = '{} attempting to reconnect to {}.'
+            logger.info(msg.format(self.name, self.url))
+            
+            self.add_as_task_to_loop()
 
     def on_error(self, message, reason=''):
         """Callback fired when an error message is received.
@@ -326,6 +345,7 @@ class Client(WebSocketClientFactory):
     async def close(self):
         """Close the WebSocket connection.
         """
+        self.closing = True
         self.protocol.sendClose()
 
 
@@ -337,6 +357,12 @@ if __name__ == '__main__':
     loop = asyncio.get_event_loop()
 
     ws = Client(loop, [Channel('heartbeat', 'BTC-USD')])
+    
+    async def add_a_channel():
+        await asyncio.sleep(20)
+        ws.subscribe(Channel('heartbeat', 'BTC-USD'))
+        
+    loop.create_task(add_a_channel())
 
     try:
         loop.run_forever()
