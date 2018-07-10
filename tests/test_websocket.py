@@ -72,6 +72,54 @@ class TestChannel(unittest.TestCase):
         self.assertIn('BTC-USD', d['product_ids'])
         self.assertIn('LTC-USD', d['product_ids'])
         
+    def test___eq__(self):
+        channel1 = Channel('heartbeat', ['BTC-USD', 'LTC-USD'])
+        channel2 = Channel('heartbeat', ['BTC-USD', 'LTC-USD'])
+        channel3 = Channel('heartbeat', 'BTC-USD')
+        channel4 = Channel('heartbeat', ['BTC-USD'])
+        channel5 = Channel('ticker', ['BTC-USD'])
+        
+        self.assertEqual(channel1, channel2)
+        self.assertEqual(channel3, channel4)
+        self.assertNotEqual(channel1, channel3)
+        with self.assertRaises(TypeError):
+            comp = (channel4 == channel5)
+        
+    def test___add__(self):
+        channel1 = Channel('heartbeat', ['BTC-USD', 'LTC-USD'])
+        channel2 = Channel('heartbeat', ['BTC-EUR', 'LTC-EUR'])
+        channel3 = Channel('heartbeat', 'BTC-USD')
+        channel4 = Channel('ticker', ['BTC-EUR', 'LTC-EUR'])
+        
+        channel = channel1 + channel2
+        self.assertEqual(channel.name, 'heartbeat')
+        self.assertEqual(channel.product_ids, {'BTC-USD', 'LTC-USD', 'BTC-EUR', 'LTC-EUR'})
+        
+        channel = channel1 + channel3
+        self.assertEqual(channel.name, "heartbeat")
+        self.assertEqual(channel.product_ids, {'BTC-USD', 'LTC-USD'})
+        
+        channel1 += channel2
+        self.assertEqual(channel1.name, 'heartbeat')
+        self.assertEqual(channel1.product_ids, {'BTC-USD', 'LTC-USD', 'BTC-EUR', 'LTC-EUR'})
+        
+        with self.assertRaises(TypeError):
+            channel = channel1 + channel4
+            
+    def test___sub__(self):
+        channel1 = Channel('heartbeat', ['BTC-USD', 'LTC-USD'])
+        channel2 = Channel('heartbeat', ['BTC-USD', 'LTC-USD'])
+        channel3 = Channel('heartbeat', ['LTC-USD'])
+        channel4 = Channel('ticker', ['LTC-USD'])
+        
+        self.assertIsNone(channel1 -  channel2)
+        
+        channel = channel1 - channel3
+        self.assertEqual(channel.name, 'heartbeat')
+        self.assertEqual(channel.product_ids, {'BTC-USD'})
+        
+        with self.assertRaises(TypeError):
+            channel = channel1 - channel4
 
 class TestClientProtocol(unittest.TestCase):
     """Tests for cbprotk.websocket.ClientProtocol"""

@@ -69,6 +69,25 @@ class Channel:
         """
         return {'name': self.name, 'product_ids': list(self.product_ids)}
 
+    def __eq__(self, other):
+        if self.name != other.name:
+            raise TypeError('Channels need the same name to be compared.')
+        return (self.name == other.name and
+                self.product_ids == other.product_ids)
+
+    def __add__(self, other):
+        if self.name != other.name:
+            raise TypeError('Channels need the same name to be added.')
+        return Channel(self.name, list(self.product_ids | other.product_ids))
+
+    def __sub__(self, other):
+        if self.name != other.name:
+            raise TypeError('Channels need the same name to be subtracted.')
+        product_ids = self.product_ids - other.product_ids
+        if not product_ids:
+            return None
+        return Channel(self.name, list(product_ids))
+
 
 class ClientProtocol(WebSocketClientProtocol):
     """Websocket client protocol.
@@ -173,6 +192,23 @@ class Client(WebSocketClientFactory):
         self.passphrase = passphrase
 
         super().__init__(self.feed_url)
+
+    def subscribe(self, channels):
+        """Subscribe to the given channels.
+
+        Params:
+            channels (Channel or list of Channels): The channels to subscribe
+                to.
+        """
+        if not isinstance(channels, list):
+            channels = [channels]
+
+        for channel in channels:
+            if channel.name in self.channels:
+                pass
+
+            else:
+                self.channels[channel.name] = channel
 
     def get_subscribe_message(self, channels):
         """Create and return the subscription message for the provided channels.
