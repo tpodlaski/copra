@@ -3,17 +3,9 @@ CoPrA
 
 *Python Asyncronous WebSocket Client for Coinbase Pro*
 
-.. image:: https://img.shields.io/pypi/v/copra.svg
-        :target: https://pypi.python.org/pypi/copra
+| |Version| |Build Status| |Docs|
 
-.. image:: https://img.shields.io/travis/tpodlaski/copra.svg
-        :target: https://travis-ci.org/tpodlaski/copra
-
-.. image:: https://readthedocs.org/projects/copra/badge/?version=latest
-        :target: https://copra.readthedocs.io/en/latest/?badge=latest
-        :alt: Documentation Status
-        
-
+-----------------------------------------
 
 CoPrA \(**Co**\ inbase **Pr**\ o **A**\ sync\) is an asyncronous websocket client written in Python for use with the **Coinbase Pro** virtual currency trading platform. To learn about Coinbase Pro's websocket service including the available channels and the data they provide, please see Coinbase Pro's API documentation at: https://docs.pro.coinbase.com/#websocket-feed.
 
@@ -145,6 +137,16 @@ Credits
 This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
 
 
+.. |Version| image:: https://img.shields.io/pypi/v/copra.svg
+   :target: https://pypi.python.org/pypi/copra
+   
+.. |Build Status| image:: https://img.shields.io/travis/tpodlaski/copra.svg
+   :target: https://travis-ci.org/tpodlaski/copra
+   
+.. |Docs| image:: https://readthedocs.org/projects/copra/badge/?version=latest
+   :target: https://copra.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status
+   
 .. _SemVer: http://semver.org/
 .. _`tags on this repository`: https://github.com/tpodlaski/copra/tags
 .. _`LICENSE`: https://github.com/tpodlaski/copra/blob/master/LICENSE
@@ -152,3 +154,4 @@ This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypack
 .. _`CONTRIBUTING.rst`: https://github.com/tpodlaski/copra/blob/master/CONTRIBUTING.rst
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
+
