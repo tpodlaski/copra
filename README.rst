@@ -115,11 +115,11 @@ Authors
 -------
 **Tony Podlaski** - http://www.neuraldump.net 
 
-See also the list of contributers_ who participated in this project.
+See also the list of `contributers <https://github.com/tpodlaski/copra/blob/master/CONTRIBUTING.rst>`__ who participated in this project.
 
 Contributing
 ------------
-Please read `CONTRIBUTING.rst`_ for details on our code of conduct, and the process for submitting pull requests to us.
+Please read `CONTRIBUTING.rst <https://github.com/tpodlaski/copra/blob/master/CONTRIBUTING.rst>`__ for details on our code of conduct, and the process for submitting pull requests to us.
 
 
 Credits
@@ -138,7 +138,5 @@ This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypack
    :target: https://copra.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
    
-.. _contributers: https://github.com/tpodlaski/copra/blob/master/CONTRIBUTING.rst
-.. _`CONTRIBUTING.rst`: https://github.com/tpodlaski/copra/blob/master/CONTRIBUTING.rst
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
