@@ -23,7 +23,7 @@ Features
 * Coinbase Pro WebSocket client class with callback hooks for managing every phase of a WebSocket session.
 * compatible with Python 3.5 or greater
 * built on **Autobahn|Python**, the open-source (MIT) real-time framework for web, mobile & the Internet of Things.
-* utilizes Python's _`asyncio <https://docs.python.org/3/library/asyncio.html>`__ concurrency framework
+* utilizes Python's `asyncio <https://docs.python.org/3/library/asyncio.html>`__ concurrency framework
 
 
 Getting Started
