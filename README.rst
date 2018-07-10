@@ -92,10 +92,7 @@ CoPrA supports authentication allowing you to receive only messages specific to 
     KEY = YOUR_KEY
     SECRET = YOUR_SECRET
     PASSPHRASE = YOUR_PASSPHRASE
-
-    logging.getLogger().setLevel(logging.DEBUG)
-    logging.getLogger().addHandler(logging.StreamHandler())
-
+    
     loop = asyncio.get_event_loop()
 
     channel = Channel('user', 'LTC-USD')
