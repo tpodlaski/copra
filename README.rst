@@ -20,10 +20,12 @@ CoPrA \(**Co**\ inbase **Pr**\ o **A**\ sync\) is an asyncronous websocket clien
 
 Features
 --------
-* Coinbase Pro WebSocket client class with callback hooks for managing every phase of a WebSocket session.
+* Coinbase Pro WebSocket client class with callback hooks for managing every phase of a WebSocket session
+* supports user authentication
 * compatible with Python 3.5 or greater
 * built on **Autobahn|Python**, the open-source (MIT) real-time framework for web, mobile & the Internet of Things.
 * utilizes Python's `asyncio <https://docs.python.org/3/library/asyncio.html>`__ concurrency framework
+* open source (_`MIT <https://github.com/tpodlaski/copra/blob/master/LICENSE>`__ license)
 
 
 Getting Started
