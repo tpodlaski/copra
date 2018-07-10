@@ -1,16 +1,26 @@
+=========================================
 CoPrA
 =========================================
+
+*Python Asyncronous WebSocket Client for Coinbase Pro*
+
+| |Version| |Build Status| |Docs|
+
+-----------------------------------------
+
+| **Quick Links**: `Documentation <https://copra.readthedocs.io/en/latest/>`__ - `Source Code <https://github.com/tpodlaski/copra>`__
+
+| **Related**: `Coinbase Pro Digital Currency Exchange <https://pro.coinbase.com/>`__ - `Coinbase Pro WebSocket API <https://docs.pro.coinbase.com/#websocket-feed>`_
 
 *Python Asyncronous WebSocket Client for Coinbase Pro*
 
 Introduction
 ------------
 
-CoPrA \(**Co**\ inbase **Pr**\ o **A**\ sync\) is an asyncronous websocket client written in Python for use with the Coinbase Pro digital currency trading platform. To learn about Coinbase Pro's WebSocket service including the available channels and the data they provide, please see `Coinbase Pro's API documentation <https://docs.pro.coinbase.com/>`__.
+CoPrA \(**Co**\ inbase **Pr**\ o **A**\ sync\) is an asyncronous websocket client written in Python for use with the Coinbase Pro digital currency trading platform. To learn about Coinbase Pro's WebSocket service including the available channels and the data they provide, please see `Coinbase Pro's API documentation <https://docs.pro.coinbase.com/#websocket-feed/>`__.
 
 Features
 --------
-
 
 
 Getting Started
@@ -120,7 +130,7 @@ We use SemVer_ for versioning. For the versions available, see the `tags on this
 License
 -------
 
-This project is licensed under the **MIT License** - see the `LICENSE`_ file for details
+This project is licensed under the **MIT License** - see the `LICENSE file <https://github.com/tpodlaski/copra/blob/master/LICENSE>`_ for details
 
 
 Authors
@@ -152,9 +162,7 @@ This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypack
    
 .. _SemVer: http://semver.org/
 .. _`tags on this repository`: https://github.com/tpodlaski/copra/tags
-.. _`LICENSE`: https://github.com/tpodlaski/copra/blob/master/LICENSE
 .. _contributers: https://github.com/tpodlaski/copra/blob/master/CONTRIBUTING.rst
 .. _`CONTRIBUTING.rst`: https://github.com/tpodlaski/copra/blob/master/CONTRIBUTING.rst
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
-
