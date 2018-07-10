@@ -12,7 +12,7 @@ CoPrA
 
 | **Related**: `Coinbase Pro Digital Currency Exchange <https://pro.coinbase.com/>`__ - `Coinbase Pro WebSocket API <https://docs.pro.coinbase.com/#websocket-feed>`_
 
-*Python Asyncronous WebSocket Client for Coinbase Pro*
+*Python Asyncroous WebSocket Client for Coinbase Pro*
 
 Introduction
 ------------
