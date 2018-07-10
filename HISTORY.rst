@@ -16,3 +16,7 @@ History
 ------------------
 
 * Added reconnect option to Client.
+
+0.4.0 (2018-07-10)
+------------------
+* Added subscribe and unsubscribe methods to Client.
