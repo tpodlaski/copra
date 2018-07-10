@@ -125,7 +125,7 @@ Please read `CONTRIBUTING.rst <https://github.com/tpodlaski/copra/blob/master/CO
 Credits
 -------
 
-This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
+This package was created with `Cookiecutter <https://github.com/audreyr/cookiecutter>`__ and the `audreyr/cookiecutter-pypackage <https://github.com/audreyr/cookiecutter-pypackage>`__ project template.
 
 
 .. |Version| image:: https://img.shields.io/pypi/v/copra.svg
@@ -137,6 +137,3 @@ This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypack
 .. |Docs| image:: https://readthedocs.org/projects/copra/badge/?version=latest
    :target: https://copra.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
-   
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
