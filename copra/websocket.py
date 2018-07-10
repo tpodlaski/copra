@@ -173,7 +173,7 @@ class Client(WebSocketClientFactory):
                 client to the loop. The default is True.
             auto_reconnect (bool): If True, the Client will attemp to autom-
                 matically reconnect and resubscribe if the connection is closed
-                any way but by the Client explicitly itself. The default is 
+                any way but by the Client explicitly itself. The default is
                 True.
             name (str): A name to identify this client in logging, etc.
 
@@ -211,10 +211,42 @@ class Client(WebSocketClientFactory):
         if self.auto_connect:
             self.add_as_task_to_loop()
 
+    def get_subscribe_message(self, channels, unsubscribe=False):
+        """Create and return the subscription message for the provided channels.
+
+        Args:
+            channels (list of Channel): List of channels to subscribe to.
+            unsubscribe (bool): If True, returns an unsubscribe message
+                instead of a subscribe method. The default is False.
+
+        Returns:
+            bytes: JSON-formatted, UTF-8 encoded bytes object representing the
+                subscription message for the provided channels.
+        """
+        msg_type = 'unsubscribe' if unsubscribe else 'subscribe'
+        msg = {'type': msg_type,
+               'channels': [channel.as_dict() for channel in channels]}
+
+        if self.auth:
+            timestamp = str(time.time())
+            message = timestamp + 'GET' + '/users/self/verify'
+            message = message.encode('ascii')
+            hmac_key = base64.b64decode(self.secret)
+            signature = hmac.new(hmac_key, message, hashlib.sha256)
+            signature_b64 = base64.b64encode(signature.digest())
+            signature_b64 = signature_b64.decode('utf-8').rstrip('\n')
+
+            msg['signature'] = signature_b64
+            msg['key'] = self.key
+            msg['passphrase'] = self.passphrase
+            msg['timestamp'] = timestamp
+
+        return json.dumps(msg).encode('utf8')
+
     def subscribe(self, channels):
         """Subscribe to the given channels.
 
-        Params:
+        Args:
             channels (Channel or list of Channels): The channels to subscribe
                 to.
         """
@@ -237,39 +269,26 @@ class Client(WebSocketClientFactory):
         if self.connected:
             msg = self.get_subscribe_message(sub_channels)
             self.protocol.sendMessage(msg)
-        else:
-            # The client isn't currently connected. self.channels has been
-            # updated and a subscribe message for them will be sent on_open.
-            pass
 
-    def get_subscribe_message(self, channels):
-        """Create and return the subscription message for the provided channels.
+    def unsubscribe(self, channels):
+        """Unsubscribe from the given channels.
 
         Args:
-            channels (list of Channel): List of channels to subscribe to.
-
-        Returns:
-            bytes: JSON-formatted, UTF-8 encoded bytes object representing the
-                subscription message for the provided channels.
+            channels (Channel or list of Channels): The channels to unsubscribe
+                from.
         """
-        msg = {'type': 'subscribe',
-               'channels': [channel.as_dict() for channel in channels]}
+        if not isinstance(channels, list):
+            channels = [channels]
 
-        if self.auth:
-            timestamp = str(time.time())
-            message = timestamp + 'GET' + '/users/self/verify'
-            message = message.encode('ascii')
-            hmac_key = base64.b64decode(self.secret)
-            signature = hmac.new(hmac_key, message, hashlib.sha256)
-            signature_b64 = base64.b64encode(signature.digest())
-            signature_b64 = signature_b64.decode('utf-8').rstrip('\n')
+        for channel in channels:
+            if channel.name in self.channels:
+                self.channels[channel.name] -= channel
+                if not self.channels[channel.name]:
+                    del self.channels[channel.name]
 
-            msg['signature'] = signature_b64
-            msg['key'] = self.key
-            msg['passphrase'] = self.passphrase
-            msg['timestamp'] = timestamp
-
-        return json.dumps(msg).encode('utf8')
+        if self.connected:
+            msg = self.get_subscribe_message(channels, unsubscribe=True)
+            self.protocol.sendMessage(msg)
 
     def add_as_task_to_loop(self):
         """Add the client to the asyncio loop.
@@ -311,16 +330,16 @@ class Client(WebSocketClientFactory):
           reason (str or None): Close reason as sent by the WebSocket peer.
         """
         self.connected = False
-        
+
         msg = '{} connection to {} {}closed. {}'
-        expected = 'unexpectedly ' if self.closing == False else ''
+        expected = 'unexpectedly ' if self.closing is False else ''
 
         logger.info(msg.format(self.name, self.url, expected, reason))
 
         if not self.closing and self.auto_reconnect:
             msg = '{} attempting to reconnect to {}.'
             logger.info(msg.format(self.name, self.url))
-            
+
             self.add_as_task_to_loop()
 
     def on_error(self, message, reason=''):
@@ -350,6 +369,7 @@ class Client(WebSocketClientFactory):
 
 
 if __name__ == '__main__':
+    # A sanity check.
 
     logging.getLogger().setLevel(logging.DEBUG)
     logging.getLogger().addHandler(logging.StreamHandler())
@@ -357,11 +377,16 @@ if __name__ == '__main__':
     loop = asyncio.get_event_loop()
 
     ws = Client(loop, [Channel('heartbeat', 'BTC-USD')])
-    
+
     async def add_a_channel():
         await asyncio.sleep(20)
-        ws.subscribe(Channel('heartbeat', 'BTC-USD'))
-        
+        ws.subscribe(Channel('heartbeat', 'LTC-USD'))
+        loop.create_task(remove_a_channel())
+
+    async def remove_a_channel():
+        await asyncio.sleep(20)
+        ws.unsubscribe(Channel('heartbeat', 'BTC-USD'))
+
     loop.create_task(add_a_channel())
 
     try:

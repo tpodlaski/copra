@@ -121,6 +121,7 @@ class TestChannel(unittest.TestCase):
         with self.assertRaises(TypeError):
             channel = channel1 - channel4
 
+
 class TestClientProtocol(unittest.TestCase):
     """Tests for cbprotk.websocket.ClientProtocol"""
 
@@ -210,7 +211,6 @@ class TestClient(unittest.TestCase):
         self.assertEqual(client.secret, 'MySecret')
         self.assertEqual(client.passphrase, 'MyPassphrase')
                         
-        
     def test_get_subscribe_message(self):
         channel1 = Channel('heartbeat', ['BTC-USD', 'LTC-USD'])
         channel2 = Channel('level2', ['LTC-USD'])
@@ -242,6 +242,46 @@ class TestClient(unittest.TestCase):
         
         self.assertIn(channel3.name, client.channels)
         self.assertEqual(client.channels[channel3.name], channel1 + channel3)
+        
+    def test_unsubscribe(self):
+        channel1 = Channel('heartbeat', ['BTC-USD', 'LTC-USD', 'LTC-EUR'])
+        channel2 = Channel('level2', ['LTC-USD'])
+        channel3 = Channel('heartbeat', ['LTC-EUR'])
+        channel4 = Channel('heartbeat', ['BTC-USD', 'BTC-EUR'])
+        channel5 = Channel('heartbeat', ['BCH-USD', 'LTC-USD'])
+        
+        client = Client(self.loop, [channel1, channel2], auto_connect=False)
+        
+        client.unsubscribe(channel3)
+        
+        self.assertIn(channel3.name, client.channels)
+        self.assertEqual(client.channels[channel3.name], Channel('heartbeat', ['BTC-USD', 'LTC-USD']))
+        
+        client.unsubscribe(channel4)
+        
+        self.assertIn(channel4.name, client.channels)
+        self.assertEqual(client.channels[channel4.name], Channel('heartbeat', ['LTC-USD']))
+        
+        client.unsubscribe(channel3)
+        
+        self.assertIn(channel3.name, client.channels)
+        self.assertEqual(client.channels[channel3.name], Channel('heartbeat', ['LTC-USD']))
+        
+        client.unsubscribe(channel2)
+        
+        self.assertNotIn(channel2.name, client.channels)
+        
+        client.unsubscribe(channel5)
+        
+        self.assertEqual(client.channels, {})
+        
+        
+        
+        
+        
+        
+        
+        
         
         
         
