@@ -25,7 +25,7 @@ Features
 * compatible with Python 3.5 or greater
 * built on **Autobahn|Python**, the open-source (MIT) real-time framework for web, mobile & the Internet of Things.
 * utilizes Python's `asyncio <https://docs.python.org/3/library/asyncio.html>`__ concurrency framework
-* open source (_MIT <https://github.com/tpodlaski/copra/blob/master/LICENSE>`__ license)
+* open source (`MIT <https://github.com/tpodlaski/copra/blob/master/LICENSE>`__ license)
 
 Examples
 --------
