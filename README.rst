@@ -9,12 +9,12 @@ CoPrA
 
 | **Quick Links**: `Documentation <https://copra.readthedocs.io/en/latest/>`__ - `Source Code <https://github.com/tpodlaski/copra>`__
 
-| **Related**: `Coinbase Pro Digital Currency Exchange <https://pro.coinbase.com/>`__ - `Coinbase Pro WebSocket API <https://docs.pro.coinbase.com/#websocket-feed>`__
+| **Related**: `Coinbase Pro Digital Currency Exchange <https://pro.coinbase.com/>`__ - `Coinbase Pro API <https://docs.pro.coinbase.com/>`__
 
 Introduction
 ------------
 
-CoPrA \(**Co**\ inbase **Pr**\ o **A**\ sync\) is an asyncronous websocket client written in Python for use with the Coinbase Pro digital currency trading platform. To learn about Coinbase Pro's WebSocket service including the available channels and the data they provide, please see `Coinbase Pro's Websocket API documentation <https://docs.pro.coinbase.com/#websocket-feed>`__.
+CoPrA \(**Co**\ inbase **Pr**\ o **A**\ sync\) is an asyncronous websocket client written in Python for use with the Coinbase Pro digital currency trading platform. To learn about Coinbase Pro's WebSocket service including the available channels and the data they provide, please see `Coinbase Pro's API documentation <https://docs.pro.coinbase.com/>`__.
 
 Features
 --------
