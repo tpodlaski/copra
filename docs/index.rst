@@ -102,23 +102,6 @@ Running the above:
     .
     .
 
-Versioning
-----------
-
-We use `SemVer <http://semver.org/>`__ for versioning. For the versions available, see the `tags on this repository <https://github.com/tpodlaski/copra/tags>`__.
-
-
-License
--------
-
-This project is licensed under the **MIT License** - see the `LICENSE file <https://github.com/tpodlaski/copra/blob/master/LICENSE>`_ for details
-
-
-Credits
--------
-
-This package was created with `Cookiecutter <https://github.com/audreyr/cookiecutter>`__ and the `audreyr/cookiecutter-pypackage <https://github.com/audreyr/cookiecutter-pypackage>`__ project template.
-
 
 .. |Version| image:: https://img.shields.io/pypi/v/copra.svg
    :target: https://pypi.python.org/pypi/copra

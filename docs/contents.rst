@@ -6,4 +6,5 @@
    usage
    contributing
    authors
+   license
    history
