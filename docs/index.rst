@@ -2,16 +2,13 @@
 CoPrA
 =========================================
 
-*An Asyncronous Python WebSocket Client for Coinbase Pro*
-
 | |Version| |Build Status| |Docs|
 
 -----------------------------------------
 
-| **Quick Links**: `Documentation <https://copra.readthedocs.io/en/latest/>`__ - `Source Code <https://github.com/tpodlaski/copra>`__
+*An Asyncronous Python WebSocket Client for Coinbase Pro*
 
-| **Related**: `Coinbase Pro Digital Currency Exchange <https://pro.coinbase.com/>`__ - `Coinbase Pro WebSocket API <https://docs.pro.coinbase.com/#websocket-feed>`_
-
+-----------------------------------------
 
 Introduction
 ------------
