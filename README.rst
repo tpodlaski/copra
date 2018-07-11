@@ -51,7 +51,9 @@ While ``copra.websocket.Client`` is meant to be overridden, but it can be used '
         loop.run_until_complete(ws.close())
         loop.close()
 
-Running the above::
+Running the above:
+
+..code:: bash
 
     $ python3 example.py
     {'type': 'subscriptions', 'channels': [{'name': 'heartbeat', 'product_ids': ['BTC-USD']}]}
