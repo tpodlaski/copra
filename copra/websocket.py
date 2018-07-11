@@ -32,6 +32,7 @@ class Channel:
 
     Attributes:
         name (str): The name of the WebSocket channel.
+
         product_ids (set of str): Set of product ids for the channel.
 
     """
@@ -61,7 +62,7 @@ class Channel:
             product_ids = [product_ids]
         self.product_ids = set(product_ids)
 
-    def as_dict(self):
+    def _as_dict(self):
         """Returns the Channel as a dictionary.
 
         Returns:
@@ -225,7 +226,7 @@ class Client(WebSocketClientFactory):
         """
         msg_type = 'unsubscribe' if unsubscribe else 'subscribe'
         msg = {'type': msg_type,
-               'channels': [channel.as_dict() for channel in channels]}
+               'channels': [channel._as_dict() for channel in channels]}
 
         if self.auth:
             timestamp = str(time.time())
