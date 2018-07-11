@@ -1,20 +1,9 @@
-Welcome to Coinbase Pro Asyncronous Websocket Client's documentation!
-======================================
-
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 3
 
    readme
    installation
    usage
-   modules
    contributing
    authors
    history
-
-Indices and tables
-==================
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
