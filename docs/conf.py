@@ -48,8 +48,12 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Coinbase Pro Asyncronous Websocket Client'
-copyright = u"2018, Tony Podlaski"
 author = u"Tony Podlaski"
+this_year = time.strftime('%Y')
+if this_year != u'2018':
+    copyright = u'2018-{0}, Tony Podlaski'.format(this_year)
+else:
+    copyright = u'2018, Tony Podlaski'
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
