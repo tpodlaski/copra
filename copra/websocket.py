@@ -29,6 +29,8 @@ class Channel:
 
     To read about Coinbase Pro channels and the data they return, visit:
     https://docs.gdax.com/#channels
+    
+    :attribute str name: The name of the WebSocket channel.
 
     Attributes:
         name (str): The name of the WebSocket channel.
