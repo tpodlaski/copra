@@ -12,3 +12,8 @@ The following is an API reference of CoPrA generated from Python source code and
 
 Module ``copra.websocket``
 --------------------------
+
+.. automodule:: copra.websocket
+    :members:
+    :undoc-members:
+    :show-inheritance:
