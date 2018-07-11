@@ -41,16 +41,14 @@ class Channel:
         """Channel __init__ method.
         
         :param name: The name of the WebSocket channel. Possible values
-                     are heatbeat, ticker, level2, full, matches, or user
-                     
+          are heatbeat, ticker, level2, full, matches, or user
         :type name: str
 
-        Args:
-            product_ids (str or list of str): A single product id
-                (eg., 'BTC-USD') or list of product ids (eg., ['BTC-USD',
-                'ETH-EUR', 'LTC-BTC'])
+        :param product_ids:  A single product id (eg., 'BTC-USD') or list 
+          of product ids (eg., ['BTC-USD', ETH-EUR', 'LTC-BTC'])
+        :type product_ids: str or list of str
 
-        Raises:
+       Raises:
             ValueError: If name not valid or product ids is empty.
         """
         self.name = name.lower()
