@@ -52,7 +52,7 @@ class Channel:
         :raises ValueError: If name not valid or product ids is empty.
 
         """
-        self.name = name.lower()
+        self.name = name.lower #: test
         if self.name not in ('heartbeat', 'ticker', 'level2',
                              'full', 'matches', 'user'):
             raise ValueError("invalid name {}".format(name))
