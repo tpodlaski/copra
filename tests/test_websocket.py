@@ -63,9 +63,9 @@ class TestChannel(unittest.TestCase):
         with self.assertRaises(ValueError):
             channel = Channel('heartbeat', [])
             
-    def test_as_dict(self):
+    def test__as_dict(self):
         channel = Channel('heartbeat', ['BTC-USD', 'LTC-USD'])
-        d = channel.as_dict()
+        d = channel._as_dict()
         self.assertIsInstance(d, dict)
         self.assertEqual(d['name'], 'heartbeat')
         self.assertEqual(len(d['product_ids']), 2)
@@ -220,8 +220,8 @@ class TestClient(unittest.TestCase):
         self.assertIn('type', msg)
         self.assertEqual(msg['type'], 'subscribe')
         self.assertIn('channels', msg)
-        self.assertIn(channel1.as_dict(), msg['channels'])
-        self.assertIn(channel2.as_dict(), msg['channels'])
+        self.assertIn(channel1._as_dict(), msg['channels'])
+        self.assertIn(channel2._as_dict(), msg['channels'])
         
     def test_subscribe(self):
         channel1 = Channel('heartbeat', ['BTC-USD', 'LTC-USD'])
