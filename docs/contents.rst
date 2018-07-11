@@ -1,7 +1,7 @@
 .. toctree::
    :maxdepth: 3
 
-   readme
+   index
    installation
    usage
    contributing
