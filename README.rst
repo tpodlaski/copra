@@ -53,7 +53,7 @@ While ``copra.websocket.Client`` is meant to be overridden, but it can be used '
 
 Running the above:
 
-..code:: bash
+.. code:: bash
 
     $ python3 example.py
     {'type': 'subscriptions', 'channels': [{'name': 'heartbeat', 'product_ids': ['BTC-USD']}]}
