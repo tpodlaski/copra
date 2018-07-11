@@ -49,7 +49,7 @@ master_doc = 'index'
 # General information about the project.
 project = u'CoPrA'
 author = u"Tony Podlaski"
-this_year = time.strftime('%Y')
+this_year = u'{0}'.format(time.strftime('%Y'))
 if this_year != u'2018':
     copyright = u'2018-{0}, Tony Podlaski'.format(this_year)
 else:
