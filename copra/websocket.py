@@ -38,7 +38,8 @@ class Channel:
     """
 
     def __init__(self, name, product_ids):
-        """C
+        """
+        
         :param name: The name of the WebSocket channel. Possible values
           are heatbeat, ticker, level2, full, matches, or user
         :type name: str
