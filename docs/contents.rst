@@ -4,6 +4,7 @@
    index
    installation
    usage
+   api
    contributing
    authors
    license
