@@ -114,17 +114,6 @@ License
 This project is licensed under the **MIT License** - see the `LICENSE file <https://github.com/tpodlaski/copra/blob/master/LICENSE>`_ for details
 
 
-Authors
--------
-**Tony Podlaski** - http://www.neuraldump.net 
-
-See also the list of `contributers <https://github.com/tpodlaski/copra/blob/master/CONTRIBUTING.rst>`__ who participated in this project.
-
-Contributing
-------------
-Please read `CONTRIBUTING.rst <https://github.com/tpodlaski/copra/blob/master/CONTRIBUTING.rst>`__ for details on our code of conduct, and the process for submitting pull requests to us.
-
-
 Credits
 -------
 
