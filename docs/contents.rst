@@ -4,7 +4,7 @@
    index
    installation
    usage
-   api
+   source/copra.websocket
    contributing
    authors
    license
