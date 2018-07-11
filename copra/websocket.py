@@ -31,7 +31,8 @@ class Channel:
     https://docs.gdax.com/#channels
     
     :ivar str name: The name of the WebSocket channel.
-    :ivar 'set of str' products_ids: Product ids for the channel.
+    :ivar products_ids: Product ids for the channel.
+    :vartype product_ids: set of str
     """
 
     def __init__(self, name, product_ids):
