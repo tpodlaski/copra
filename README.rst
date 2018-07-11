@@ -30,7 +30,9 @@ Features
 Examples
 --------
 
-While ``copra.websocket.Client`` is meant to be overridden, but it can be used 'as is' to test the module through the command line::
+While ``copra.websocket.Client`` is meant to be overridden, but it can be used 'as is' to test the module through the command line.
+
+.. code:: python
 
     # example.py
 
@@ -63,7 +65,9 @@ Running the above::
     .
     .
 
-CoPrA supports authentication allowing you to receive only messages specific to your user account. (NOTE: This requires registering an API key at Coinbase Pro)::
+CoPrA supports authentication allowing you to receive only messages specific to your user account. (NOTE: This requires registering an API key at Coinbase Pro)
+
+.. code:: python
 
     # example2.py
 
