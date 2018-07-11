@@ -14,6 +14,7 @@ Module ``copra.websocket``
 --------------------------
 
 .. automodule:: copra.websocket
-    :members:
-    :undoc-members:
-    :show-inheritance:
+    
+    .. autoclass:: Channel
+        :members:
+        :special-members: __init__
