@@ -30,8 +30,8 @@ class Channel:
     To read about Coinbase Pro channels and the data they return, visit:
     https://docs.gdax.com/#channels
     
-    :ivar name str: The name of the WebSocket channel.
-    :ivar products_ids set of str: Product ids for the channel.
+    :ivar str name: The name of the WebSocket channel.
+    :ivar set of str products_ids: Product ids for the channel.
     """
 
     def __init__(self, name, product_ids):
