@@ -31,7 +31,7 @@ class Channel:
     https://docs.gdax.com/#channels
     
     :ivar str name: The name of the WebSocket channel.
-    :ivar products_ids: Product ids for the channel.
+    :ivar product_ids: Product ids for the channel.
     :vartype product_ids: set of str
     
     """
