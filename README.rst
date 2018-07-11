@@ -95,7 +95,9 @@ CoPrA supports authentication allowing you to receive only messages specific to 
         loop.close()
         
 
-Running the above::
+Running the above:
+
+.. code:: bash
 
     $ python3 example2.py
     {'type': 'subscriptions', 'channels': [{'name': 'user', 'product_ids': ['LTC-USD']}]}
