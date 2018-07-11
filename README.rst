@@ -2,7 +2,7 @@
 CoPrA
 =========================================
 
-*Python Asyncronous WebSocket Client for Coinbase Pro*
+*An Asyncronous Python WebSocket Client for Coinbase Pro*
 
 | |Version| |Build Status| |Docs|
 
