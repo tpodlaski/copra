@@ -19,7 +19,7 @@ about one or more currency pairs. ``copra.websocket.Channel`` has two attributes
 
 The current channels provided by the Coinbase Pro API are:
 
-* **heartbeart** - heartbeat messages are generated once a second include sequence numbers and last trade ids that can be used to verify no messages were missed.
+* **heartbeart** - heartbeat messages are generated once a second. They include sequence numbers and last trade IDs that can be used to verify no messages were missed.
 
 * **ticker** - ticker messages are sent every time a match happens providing real-time price updates.
 
