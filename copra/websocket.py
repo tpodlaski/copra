@@ -320,11 +320,14 @@ class Client(WebSocketClientFactory):
 
         (WebSocket closing handshake has been finished or the connection was
         closed uncleanly).
-
-        Args:
-          was_clean (bool): True iff the WebSocket connection closed cleanly.
-          code (int or None): Close status code as sent by the WebSocket peer.
-          reason (str or None): Close reason as sent by the WebSocket peer.
+        
+        :param bool was_clean: True iff the WebSocket connection closed cleanly.
+        
+        :param code: Close status code as sent by the WebSocket peer.
+        :type code: int or None
+        
+        :param reason: Close reason as sent by the WebSocket peer.
+        :type reason: str or None
         """
         self.connected = False
 
