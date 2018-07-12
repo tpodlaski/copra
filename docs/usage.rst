@@ -146,4 +146,17 @@ on_open()
 
 ``on_open`` is called as soon as the initial WebSocket opening handshake is complete. The connection is open, but the client is **not yet subscribed**.
 
-If you override this method it is important that **you still call it** from your subclass's ``on_open`` method, since the parent method sends the initial subscription request to the WebSocket server. Somewhere in your ``on_open`` method you should have ``super().on_open()``.  
+If you override this method it is important that **you still call it** from your subclass' ``on_open`` method, since the parent method sends the initial subscription request to the WebSocket server. Somewhere in your ``on_open`` method you should have ``super().on_open()``.
+
+In addition to sending the subsciption request, this method also logs that the connection was opened.
+
+on_message(message)
+^^^^^^^^^^^^^^^^^^^
+
+``on_message`` is called everytime a message is received. ``message`` is a dict representing the message. It's content will depend on the type of message, the channels subscribed to, etc. Please read `Coinbase Pro's WebSocket API documentation <https://docs.pro.coinbase.com/#websocket-feed/> to learn about these message formats.
+
+Note that with the exception of errors, every other message triggers this method including things like subscription confirmations. Your code should be prepared to handle unexpected messages. 
+
+This default method just prints the message received. If you override this method, there is no need to call the parent method from your subclass' method.
+
+
