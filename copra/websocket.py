@@ -33,7 +33,6 @@ class Channel:
     :ivar str name: The name of the WebSocket channel.
     :ivar product_ids: Product ids for the channel.
     :vartype product_ids: set of str
-    
     """
 
     def __init__(self, name, product_ids):
@@ -47,7 +46,6 @@ class Channel:
         :type product_ids: str or list of str
         
         :raises ValueError: If name not valid or product ids is empty.
-
         """
         self.name = name.lower
         if self.name not in ('heartbeat', 'ticker', 'level2',
@@ -63,9 +61,9 @@ class Channel:
 
     def _as_dict(self):
         """Returns the Channel as a dictionary.
-
-        Returns:
-            dict: The Channel as a dict with keys name & product_ids.
+        
+        :returns dict: The Channel as a dict with keys name & value list
+            of product_ids.
         """
         return {'name': self.name, 'product_ids': list(self.product_ids)}
 
