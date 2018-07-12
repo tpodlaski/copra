@@ -212,7 +212,7 @@ class Client(WebSocketClientFactory):
         if self.auto_connect:
             self.add_as_task_to_loop()
 
-    def get_subscribe_message(self, channels, unsubscribe=False):
+    def _get_subscribe_message(self, channels, unsubscribe=False):
         """Create and return the subscription message for the provided channels.
         
         :param channels: List of channels to be subscribed to.
@@ -268,7 +268,7 @@ class Client(WebSocketClientFactory):
                 sub_channels.append(channel)
 
         if self.connected:
-            msg = self.get_subscribe_message(sub_channels)
+            msg = self._get_subscribe_message(sub_channels)
             self.protocol.sendMessage(msg)
 
     def unsubscribe(self, channels):
@@ -288,7 +288,7 @@ class Client(WebSocketClientFactory):
                     del self.channels[channel.name]
 
         if self.connected:
-            msg = self.get_subscribe_message(channels, unsubscribe=True)
+            msg = self._get_subscribe_message(channels, unsubscribe=True)
             self.protocol.sendMessage(msg)
 
     def add_as_task_to_loop(self):
@@ -312,7 +312,7 @@ class Client(WebSocketClientFactory):
         self.connected = True
         self.closing = False
         logger.info('{} connected to {}'.format(self.name, self.url))
-        msg = self.get_subscribe_message(self.channels.values())
+        msg = self._get_subscribe_message(self.channels.values())
         self.protocol.sendMessage(msg)
 
     def on_close(self, was_clean, code, reason):

@@ -211,12 +211,12 @@ class TestClient(unittest.TestCase):
         self.assertEqual(client.secret, 'MySecret')
         self.assertEqual(client.passphrase, 'MyPassphrase')
                         
-    def test_get_subscribe_message(self):
+    def test__get_subscribe_message(self):
         channel1 = Channel('heartbeat', ['BTC-USD', 'LTC-USD'])
         channel2 = Channel('level2', ['LTC-USD'])
         
         client = Client(self.loop, [channel1, channel2], auto_connect=False)
-        msg = json.loads(client.get_subscribe_message(client.channels.values()).decode('utf8'))
+        msg = json.loads(client._get_subscribe_message(client.channels.values()).decode('utf8'))
         self.assertIn('type', msg)
         self.assertEqual(msg['type'], 'subscribe')
         self.assertIn('channels', msg)
