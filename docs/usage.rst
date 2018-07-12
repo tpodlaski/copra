@@ -166,3 +166,14 @@ on_error(message, reason)
 
 The default implementation just logs the message and reason. If you override this method, your subclass only needs to call the parent's method if want to preserve this logging behavior.
 
+on_close( was_clean, code, reason)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``on_close`` is called whenever the connection between the client and server is closed. ``was_clean`` is a boolean indicating whether or not the connection was cleanly closed. ``code``, an integer, and ``reason``, a string, are sent by the end that initiated closing the connection.
+
+If the client did not initiate this closure and ``client.auto_reconnect`` is set to True, the client will attempt to reconnect to the server and resubscribe to the channels it was subscribed to when the connection was closed. This method also logs the closure.
+
+If your subclass overrides this method, it is important that the subclass method calls the parent method if you want to preserve the auto reconnect functionality. This can be done by including ``super().on_close(was_clean, code, reason)`` in your subclass method.
+
+
+
