@@ -23,4 +23,8 @@ History
 
 1.0.0 (2018-07-12)
 ------------------
-* Added full documentation of the Copra API
+* Added full documentation of the CoPrA API.
+
+1.0.1 (2018-07-12)
+------------------
+* Fixed typos in the documentation.
