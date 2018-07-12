@@ -118,7 +118,7 @@ Only two parameters are required to create a client: ``loop`` and ``channels``.
 
     import asyncio
     
-    loop = asyncio.get_event_loop
+    loop = asyncio.get_event_loop()
     
 ``channels`` is either a single ``Channel`` or a list of ``Channels`` the client should immediately subscribe to.
 
@@ -141,3 +141,9 @@ Callback Methods
 
 The ``Client`` class provides four methods that are automatically called at different stage's of the client's life cycle. The method that will be most useful for developers is ``on_message()``.
 
+on_open()
+^^^^^^^^^
+
+``on_open`` is called as soon as the initial WebSocket opening handshake is complete. The connection is open, but the client is **not yet subscribed**.
+
+If you override this method it is important that **you still call it** from your subclass's ``on_open`` method, since the parent method sends the initial subscription request to the WebSocket server. Somewhere in your ``on_open`` method you should have ``super().on_open()``.  
