@@ -25,7 +25,7 @@ CoPrA \(**Co**\ inbase **Pr**\ o **A**\ sync\) is an asyncronous websocket clien
 Examples
 --------
 
-While ``copra.websocket.Client`` is meant to be overridden, but it can be used 'as is' to test the module through the command line.
+While ``copra.websocket.Client`` is meant to be overridden, it can still be used 'as is' to test the module through the command line.
 
 .. code:: python
 
