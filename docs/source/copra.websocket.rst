@@ -21,4 +21,4 @@ Module ``copra.websocket``
         
     .. autoclass:: Client
         :members:
-        :special-members: __init__:
+        :special-members: __init__
