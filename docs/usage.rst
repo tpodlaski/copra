@@ -2,7 +2,7 @@
 Usage
 =====
 
-Warning::
+.. warning::
 
   Any references made below to specific aspects of the Coinbase Pro API such as the channels and the data they provide may be out of date. Please visit `Coinbase Pro's WebSocket API documentation <https://docs.pro.coinbase.com/#websocket-feed/> for the authorative and up to date information.
   
