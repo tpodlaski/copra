@@ -144,13 +144,13 @@ class Client(WebSocketClientFactory):
                  auth=False, key='', secret='', passphrase='',
                  auto_connect=True, auto_reconnect=True,
                  name='WebSocket Client'):
-        """ Client initialization.
+        """
         
         :param loop: The asyncio loop that the client runs in.
         :type loop: asyncio loop
         
         :param channels: The channels to initially subscribe to.
-        :type channels: Channel or list of Channels
+        :type channels: :class: `.Channel` or list of Channels
 
         Args:
             feed_url (str): The url of the WebSocket server. The defualt is
