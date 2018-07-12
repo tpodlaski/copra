@@ -64,5 +64,6 @@ Before connecting to the Coinbase Pro Websocket server, you will need to create 
 First, import the ``Channel`` class:
 
 .. code::
+
     from copra.websocket import Channel
     
