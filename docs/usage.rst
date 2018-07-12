@@ -153,7 +153,7 @@ In addition to sending the subsciption request, this method also logs that the c
 on_message(message)
 ^^^^^^^^^^^^^^^^^^^
 
-``on_message`` is called everytime a message is received. ``message`` is a dict representing the message. It's content will depend on the type of message, the channels subscribed to, etc. Please read `Coinbase Pro's WebSocket API documentation <https://docs.pro.coinbase.com/#websocket-feed/>`__ to learn about these message formats.
+``on_message`` is called everytime a message is received. ``message`` is a dict representing the message. Its content will depend on the type of message, the channels subscribed to, etc. Please read `Coinbase Pro's WebSocket API documentation <https://docs.pro.coinbase.com/#websocket-feed/>`__ to learn about these message formats.
 
 Note that with the exception of errors, every other message triggers this method including things like subscription confirmations. Your code should be prepared to handle unexpected messages. 
 
