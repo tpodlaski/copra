@@ -162,7 +162,7 @@ This default method just prints the message received. If you override this metho
 on_error(message, reason)
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-``on_error`` is called when an error message is received from the WebSocket server. ``message`` is string representing the error, and ``reason`` is a string that provides additional information about the cause of the error. Note that in many cases ``reason`` is blank.
+``on_error`` is called when an error message is received from the WebSocket server. ``message`` a is string representing the error, and ``reason`` is a string that provides additional information about the cause of the error. Note that in many cases ``reason`` is blank.
 
 The default implementation just logs the message and reason. If you override this method, your subclass only needs to call the parent's method if want to preserve this logging behavior.
 
@@ -186,13 +186,13 @@ close()
 subscribe(channels)
 ^^^^^^^^^^^^^^^^^^^
 
-`subscibe` is called to susbcribe to addition channels. ``channels`` is either a single Channel or a list of Channels.
+`subscribe` is called to susbcribe to additional channels. ``channels`` is either a single Channel or a list of Channels.
 
-The original channels to be subscribed to are defined during the client's initialization. ``subscribe`` can be used to add channels wether the client has been added to asyncio loop yet or not. If the loop isn't yet running, the client will subscribe to all of it's channels when it is. If the loop is already running, the subcription will be appended with new channels, and incoming data will be immediately received.
+The original channels to be subscribed to are defined during the client's initialization. ``subscribe`` can be used to add channels whether the client has been added to asyncio loop yet or not. If the loop isn't yet running, the client will subscribe to all of its channels when it is. If the loop is already running, the subcription will be appended with new channels, and incoming data will be immediately received.
 
 unsubscribe(channels)
 ^^^^^^^^^^^^^^^^^^^^^
 
 ``unsubscribe`` is called to unsubscribe from channels. ``channels`` is either a single Channel or a list of Channels.
 
-Like ``subscribe``, ``unsubscribe`` can be called regardless of wether or not the client has already been aded to the asyncio loop. If the client has not yet been added, ``unsubscribe`` will remove those channels from the set of channels to be initially subscribed to. If the client has already been added to the loop, ``unsubscribe`` will remove those channels from the subscription, and data flow from them will stop immediately.       
+Like ``subscribe``, ``unsubscribe`` can be called regardless of whether or not the client has already been added to the asyncio loop. If the client has not yet been added, ``unsubscribe`` will remove those channels from the set of channels to be initially subscribed to. If the client has already been added to the loop, ``unsubscribe`` will remove those channels from the subscription, and data flow from them will stop immediately.       
