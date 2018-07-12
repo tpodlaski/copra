@@ -4,7 +4,7 @@ Usage
 
 .. warning::
 
-  Any references made below to specific aspects of the Coinbase Pro API such as the channels and the data they provide may be out of date. Please visit `Coinbase Pro's WebSocket API documentation <https://docs.pro.coinbase.com/#websocket-feed/> for the authorative and up to date information.
+  Any references made below to specific aspects of the Coinbase Pro API such as the channels and the data they provide may be out of date. Please visit `Coinbase Pro's WebSocket API documentation <https://docs.pro.coinbase.com/#websocket-feed/>`__ for the authorative and up to date information.
   
 Introduction
 ------------
@@ -153,7 +153,7 @@ In addition to sending the subsciption request, this method also logs that the c
 on_message(message)
 ^^^^^^^^^^^^^^^^^^^
 
-``on_message`` is called everytime a message is received. ``message`` is a dict representing the message. It's content will depend on the type of message, the channels subscribed to, etc. Please read `Coinbase Pro's WebSocket API documentation <https://docs.pro.coinbase.com/#websocket-feed/> to learn about these message formats.
+``on_message`` is called everytime a message is received. ``message`` is a dict representing the message. It's content will depend on the type of message, the channels subscribed to, etc. Please read `Coinbase Pro's WebSocket API documentation <https://docs.pro.coinbase.com/#websocket-feed/> `__to learn about these message formats.
 
 Note that with the exception of errors, every other message triggers this method including things like subscription confirmations. Your code should be prepared to handle unexpected messages. 
 
