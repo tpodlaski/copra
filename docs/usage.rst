@@ -59,11 +59,25 @@ Not every combination of currencies is available for trading, however. The curre
 * **BCH-EUR**
 * **BCH-BTC**
 
+These are the product IDs referenced below.
+
 Before connecting to the Coinbase Pro Websocket server, you will need to create one or more channels to subscribe to.
 
 First, import the ``Channel`` class:
 
-.. code::
+.. code:: python
 
     from copra.websocket import Channel
+    
+The channel is then initialized with it's name and one or more product IDs. The heartbeat channel for the Bitcoin/US dollar pair would be initialized:
+
+.. code:: python
+
+    channel = Channel('heartbeat', 'BTC-USD')
+    
+A channel that recieves ticker information about the pairs Etherium/US dollar and Litecoin/Euro would be initialized:
+
+.. code:: python
+
+    channel = Channel('ticker', ['ETH-USD', 'LTC-EUR'])
     
