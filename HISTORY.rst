@@ -20,3 +20,7 @@ History
 0.4.0 (2018-07-10)
 ------------------
 * Added subscribe and unsubscribe methods to Client.
+
+1.0.0 (2018-07-12)
+------------------
+* Added full documentation of the Copra API
