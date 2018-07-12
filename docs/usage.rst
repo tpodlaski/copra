@@ -121,5 +121,9 @@ Only two parameters are required to create a client: ``loop`` and ``channels``.
     
 ``channels`` is either a single ``Channel`` or a list of ``Channels`` the client should immediately subscribe to.
 
+``feed_url`` is the url of the Coinbase Pro Websocket server. The default is ``copra.websocket.FEED_URL`` which is wss://ws-feed.pro.coinbase.com:443. If you want to test your code in Coinbase's "sandbox" development environment, you can set ``feed_url`` to `copra.websocket.SANDBOX_FEED_URL` which is wss://ws-feed-public.sandbox.pro.coinbase.com:443.
+
+
+
 
     
