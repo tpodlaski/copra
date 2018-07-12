@@ -344,10 +344,10 @@ class Client(WebSocketClientFactory):
 
     def on_error(self, message, reason=''):
         """Callback fired when an error message is received.
+        
+        :param str message: A general description of the error.
+        :param str reason:  A more detailed description of the error.
 
-        Args:
-            message (str): A general description of the error.
-            reason (str): A more detailed description of the error.
         """
         logger.error('{}. {}'.format(message, reason))
 
