@@ -104,6 +104,7 @@ First it needs to be imported:
 For reference, the signature of the ``Client`` ``__init__`` method is:
 
 .. code:: python
+
     def __init__(self, loop, channels, feed_url=FEED_URL,
                  auth=False, key='', secret='', passphrase='',
                  auto_connect=True, auto_reconnect=True,
