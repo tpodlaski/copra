@@ -150,35 +150,38 @@ class Client(WebSocketClientFactory):
         :type loop: asyncio loop
         
         :param channels: The channels to initially subscribe to.
-        :type channels: Channel or list of Channels
+        :type channels: Channel or list of Channels 
+        
+        :param str feed_url:  The url of the WebSocket server. The defualt is
+            copra.WebSocket.FEED_URL (wss://ws-feed.gdax.com)
+            
+        :param bool auth:  Whether or not the (entire) WebSocket session is
+            authenticated. If True, you will need an API key from the
+            Coinbase Pro website. The default is False.
+            
+        :param str key:  The API key to use for authentication. Required if auth
+            is True. The default is ''.
+            
+        :param str secret: The secret string for the API key used for
+            authenticaiton. Required if auth is True. The default is ''.
+            
+        :param str passphrase: The passphrase for the API key used for
+            authentication. Required if auth is True. The default is ''.
 
-        Args:
-            feed_url (str): The url of the WebSocket server. The defualt is
-                copra.WebSocket.FEED_URL (wss://ws-feed.gdax.com)
-            auth (bool): Whether or not the (entire) WebSocket session is
-                authenticated. If True, you will need an API key from the
-                Coinbase Pro website. The default is False.
-            key (str): The API key to use for authentication. Required if auth
-                is True. The default is ''.
-            secret (str): The secret string for the API key used for
-                authenticaiton. Required if auth is True. The default is ''.
-            passphrase (str): The passphrase for the API key used for
-                authentication. Required if auth is True. The default is ''.
-            auto_connect (bool): If True, the Client will automatically add
-                itself to its event loop (ie., open a connection if the loop
-                is running or as soon as it starts). If False,
-                add_as_task_to_loop() needs to be explicitly called to add the
-                client to the loop. The default is True.
-            auto_reconnect (bool): If True, the Client will attemp to autom-
-                matically reconnect and resubscribe if the connection is closed
-                any way but by the Client explicitly itself. The default is
-                True.
-            name (str): A name to identify this client in logging, etc.
-
-
-        Raises:
-            ValueError: If auth is True and key, secret, and passphrase are
-                not provided.
+        :param bool auto_connect: If True, the Client will automatically add
+            itself to its event loop (ie., open a connection if the loop is
+            running or as soon as it starts). If False, add_as_task_to_loop()
+            needs to be explicitly called to add the client to the loop. The
+            default is True.
+            
+        :param bool auto_reconnect: If True, the Client will attemp to autom-
+            matically reconnect and resubscribe if the connection is closed any
+            way but by the Client explicitly itself. The default is True.
+                
+        :param str name: A name to identify this client in logging, etc.
+        
+        :raises ValueError: If auth is True and key, secret, and passphrase are
+            not provided.
         """
         self.connected = False
 
