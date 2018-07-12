@@ -65,7 +65,7 @@ script.
         loop.run_until_complete(ticker.close())
         loop.close()
         
-Streaming a ticker for LTC-USD
+Streaming a ticker for LTC-USD:
 
 .. code:: bash
 
