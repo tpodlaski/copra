@@ -11,7 +11,7 @@ Introduction
 
 The CoPrA API provides two classes for creating a WebSocket client for the Coinbase Pro platform. The first, ``copra.websocket.Channel``, is intended to be used "as is." The second, ``copra.websocket.Client``, is the actual client class. It provides multiple callback methods to manage every stage of the client's life cycle.
 
-Channel* 
+Channel
 -------
 
 At the heart of every WebSocket connection is the concept of a channel. A channel provides a specific type of data 
@@ -31,3 +31,30 @@ The current channels provided by the Coinbase Pro API are:
 
 * **matches** - this channel consists only of the match messages from the full channel.
 
+The Coinbase Pro exchange currently hosts four digital currencies:
+
+* **BTC** - Bitcoin
+* **BCH** - Bitcoin Cash
+* **ETH** - Etherium
+* **LTC** - Litecoin Cash
+
+And allows 3 fiat currencies for trading:
+
+* **USD** - US Dollar
+* **EUR** - Euro
+* **GBP** - Great British Pounds (Sterling)
+
+Not every combination of currencies is available for trading, however. The current currency pairs (or products) avaialable for trade are:
+
+* **BTC-USD**
+* **BTC-EUR**
+* **BTC-GBP**
+* **ETH-USD**
+* **ETH-EUR**
+* **ETH-BTC**
+* **LTC-USD**
+* **LTC-EUR**
+* **LTC-BTC**
+* **BCH-USD**
+* **BCH-EUR**
+* **BCH-BTC**
