@@ -223,8 +223,6 @@ class Client(WebSocketClientFactory):
 
         :returns: JSON-formatted, UTF-8 encoded bytes object representing the
             subscription message for the provided channels.
-            
-        :rtype: bytes
         """
         msg_type = 'unsubscribe' if unsubscribe else 'subscribe'
         msg = {'type': msg_type,
