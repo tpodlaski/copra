@@ -296,10 +296,6 @@ class Client(WebSocketClientFactory):
 
         Creates a coroutine for making a connection to the WebSocket server and
         adds it as a task to the asyncio loop.
-
-        Args:
-            loop (asyncio event loop): The event loop that the WebSocket client
-                runs in.
         """
         self.protocol = ClientProtocol()
         url = urlparse(self.url)
