@@ -121,7 +121,9 @@ Only two parameters are required to create a client: ``loop`` and ``channels``.
     
 ``channels`` is either a single ``Channel`` or a list of ``Channels`` the client should immediately subscribe to.
 
-``feed_url`` is the url of the Coinbase Pro Websocket server. The default is ``copra.websocket.FEED_URL`` which is wss://ws-feed.pro.coinbase.com:443. If you want to test your code in Coinbase's "sandbox" development environment, you can set ``feed_url`` to ``copra.websocket.SANDBOX_FEED_URL`` which is wss://ws-feed-public.sandbox.pro.coinbase.com:443.
+``feed_url`` is the url of the Coinbase Pro Websocket server. The default is ``copra.websocket.FEED_URL`` which is wss://ws-feed.pro.coinbase.com:443. 
+
+If you want to test your code in Coinbase's "sandbox" development environment, you can set ``feed_url`` to ``copra.websocket.SANDBOX_FEED_URL`` which is wss://ws-feed-public.sandbox.pro.coinbase.com:443.
 
 ``auth`` indicates whether or not the client will be authenticated. If True, you will need to also provide ``key``, ``secret``, and ``passphrase``. These values are provided by Coinbase Pro when you register for an API key.
 
@@ -132,3 +134,9 @@ If ``auto_connect`` is False, you will need to explicitly call ``client.add_as_t
 ``auto_reconnect`` determines the client's behavior is the connection is closed in any way other than by explicitly calling its ``close`` method. If True, the client will automatically try to reconnect and re-subscribe to the channels it subscribed to when the connection unexpectedly closed.
 
 ``name`` is a simple string representing the name of the client. Setting this to something unique may be useful for logging purposes.
+
+Callback Methods
+~~~~~~~~~~~~~~~~
+
+The ``Client`` class provides four methods that are automatically called at different stage's of the client's life cycle. The method that will be most useful for developers is ``on_message()``.
+
