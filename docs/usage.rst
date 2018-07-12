@@ -69,7 +69,7 @@ First, import the ``Channel`` class:
 
     from copra.websocket import Channel
     
-The channel is then initialized with it's name and one or more product IDs. The heartbeat channel for the Bitcoin/US dollar pair would be initialized:
+The channel is then initialized with its name and one or more product IDs. The heartbeat channel for the Bitcoin/US dollar pair would be initialized:
 
 .. code:: python
 
