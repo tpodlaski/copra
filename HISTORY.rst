@@ -28,3 +28,6 @@ History
 1.0.1 (2018-07-12)
 ------------------
 * Fixed typos in the documentation.
+
+1.0.2 (2018-07-12)
+* Added Examples page to the documentation.
