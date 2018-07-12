@@ -159,4 +159,10 @@ Note that with the exception of errors, every other message triggers this method
 
 This default method just prints the message received. If you override this method, there is no need to call the parent method from your subclass' method.
 
+on_error(message, reason)
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+``on_error`` is called when an error message is received from the WebSocket server. ``message`` is string representing the error, and ``reason`` is a string that provides additional information about the cause of the error. Note that in many cases ``reason`` is blank.
+
+The default implementation just logs the message and reason. If you override this method, your subclass only needs to call the parent's method if want to preserve this logging behavior.
 
