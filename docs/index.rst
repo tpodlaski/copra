@@ -32,7 +32,6 @@ While ``copra.websocket.Client`` is meant to be overridden, it can still be used
     # example.py
 
     import asyncio
-    import logging
     
     from copra.websocket import Channel, Client
     
@@ -69,8 +68,7 @@ CoPrA supports authentication allowing you to receive only messages specific to 
     # example2.py
 
     import asyncio
-    import logging
-
+    
     from copra.websocket import Channel, Client
 
     KEY = YOUR_KEY
