@@ -58,3 +58,11 @@ Not every combination of currencies is available for trading, however. The curre
 * **BCH-USD**
 * **BCH-EUR**
 * **BCH-BTC**
+
+Before connecting to the Coinbase Pro Websocket server, you will need to create one or more channels to subscribe to.
+
+First, import the ``Channel`` class:
+
+.. code::
+    from copra.websocket import Channel
+    
