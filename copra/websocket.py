@@ -150,7 +150,7 @@ class Client(WebSocketClientFactory):
         :type loop: asyncio loop
         
         :param channels: The channels to initially subscribe to.
-        :type channels: :class: `Channel` or list of Channels
+        :type channels: :class: `copra.websocket.Channel` or list of Channels
 
         Args:
             feed_url (str): The url of the WebSocket server. The defualt is
