@@ -150,7 +150,7 @@ class Client(WebSocketClientFactory):
         :type loop: asyncio loop
         
         :param channels: The channels to initially subscribe to.
-        :type channels: Channel or list of Channels 
+        :type channels: Channel or list of Channel
         
         :param str feed_url:  The url of the WebSocket server. The defualt is
             copra.WebSocket.FEED_URL (wss://ws-feed.gdax.com)
@@ -214,11 +214,14 @@ class Client(WebSocketClientFactory):
 
     def get_subscribe_message(self, channels, unsubscribe=False):
         """Create and return the subscription message for the provided channels.
+        
+        :param channels: List of channels to be subscribed to.
+        :type channels: list of Channel
+        
+        :param bool unsubscribe:  If True, returns an unsubscribe message
+            instead of a subscribe method. The default is False.
 
-        Args:
-            channels (list of Channel): List of channels to subscribe to.
-            unsubscribe (bool): If True, returns an unsubscribe message
-                instead of a subscribe method. The default is False.
+
 
         Returns:
             bytes: JSON-formatted, UTF-8 encoded bytes object representing the
