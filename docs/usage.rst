@@ -139,7 +139,7 @@ If ``auto_connect`` is False, you will need to explicitly call ``client.add_as_t
 Callback Methods
 ~~~~~~~~~~~~~~~~
 
-The ``Client`` class provides four methods that are automatically called at different stage's of the client's life cycle. The method that will be most useful for developers is ``on_message()``.
+The ``Client`` class provides four methods that are automatically called at different stages of the client's life cycle. The method that will be most useful for developers is ``on_message()``.
 
 on_open()
 ^^^^^^^^^
