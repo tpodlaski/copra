@@ -102,6 +102,8 @@ Running the above:
     .
     .
 
+More detailed examples can be found on the `Examples <examples.rst`__ page.
+
 
 .. |Version| image:: https://img.shields.io/pypi/v/copra.svg
    :target: https://pypi.python.org/pypi/copra

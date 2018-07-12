@@ -4,6 +4,7 @@
    index
    installation
    usage
+   examples
    source/copra.websocket
    contributing
    authors
