@@ -38,10 +38,10 @@ class Channel:
     def __init__(self, name, product_ids):
         """
         
-        :param str name: The name of the WebSocket channel. Possible values are 
+        :arg str name: The name of the WebSocket channel. Possible values are 
             heatbeat, ticker, level2, full, matches, or user
 
-        :param product_ids: A single product id (eg., 'BTC-USD') or list of 
+        :arg product_ids: A single product id (eg., 'BTC-USD') or list of 
             product ids (eg., ['BTC-USD', 'ETH-EUR', 'LTC-BTC'])
         :type product_ids: str or list of str
         
