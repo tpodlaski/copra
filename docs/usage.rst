@@ -113,10 +113,12 @@ Only two parameters are required to create a client: ``loop`` and ``channels``.
 
 ``loop`` is the Python asyncio loop that the client will run in. Somewhere in your code you will likely have something like:
 
-..code:: python
+.. code:: python
     import asyncio
     
     loop = asyncio.get_event_loop
     
 ``channels`` is either a single ``Channel`` or a list of ``Channels`` the client should immediately subscribe to.
+
+
     
