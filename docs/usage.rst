@@ -81,3 +81,13 @@ A channel that recieves ticker information about the pairs Etherium/US dollar an
 
     channel = Channel('ticker', ['ETH-USD', 'LTC-EUR'])
     
+As illustrated the product ID argument to the ``Channel`` constructor can be a single string or a list of strings.
+
+To listen for messages about Bitcoin/US Dollar and Litecoin/Bitcoin orders for an authenticated user:
+
+.. code:: python
+
+    channel = Channel('user', ['BTC-USD', 'LTC-BTC'])
+    
+As noted above, this will require that the ``Client`` be authenticated. This is covered below.
+    
