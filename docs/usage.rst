@@ -90,4 +90,33 @@ To listen for messages about Bitcoin/US Dollar and Litecoin/Bitcoin orders for a
     channel = Channel('user', ['BTC-USD', 'LTC-BTC'])
     
 As noted above, this will require that the ``Client`` be authenticated. This is covered below.
+
+Client
+------
+The ``Client`` class represents the Coinbase Pro WebSocket client. While it can be used "as is", most developers will want to subclass it in order to customize the behavior of its callback methods.
+
+First it needs to be imported:
+
+.. code:: python
+
+    from copra.websocket import Client
+    
+For reference, the signature of the ``Client`` ``__init__`` method is:
+
+.. code:: python
+    def __init__(self, loop, channels, feed_url=FEED_URL,
+                 auth=False, key='', secret='', passphrase='',
+                 auto_connect=True, auto_reconnect=True,
+                 name='WebSocket Client')
+                 
+Only two parameters are required to create a client: ``loop`` and ``channels``.
+
+``loop`` is the Python asyncio loop that the client will run in. Somewhere in your code you will likely have something like:
+
+..code:: python
+    import asyncio
+    
+    loop = asyncio.get_event_loop
+    
+``channels`` is either a single ``Channel`` or a list of ``Channels`` the client should immediately subscribe to.
     
