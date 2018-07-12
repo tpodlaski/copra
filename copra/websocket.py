@@ -38,10 +38,10 @@ class Channel:
     def __init__(self, name, product_ids):
         """
         
-        :arg str name: The name of the WebSocket channel. Possible values are 
+        :param str name: The name of the WebSocket channel. Possible values are 
             heatbeat, ticker, level2, full, matches, or user
 
-        :arg product_ids: A single product id (eg., 'BTC-USD') or list of 
+        :param product_ids: A single product id (eg., 'BTC-USD') or list of 
             product ids (eg., ['BTC-USD', 'ETH-EUR', 'LTC-BTC'])
         :type product_ids: str or list of str
         
@@ -221,11 +221,10 @@ class Client(WebSocketClientFactory):
         :param bool unsubscribe:  If True, returns an unsubscribe message
             instead of a subscribe method. The default is False.
 
-
-
-        Returns:
-            bytes: JSON-formatted, UTF-8 encoded bytes object representing the
-                subscription message for the provided channels.
+        :returns: JSON-formatted, UTF-8 encoded bytes object representing the
+            subscription message for the provided channels.
+            
+        :rtype: bytes
         """
         msg_type = 'unsubscribe' if unsubscribe else 'subscribe'
         msg = {'type': msg_type,
