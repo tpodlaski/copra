@@ -18,3 +18,7 @@ Module ``copra.websocket``
     .. autoclass:: Channel
         :members:
         :special-members: __init__
+        
+    .. autoclass:: Client
+        :members:
+        :special-members: __init__:
