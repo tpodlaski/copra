@@ -246,10 +246,9 @@ class Client(WebSocketClientFactory):
 
     def subscribe(self, channels):
         """Subscribe to the given channels.
-
-        Args:
-            channels (Channel or list of Channels): The channels to subscribe
-                to.
+        
+        :param channels: The channels to subscribe to.
+        :type channels: Channel or list of Channel
         """
         if not isinstance(channels, list):
             channels = [channels]
@@ -273,10 +272,9 @@ class Client(WebSocketClientFactory):
 
     def unsubscribe(self, channels):
         """Unsubscribe from the given channels.
-
-        Args:
-            channels (Channel or list of Channels): The channels to unsubscribe
-                from.
+        
+        :param channels: The channels to subscribe to.
+        :type channels: Channel or list of Channel
         """
         if not isinstance(channels, list):
             channels = [channels]
