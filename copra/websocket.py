@@ -351,15 +351,14 @@ class Client(WebSocketClientFactory):
         """
         logger.error('{}. {}'.format(message, reason))
 
-    def on_message(self, msg):
+    def on_message(self, message):
         """Callback fired when a complete WebSocket message was received.
 
         You will likely want to override this method.
-
-        Args:
-            msg (dict): Dictionary representing the message.
+        
+        :param dict message: Dictionary representing the message.
         """
-        print(msg)
+        print(message)
 
     async def close(self):
         """Close the WebSocket connection.
