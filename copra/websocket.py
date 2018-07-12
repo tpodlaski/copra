@@ -150,7 +150,7 @@ class Client(WebSocketClientFactory):
         :type loop: asyncio loop
         
         :param channels: The channels to initially subscribe to.
-        :type channels: Channel or list of Channel
+        :type channels: Channel or list of Channels
         
         :param str feed_url:  The url of the WebSocket server. The defualt is
             copra.WebSocket.FEED_URL (wss://ws-feed.gdax.com)
@@ -248,7 +248,7 @@ class Client(WebSocketClientFactory):
         """Subscribe to the given channels.
         
         :param channels: The channels to subscribe to.
-        :type channels: Channel or list of Channel
+        :type channels: Channel or list of Channels
         """
         if not isinstance(channels, list):
             channels = [channels]
@@ -274,7 +274,7 @@ class Client(WebSocketClientFactory):
         """Unsubscribe from the given channels.
         
         :param channels: The channels to subscribe to.
-        :type channels: Channel or list of Channel
+        :type channels: Channel or list of Channels
         """
         if not isinstance(channels, list):
             channels = [channels]
