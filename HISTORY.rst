@@ -32,3 +32,7 @@ History
 1.0.2 (2018-07-12)
 ------------------
 * Added Examples page to the documentation.
+
+1.0.3 (2018-07-16)
+------------------
+* More documentation typos fixed.
