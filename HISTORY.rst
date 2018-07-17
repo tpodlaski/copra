@@ -36,3 +36,7 @@ History
 1.0.3 (2018-07-16)
 ------------------
 * More documentation typos fixed.
+
+1.0.4 (2018-07-17)
+------------------
+* Non-API changes.
