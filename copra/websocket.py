@@ -59,6 +59,9 @@ class Channel:
             product_ids = [product_ids]
         self.product_ids = set(product_ids)
 
+    def __repr__(self):
+        return str(self._as_dict())
+
     def _as_dict(self):
         """Returns the Channel as a dictionary.
         

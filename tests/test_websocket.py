@@ -72,6 +72,12 @@ class TestChannel(unittest.TestCase):
         self.assertIn('BTC-USD', d['product_ids'])
         self.assertIn('LTC-USD', d['product_ids'])
         
+    def test___repr__(self):
+        channel = Channel('heartbeat', ['BTC-USD', 'LTC-USD'])
+        channel_str = "{'name': 'heartbeat', 'product_ids': ['LTC-USD', 'BTC-USD']}"
+        rep = channel.__repr__()
+        self.assertEqual(rep, channel_str)
+        
     def test___eq__(self):
         channel1 = Channel('heartbeat', ['BTC-USD', 'LTC-USD'])
         channel2 = Channel('heartbeat', ['BTC-USD', 'LTC-USD'])
