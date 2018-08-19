@@ -38,5 +38,9 @@ History
 * More documentation typos fixed.
 
 1.0.4 - 1.0.5 (2018-07-17)
-------------------
+--------------------------
 * Non-API changes.
+
+1.06 (2018-08-19)
+-----------------
+* Updated the Autobahn dependency to 18.8.1
