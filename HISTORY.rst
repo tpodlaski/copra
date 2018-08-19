@@ -43,4 +43,8 @@ History
 
 1.0.6 (2018-08-19)
 ------------------
-Updated Autobahn requirement to 18.8.1
+* Updated Autobahn requirement to 18.8.1
+
+1.0.7 (2018-08-19)
+------------------
+* Modified Travis config to test against Python 3.7.
