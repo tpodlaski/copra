@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Tests for `cbprotk.websocket` module."""
+"""Tests for `copra.websocket` module."""
 
 import asyncio
 import json
