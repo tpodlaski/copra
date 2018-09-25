@@ -25,19 +25,21 @@ class TestClient(unittest.TestCase):
         async def go():
             client = Client(self.loop)
             self.assertEqual(client.url, 'https://api.pro.coinbase.com')
-            client.close()
+            await client.close()
             
             client = Client(self.loop, 'http://httpbin.org/')
             self.assertEqual(client.url, 'http://httpbin.org/')
-            client.close()
+            await client.close()
         
         self.loop.run_until_complete(go())
         
     def test_close(self):
-        aysnc def go():
+        
+        async def go():
             client = Client(self.loop)
             self.assertFalse(client.session.closed)
-            client.close()
+            
+            await client.close()
             self.assertTrue(client.session.closed)
             
         self.loop.run_until_complete(go())

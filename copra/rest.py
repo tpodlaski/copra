@@ -28,9 +28,9 @@ class Client():
         self.url = url
         self.session = aiohttp.ClientSession(loop=loop)
         
-    def close(self):
+    async def close(self):
         """Close the client session and release all aquired resources.
         """
-        self.loop.create_task(self.session.close())
+        await self.session.close()
         
     
