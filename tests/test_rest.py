@@ -30,5 +30,14 @@ class TestClient(unittest.TestCase):
             client = Client(self.loop, 'http://httpbin.org/')
             self.assertEqual(client.url, 'http://httpbin.org/')
             client.close()
+        
+        self.loop.run_until_complete(go())
+        
+    def test_close(self):
+        aysnc def go():
+            client = Client(self.loop)
+            self.assertFalse(client.session.closed)
+            client.close()
+            self.assertTrue(client.session.closed)
             
         self.loop.run_until_complete(go())
