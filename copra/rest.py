@@ -54,7 +54,6 @@ class Client():
         :returns: The response body as JSON-formatted, UTF-8 encoded dict or
             aiohttp.ClientResponse if raw is True.
         """
-        
         headers = {'USER-AGENT': _user_agent}
         
         async with self.session.get(self.url + path, params=params, headers=headers) as resp:
@@ -62,5 +61,64 @@ class Client():
                 return resp
             return await resp.json()
             
+    async def get_products(self):
+        """Get a list of available currency pairs for trading.
+        
+        Returns a list of dicts where each dict represents a currency pair. 
+        
+        The base_min_size and base_max_size fields define the min and max order 
+        size. The quote_increment field specifies the min order price as well 
+        as the price increment. The order price must be a multiple of this 
+        increment (i.e. if the increment is 0.01, order prices of 0.001 or 
+        0.021 would be rejected).
+        
+        :returns: A list of dicts representing the currency pairs available
+            for trading.
+            
+        :Example:
+        
+        [
+          {
+            'id': 'BTC-USD', 
+            'base_currency': 'BTC', 
+            'quote_currency': 'USD', 
+            'base_min_size': '0.001', 
+            'base_max_size': '70', 
+            'quote_increment': '0.01', 
+            'display_name': 'BTC/USD', 
+            'status': 'online', 
+            'margin_enabled': False, 
+            'status_message': None, 
+            'min_market_funds': '10', 
+            'max_market_funds': '1000000', 
+            'post_only': False, 
+            'limit_only': False, 
+            'cancel_only': False
+          },
+          ...
+         ]
+            
+        .. note:: Product ID will not change once assigned to a product but 
+            the min/max/quote sizes can be updated in the future.
+        """
+        resp = await self.get('/products')
+        return resp
+        
+
+if __name__ == '__main__':
+    loop = asyncio.get_event_loop()
     
+    client = Client(loop)
+    
+    async def go():
+        products = await client.get_products()
+        print(products)
+        
+    
+    loop.run_until_complete(go())
+    loop.run_until_complete(client.close())
+    
+    loop.close()
+        
+        
     

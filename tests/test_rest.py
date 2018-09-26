@@ -64,5 +64,14 @@ class TestClient(unittest.TestCase):
             
         self.loop.run_until_complete(go())
         
-    
+    def test_get_products(self):
+        async def go():
+            client = Client(self.loop)
+            products = await client.get_products()
+            self.assertIsInstance(products, list)
+            self.assertIsInstance(products[0], dict)
+            self.assertGreater(len(products), 1)
+            self.assertIn(products[0], 'base_currency')
+            self.assertIn(products[0], 'quote_currency')
+            
             
