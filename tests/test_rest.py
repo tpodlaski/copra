@@ -47,8 +47,17 @@ class TestClient(unittest.TestCase):
         
     def test_context_manager(self):
         async def go():
-            with await Client(self.loop) as client:
+            async with Client(self.loop) as client:
                 self.assertFalse(client.session.closed)
+            self.assertTrue(client.session.closed)
+            
+            try:
+                async with Client(self.loop) as client:
+                    self.assertFalse(client.session.closed)
+                    #Throws ValueError
+                    ob = await client.get_product_order_book('BTC-USD', level=99)
+            except ValueError as e:
+                pass
             self.assertTrue(client.session.closed)
             
         self.loop.run_until_complete(go())
