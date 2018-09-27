@@ -207,15 +207,42 @@ class Client():
         resp = await self.get('/products/{}/book'.format(product_id), 
                               params={'level': level})
         return resp
-
+        
+    async def get_product_ticker(self, product_id):
+        """Get information about the last trade for a specific product.
+        
+        :param str product_id: The product id of the tick to be retrieved.
+            The product id is a string consisting of a base currency and a 
+            quote currency. eg., BTC-USD, ETH-EUR, etc. To see all of the 
+            product ids, use :meth:`rest.Client.get_products`.
+            
+        :returns: A dict containing information about the last trade (tick) for
+           the product.
+           
+        :Example:
+        
+        {
+          'trade_id': 51554088, 
+          'price': '6503.14000000', 
+          'size': '0.00532605', 
+          'bid': '6503.13', 
+          'ask': '6503.14', 
+          'volume': '6060.89272148', 
+          'time': '2018-09-27T13:18:42.571000Z'
+        }
+        
+        """
+        resp = await self.get('/products/{}/ticker'.format(product_id))
+        return resp
+    
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     
     client = Client(loop)
     
     async def go():
-        ob = await client.get_product_order_book('BTC-USD', level=3)
-        print(ob)
+        tick = await client.get_product_ticker('BTC-USD')
+        print(tick)
         
     
     loop.run_until_complete(go())
