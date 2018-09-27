@@ -104,6 +104,103 @@ class Client():
         resp = await self.get('/products')
         return resp
         
+    async def get_product_order_book(self, product_id, level=1):
+        """Get a list of open orders for a product. 
+        
+        By default, only the inside (i.e. best) bid and ask are returned. This 
+        is equivalent to a book depth of 1 level. If you would like to see a 
+        larger order book, specify the level query parameter.
+
+        :param str product_id: The product id whose order book you wish to 
+            view. The product id is a string consisting of a base currency
+            and a quote currency. eg., BTC-USD, ETH-EUR, etc. To see all of 
+            the product ids, use :meth:`rest.Client.get_products`.
+            
+        :param int level: The level customizes the amount of detail shown. See
+            below for more detail. The default is 1.
+            
+         **Levels**
+        
+        +--------------------------------------------------------------------+
+        | Level | Description                                                |
+        +=======+============================================================+
+        |   1   | Only the best bid and ask                                  |
+        +-------+------------------------------------------------------------+
+        |   2   | Top 50 bids and asks (aggregated)                          |
+        +-------+------------------------------------------------------------+
+        |   3   | Full order book (non aggregated)                           |
+        +-------+------------------------------------------------------------+
+        
+        If a level is not aggregated, then all of the orders at each price 
+        will be returned. Aggregated levels return only one size for each 
+        active price (as if there was only a single order for that size at 
+        the level).
+        
+        Levels 1 and 2 are aggregated. The first field is the price. The second
+        is the size which is the sum of the size of the orders at that price, 
+        and the third is the number of orders, the count of orders at 
+        that price. The size should not be multiplied by the number of orders.
+
+        Level 3 is non-aggregated and returns the entire order book.
+        
+        .. note:: This request is NOT paginated. The entire book is returned in 
+            one response.
+            
+        .. note:: Level 1 and Level 2 are recommended for polling. For the most 
+            up-to-date data, consider using the websocket stream.
+            
+        .. warning:: Level 3 is only recommended for users wishing to maintain 
+            a full real-time order book using the websocket stream. Abuse of 
+            Level 3 via polling will cause your access to be limited or 
+            blocked.
+            
+        :returns: A dict representing the order book for the product id
+            specified. The layout of the dict will vary based on the level. See
+            the examples below.
+            
+        :Example:
+        
+        **Level 1**
+        
+        {
+          'sequence': 7068939079, 
+          'bids': [['6482.98', '54.49144003', 18]], 
+          'asks': [['6482.99', '4.57036219', 10]]
+        }
+        
+        **Level 2**
+        
+        {
+          'sequence': 7069016926, 
+          'bids': [['6489.13', '0.001', 1], ['6487.99', '0.03', 1], ...],
+          'asks': [['6489.14', '40.72125158', 16], ['6490.11', '0.5', 1], ...],
+        }
+        
+        **Level 3**
+        
+        {
+          'sequence': 7072737439, 
+          'bids': [
+                    ['6468.9', '0.01100413', '48c3ed25-616d-430d-bab4-cb338b489a33'], 
+                    ['6468.9', '0.224', 'b96424ea-e992-4df5-b503-df50dac1ac50'], 
+                    ...
+                  ],
+          'asks': [
+                    ['6468.91', '5.96606527', 'cc37e457-020c-4843-9a3e-e6164dcf4e60'], 
+                    ['6468.91', '0.00341509', '43e8158a-30c6-437b-9a51-9b9da00e4e22'],
+                    ...
+                  ]
+        }
+           
+        :raises ValueError: If level not 1, 2, or 3.
+        """
+        
+        if level not in (1, 2, 3):
+            raise ValueError("level must be 1, 2, or 3")    
+            
+        resp = await self.get('/products/{}/book'.format(product_id), 
+                              params={'level': level})
+        return resp
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
@@ -111,8 +208,8 @@ if __name__ == '__main__':
     client = Client(loop)
     
     async def go():
-        products = await client.get_products()
-        print(products)
+        ob = await client.get_product_order_book('BTC-USD', level=3)
+        print(ob)
         
     
     loop.run_until_complete(go())
