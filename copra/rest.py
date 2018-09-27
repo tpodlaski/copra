@@ -39,6 +39,12 @@ class Client():
         """
         await self.session.close()
         
+    async def __aenter__(self):
+        return self
+    
+    async def __aexit__(self, exc_type, exc_value, traceback):
+        await self.session.close()
+        
     async def get(self, path='/', params=None, raw=False):
         """Base method for making GET requests.
         
