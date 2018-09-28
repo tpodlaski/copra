@@ -23,59 +23,59 @@ class TestClient(unittest.TestCase):
     def tearDown(self):
         self.loop.close()
     
-    def test__init__(self):
-        async def go():
-            client = Client(self.loop)
-            self.assertEqual(client.url, 'https://api.pro.coinbase.com')
-            await client.close()
+    # def test__init__(self):
+    #     async def go():
+    #         client = Client(self.loop)
+    #         self.assertEqual(client.url, 'https://api.pro.coinbase.com')
+    #         await client.close()
             
-            client = Client(self.loop, 'http://httpbin.org/')
-            self.assertEqual(client.url, 'http://httpbin.org/')
-            await client.close()
+    #         client = Client(self.loop, 'http://httpbin.org/')
+    #         self.assertEqual(client.url, 'http://httpbin.org/')
+    #         await client.close()
         
-        self.loop.run_until_complete(go())
+    #     self.loop.run_until_complete(go())
         
-    def test_close(self):
-        async def go():
-            client = Client(self.loop)
-            self.assertFalse(client.session.closed)
+    # def test_close(self):
+    #     async def go():
+    #         client = Client(self.loop)
+    #         self.assertFalse(client.session.closed)
             
-            await client.close()
-            self.assertTrue(client.session.closed)
+    #         await client.close()
+    #         self.assertTrue(client.session.closed)
             
-        self.loop.run_until_complete(go())
+    #     self.loop.run_until_complete(go())
         
-    def test_context_manager(self):
-        async def go():
-            async with Client(self.loop) as client:
-                self.assertFalse(client.session.closed)
-            self.assertTrue(client.session.closed)
+    # def test_context_manager(self):
+    #     async def go():
+    #         async with Client(self.loop) as client:
+    #             self.assertFalse(client.session.closed)
+    #         self.assertTrue(client.session.closed)
             
-            try:
-                async with Client(self.loop) as client:
-                    self.assertFalse(client.session.closed)
-                    #Throws ValueError
-                    ob = await client.get_product_order_book('BTC-USD', level=99)
-            except ValueError as e:
-                pass
-            self.assertTrue(client.session.closed)
+    #         try:
+    #             async with Client(self.loop) as client:
+    #                 self.assertFalse(client.session.closed)
+    #                 #Throws ValueError
+    #                 ob = await client.get_order_book('BTC-USD', level=99)
+    #         except ValueError as e:
+    #             pass
+    #         self.assertTrue(client.session.closed)
             
-        self.loop.run_until_complete(go())
+    #     self.loop.run_until_complete(go())
         
     # def test_get(self):
     #     async def go():
     #         async with Client(self.loop, 'http://httpbin.org/') as client:
     #             params = {'key1': 'item1', 'key2': 'item2'}
-    #             resp = await client.get('/get', params)
-    #             self.assertIsInstance(resp, dict)
-    #             self.assertEqual(len(resp['args']), 2)
-    #             self.assertEqual(resp['args']['key1'], 'item1')
-    #             self.assertEqual(resp['args']['key2'], 'item2')
-    #             self.assertEqual(resp['url'], 'http://httpbin.org/get?key1=item1&key2=item2')
-
-    #         async with Client(self.loop, 'http://httpbin.org/') as client:
-    #             resp = await client.get('/get', raw=True)
-    #             self.assertIsInstance(resp, aiohttp.client_reqrep.ClientResponse)
+    #             fullresp = await client.get('/get', params)
+    #             self.assertEqual(len(fullresp), 2)
+    #             headers, body = fullresp[:]
+    #             self.assertIsInstance(headers, dict)
+    #             self.assertIn('Content-Length', headers)
+    #             self.assertIsInstance(body, dict)
+    #             self.assertEqual(len(body['args']), 2)
+    #             self.assertEqual(body['args']['key1'], 'item1')
+    #             self.assertEqual(body['args']['key2'], 'item2')
+    #             self.assertEqual(body['url'], 'http://httpbin.org/get?key1=item1&key2=item2')
 
     #     self.loop.run_until_complete(go())
         
@@ -91,14 +91,14 @@ class TestClient(unittest.TestCase):
 
     #     self.loop.run_until_complete(go())
             
-    # def test_get_product_order_book(self):
+    # def test_get_order_book(self):
     #     async def go():
     #         async with Client(self.loop) as client:
             
     #             with self.assertRaises(ValueError):
-    #                 ob = await client.get_product_order_book('BTC-USD', 99)
+    #                 ob = await client.get_order_book('BTC-USD', 99)
                 
-    #             ob1 = await client.get_product_order_book('BTC-USD')
+    #             ob1 = await client.get_order_book('BTC-USD')
     #             self.assertIsInstance(ob1, dict)
     #             self.assertEqual(len(ob1), 3)
     #             self.assertIn('sequence', ob1)
@@ -107,7 +107,7 @@ class TestClient(unittest.TestCase):
     #             self.assertEqual(len(ob1['bids']), 1)
     #             self.assertEqual(len(ob1['asks']), 1)
             
-    #             ob1 = await client.get_product_order_book('BTC-USD', level=1)
+    #             ob1 = await client.get_order_book('BTC-USD', level=1)
     #             self.assertIsInstance(ob1, dict)
     #             self.assertEqual(len(ob1), 3)
     #             self.assertIn('sequence', ob1)
@@ -116,7 +116,7 @@ class TestClient(unittest.TestCase):
     #             self.assertEqual(len(ob1['bids']), 1)
     #             self.assertEqual(len(ob1['asks']), 1)
             
-    #             ob2 = await client.get_product_order_book('BTC-USD', level=2)
+    #             ob2 = await client.get_order_book('BTC-USD', level=2)
     #             self.assertIsInstance(ob2, dict)
     #             self.assertEqual(len(ob2), 3)
     #             self.assertIn('sequence', ob2)
@@ -125,7 +125,7 @@ class TestClient(unittest.TestCase):
     #             self.assertEqual(len(ob2['bids']), 50)
     #             self.assertEqual(len(ob2['asks']), 50)
             
-    #             ob3 = await client.get_product_order_book('BTC-USD', level=3)
+    #             ob3 = await client.get_order_book('BTC-USD', level=3)
     #             self.assertIsInstance(ob3, dict)
     #             self.assertEqual(len(ob3), 3)
     #             self.assertIn('sequence', ob3)
@@ -134,21 +134,62 @@ class TestClient(unittest.TestCase):
     #             self.assertGreater(len(ob3['bids']), 50)
     #             self.assertGreater(len(ob3['asks']), 50)
             
-        # self.loop.run_until_complete(go())
+    #     self.loop.run_until_complete(go())
         
-    def test_get_product_ticker(self):
+    # def test_get_ticker(self):
+    #     async def go():
+    #         async with Client(self.loop) as client:
+    #             tick = await client.get_ticker('BTC-USD')
+    #             self.assertIsInstance(tick, dict)
+    #             self.assertIn('trade_id', tick)
+    #             self.assertIn('price', tick)
+    #             self.assertIn('size', tick)
+    #             self.assertIn('bid', tick)
+    #             self.assertIn('ask', tick)
+    #             self.assertIn('volume', tick)
+    #             self.assertIn('time', tick)
+                
+    #     self.loop.run_until_complete(go())
+    
+    def test_get_trades(self):
         async def go():
             async with Client(self.loop) as client:
-                tick = await client.get_product_ticker('BTC-USD')
-                self.assertIsInstance(tick, dict)
-                self.assertIn('trade_id', tick)
-                self.assertIn('price', tick)
-                self.assertIn('size', tick)
-                self.assertIn('bid', tick)
-                self.assertIn('ask', tick)
-                self.assertIn('volume', tick)
-                self.assertIn('time', tick)
+                trades, before, after = await client.get_trades('BTC-USD')
+                self.assertIsInstance(trades, list)
+                self.assertIsInstance(before, str)
+                self.assertIsInstance(after, str)
+                self.assertEqual(len(trades), 100)
+                self.assertIn('time', trades[0])
+                self.assertIn('trade_id', trades[0])
+                self.assertIn('price', trades[0])
+                self.assertIn('size', trades[0])
+                self.assertIn('side', trades[0])
                 
+                trades, before, after = await client.get_trades('BTC-USD', 5)
+                self.assertIsInstance(trades, list)
+                self.assertEqual(len(trades), 5)
+                
+                trades_after, after_after, before_after = await client.get_trades('BTC-USD', 5, after=after)
+                self.assertIsInstance(trades_after, list)
+                self.assertEqual(len(trades_after), 5)
+                self.assertLess(trades_after[0]['trade_id'], trades[-1]['trade_id'])
+                
+                trades_before, after_before, before_before = await client.get_trades('BTC-USD', 5, before=before)
+                if (trades_before):
+                    self.assertGreater(trades_before[-1]['trade_id'], trades[0]['trade_id'])
+                else:
+                    self.assertIsNone(after_before)
+                    self.assertIsInstance(after_after, str)
+                    
+                await asyncio.sleep(20)
+                
+                trades_before, after_before, before_before = await client.get_trades('BTC-USD', 5, before=before)
+                if (trades_before):
+                    self.assertGreater(trades_before[-1]['trade_id'], trades[0]['trade_id'])
+                else:
+                    self.assertIsNone(after_before)
+                    self.assertIsInstance(after_after, str)
+
         self.loop.run_until_complete(go())
             
             

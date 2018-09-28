@@ -54,18 +54,16 @@ class Client():
         :param dict params: Optional dictionary of key/value str pairs
             to be appended to the request. The default is None.
             
-        :param bool raw: Return the raw aiohttp.ClientResponse. This is useful
-            for debugging. The default is False.
-            
-        :returns: The response body as JSON-formatted, UTF-8 encoded dict or
-            aiohttp.ClientResponse if raw is True.
+        :returns: A 2-tuple: (response header, response body). Headers is a dict 
+            with the HTTP headers of the respone. The response body is a 
+            JSON-formatted, UTF-8 encoded dict.
         """
         headers = {'USER-AGENT': _user_agent}
         
         async with self.session.get(self.url + path, params=params, headers=headers) as resp:
-            if raw:
-                return resp
-            return await resp.json()
+            body = await resp.json()
+            headers = dict(resp.headers)
+            return (headers, body)
             
     async def get_products(self):
         """Get a list of available currency pairs for trading.
@@ -107,10 +105,10 @@ class Client():
         .. note:: Product ID will not change once assigned to a product but 
             the min/max/quote sizes can be updated in the future.
         """
-        resp = await self.get('/products')
-        return resp
+        headers, body = await self.get('/products')
+        return body
         
-    async def get_product_order_book(self, product_id, level=1):
+    async def get_order_book(self, product_id, level=1):
         """Get a list of open orders for a product. 
         
         By default, only the inside (i.e. best) bid and ask are returned. This 
@@ -204,11 +202,11 @@ class Client():
         if level not in (1, 2, 3):
             raise ValueError("level must be 1, 2, or 3")    
             
-        resp = await self.get('/products/{}/book'.format(product_id), 
-                              params={'level': level})
-        return resp
+        headers, body = await self.get('/products/{}/book'.format(product_id), 
+                                       params={'level': level})
+        return body
         
-    async def get_product_ticker(self, product_id):
+    async def get_ticker(self, product_id):
         """Get information about the last trade for a specific product.
         
         :param str product_id: The product id of the tick to be retrieved.
@@ -231,9 +229,88 @@ class Client():
           'time': '2018-09-27T13:18:42.571000Z'
         }
         
+        .. note:: Polling is discouraged in favor of connecting via the 
+            websocket stream and listening for match messages.
+        
         """
-        resp = await self.get('/products/{}/ticker'.format(product_id))
-        return resp
+        header, body = await self.get('/products/{}/ticker'.format(product_id))
+        return body
+        
+    async def get_trades(self, product_id, limit=100, before=None, after=None):
+        """List the latest trades for a product.
+        
+        The trade side indicates the maker order side. The maker order is the 
+        order that was open on the order book. buy side indicates a down-tick 
+        because the maker was a buy order and their order was removed. 
+        Conversely, sell side indicates an up-tick.
+        
+        .. note:: This method is paginated. Methods that can return multiple 
+           pages of results return a 3-tuple instead of a just  dict or list like 
+           other methods. The first item in the tuple is the page of results -
+           a list or dict similar to other methods. The 2nd and 3rd items are
+           cursors for making requests for newer/earlier pages, the before cursor 
+           which the second item, and for making requests for older/later pages,
+           the after cursor which is the 3rd item.
+        
+        :param str product_id: The product id whose trades are to be retrieved.
+            The product id is a string consisting of a base currency and a 
+            quote currency. eg., BTC-USD, ETH-EUR, etc. To see all of the 
+            product ids, use :meth:`rest.Client.get_products`.
+            
+        :param int limit: The number of trades to be returned per request. The
+            default (and maximum) value is 100.
+            
+        :param int before: The before cursor value. Used to reuest a page of
+            results newer than a previous request. This would be the before 
+            cursor returned in that earlier call to this method.
+        
+        :param int after: The after cursor value. Used to reuest a page of
+            results older than a previous request. This would be the older 
+            cursor returned in that earlier call to this method.
+            
+        :returns: A 3-tuple: (trades, before cursor, after cursor)
+            The first item is a list of dicts representing trades for the 
+            product specified. The second item is the before cursor which
+            can be used in squbsequent calls to retrieve a page of results
+            newer than this one. The third item is the after cursor which 
+            can be used in subsequent calls to retrieve the page of results 
+            that is older than this one. NOTE: the before cursor and after
+            cursor may be None if there is not an earlier page or later page
+            respectively.
+        
+        :Example:
+        
+        (
+          [
+            {
+              'time': '2018-09-27T22:49:16.105Z', 
+              'trade_id': 51584925, 
+              'price': '6681.01000000', 
+              'size': '0.02350019', 
+              'side': 'sell'
+            }, 
+            {
+              'time': '2018-09-27T22:49:12.39Z', 
+              'trade_id': 51584924, 
+              'price': '6681.00000000', 
+              'size': '0.01020000', 
+              'side': 'buy'
+            },
+            ...
+          ],
+          '51590012', 
+          '51590010'
+        )
+        """
+        params = {'limit': limit}
+        if before:
+            params.update({'before': before})
+        if after:
+            params.update({'after': after})
+            
+        headers, body = await self.get('/products/{}/trades'.format(product_id),
+                                       params)
+        return (body, headers.get('cb-before', None), headers.get('cb-after', None))
     
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
@@ -241,8 +318,10 @@ if __name__ == '__main__':
     client = Client(loop)
     
     async def go():
-        tick = await client.get_product_ticker('BTC-USD')
-        print(tick)
+        trades, before, after = await client.get_trades('BTC-USD', 3)
+        print(trades)
+        trades, before, after = await client.get_trades('BTC-USD', 3, after=after)
+        print(trades)
         
     
     loop.run_until_complete(go())
