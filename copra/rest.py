@@ -421,7 +421,36 @@ class Client():
         """
         headers, body = await self.get('/products/{}/stats'.format(product_id))
         return body
-    
+        
+    async def get_currencies(self):
+        """List known currencies.
+        
+        Currency codes will conform to the ISO 4217 standard where possible. 
+        Currencies which have or had no representation in ISO 4217 may use a 
+        custom code.
+        
+        ..note:: Not all currencies may be currently in use for trading.
+        
+        :returns: A list of dicts where each dict contains information about a
+            currency.
+            
+        :Example:
+        
+        [
+          {
+            'id': 'BTC', 
+            'name': 'Bitcoin', 
+            'min_size': '0.00000001', 
+            'status': 'online', 
+            'message': None
+          },
+          ...
+        ]
+        
+        """
+        headers, body = await self.get('/currencies')
+        return body
+        
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     
@@ -431,8 +460,8 @@ if __name__ == '__main__':
     
     async def go():
         global results
-        results = await client.get_24hour_stats('BTC-USD')
-        
+        results = await client.get_currencies()
+
     loop.run_until_complete(go())
     loop.run_until_complete(client.close())
     

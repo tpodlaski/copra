@@ -216,18 +216,33 @@ class TestClient(unittest.TestCase):
         
     #     self.loop.run_until_complete(go())
     
-    def test_get_24hour_stats(self):
+    # def test_get_24hour_stats(self):
+    #     async def go():
+    #         async with Client(self.loop) as client:
+    #             stats = await client.get_24hour_stats('BTC-USD')
+    #             self.assertIsInstance(stats, dict)
+    #             self.assertEqual(len(stats), 6)
+    #             self.assertIn('open', stats)
+    #             self.assertIn('high', stats)
+    #             self.assertIn('low', stats)
+    #             self.assertIn('volume', stats)
+    #             self.assertIn('last', stats)
+    #             self.assertIn('volume_30day', stats)
+            
+    #     self.loop.run_until_complete(go())
+    
+    def test_get_currencies(self):
         async def go():
             async with Client(self.loop) as client:
-                stats = await client.get_24hour_stats('BTC-USD')
-                self.assertIsInstance(stats, dict)
-                self.assertEqual(len(stats), 6)
-                self.assertIn('open', stats)
-                self.assertIn('high', stats)
-                self.assertIn('low', stats)
-                self.assertIn('volume', stats)
-                self.assertIn('last', stats)
-                self.assertIn('volume_30day', stats)
+                currencies = await client.get_currencies()
+                self.assertIsInstance(currencies, list)
+                self.assertGreater(len(currencies), 1)
+                self.assertIsInstance(currencies[0], dict)
+                self.assertIn('id', currencies[0])
+                self.assertIn('name', currencies[0])
+                self.assertIn('min_size', currencies[0])
+                self.assertIn('status', currencies[0])
+                self.assertIn('message', currencies[0])
             
         self.loop.run_until_complete(go())
             
