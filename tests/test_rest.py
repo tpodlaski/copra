@@ -193,27 +193,42 @@ class TestClient(unittest.TestCase):
 
     #     self.loop.run_until_complete(go())
     
-    def test_get_historic_rates(self):
-        async def go():
-            async with Client(self.loop) as client:
-                with self.assertRaises(ValueError):
-                    rates = await client.get_historic_rates('BTC-USD', granularity=100)
+    # def test_get_historic_rates(self):
+    #     async def go():
+    #         async with Client(self.loop) as client:
+    #             with self.assertRaises(ValueError):
+    #                 rates = await client.get_historic_rates('BTC-USD', granularity=100)
                     
-                rates = await client.get_historic_rates('BTC-USD', 900)
-                self.assertIsInstance(rates, list)
-                self.assertGreaterEqual(len(rates), 300)
-                self.assertEqual(len(rates[0]), 6)
-                self.assertEqual(rates[0][0] - rates[1][0], 900)
+    #             rates = await client.get_historic_rates('BTC-USD', 900)
+    #             self.assertIsInstance(rates, list)
+    #             self.assertGreaterEqual(len(rates), 300)
+    #             self.assertEqual(len(rates[0]), 6)
+    #             self.assertEqual(rates[0][0] - rates[1][0], 900)
                 
-                stop = datetime.utcnow()
-                start = stop - timedelta(days=1)
-                rates = await client.get_historic_rates('LTC-USD', 3600, start.isoformat(), stop.isoformat())
-                self.assertIsInstance(rates, list)
-                self.assertEqual(len(rates), 24)
-                self.assertEqual(len(rates[0]), 6)
-                self.assertEqual(rates[0][0] - rates[1][0], 3600)
+    #             stop = datetime.utcnow()
+    #             start = stop - timedelta(days=1)
+    #             rates = await client.get_historic_rates('LTC-USD', 3600, start.isoformat(), stop.isoformat())
+    #             self.assertIsInstance(rates, list)
+    #             self.assertEqual(len(rates), 24)
+    #             self.assertEqual(len(rates[0]), 6)
+    #             self.assertEqual(rates[0][0] - rates[1][0], 3600)
                 
         
+    #     self.loop.run_until_complete(go())
+    
+    def test_get_24hour_stats(self):
+        async def go():
+            async with Client(self.loop) as client:
+                stats = await client.get_24hour_stats('BTC-USD')
+                self.assertIsInstance(stats, dict)
+                self.assertEqual(len(stats), 6)
+                self.assertIn('open', stats)
+                self.assertIn('high', stats)
+                self.assertIn('low', stats)
+                self.assertIn('volume', stats)
+                self.assertIn('last', stats)
+                self.assertIn('volume_30day', stats)
+            
         self.loop.run_until_complete(go())
             
             

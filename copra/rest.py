@@ -329,7 +329,7 @@ class Client():
         ..note::  Historical rate data may be incomplete. No data is published 
             for intervals where there are no ticks.
         
-        :param str product_id: The product id whose rates wish to retrieve.
+        :param str product_id: The product id whose rates are to be retrieved.
             The product id is a string consisting of a base currency and a 
             quote currency. eg., BTC-USD, ETH-EUR, etc. To see all of the 
             product ids, use :meth:`rest.Client.get_products`.
@@ -396,6 +396,31 @@ class Client():
         if start and stop:
             return [x for x in body if x[0] >= dateutil.parser.parse(start).timestamp()]
         return body
+        
+    async def get_24hour_stats(self, product_id):
+        """Get 24 hr stats for a product.
+        
+        :param str product_id: The product id whose stats are to be retrieved.
+            The product id is a string consisting of a base currency and a 
+            quote currency. eg., BTC-USD, ETH-EUR, etc. To see all of the 
+            product ids, use :meth:`rest.Client.get_products`.
+            
+        :returns: A dict of stats for the product including: open, high, low,
+            volume, last price, and 30 day volume.
+            
+        :Example:
+        
+        {
+          'open': '6710.37000000', 
+          'high': '6786.73000000', 
+          'low': '6452.02000000', 
+          'volume': '9627.98224214', 
+          'last': '6484.03000000', 
+          'volume_30day': '238376.24964395'
+        }
+        """
+        headers, body = await self.get('/products/{}/stats'.format(product_id))
+        return body
     
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
@@ -406,12 +431,8 @@ if __name__ == '__main__':
     
     async def go():
         global results
-        stop = datetime.utcnow()
-        start = stop - timedelta(days=1)
+        results = await client.get_24hour_stats('BTC-USD')
         
-        results = await client.get_historic_rates('LTC-USD', 3600, start.isoformat(), stop.isoformat())
-        
-    
     loop.run_until_complete(go())
     loop.run_until_complete(client.close())
     
