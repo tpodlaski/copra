@@ -5,8 +5,12 @@ for the Coinbase Pro platform.
 """
 
 import asyncio
+import base64
 from datetime import datetime, timedelta
+import hashlib
+import hmac
 import sys
+import time
 
 import aiohttp
 import dateutil.parser
@@ -68,6 +72,41 @@ class Client():
     
     async def __aexit__(self, exc_type, exc_value, traceback):
         await self.session.close()
+        
+    def get_auth_headers(self, path, timestamp=None):
+        """Get the headers necessary to authenticate a client request.
+        
+        :param str path: The path portion of the REST request. For example,
+            '/products/BTC-USD/candles'
+            
+        :param float timestamp: A UNIX timestamp. This parameter exists for
+            testing purposes and generally should not be used. If a timestamp
+            is provided it must be within 30 seconds of the API server's time.
+            This can be found using: use :meth:`rest.Client.get_server_time`.
+            
+        :returns: A dict of headers to be added to the request.
+        
+        :raises ValueError: If auth is not True.
+        """
+        if not self.auth:
+            raise ValueError('client is not properly configured for authorization')
+        
+        if not timestamp:
+            timestamp = time.time()
+        timestamp = str(timestamp)
+        message = timestamp + 'GET' + path
+        message = message.encode('ascii')
+        hmac_key = base64.b64decode(self.secret)
+        signature = hmac.new(hmac_key, message, hashlib.sha256)
+        signature_b64 = base64.b64encode(signature.digest()).decode('utf-8')
+    
+        return {
+            'Content-Type': 'Application/JSON',
+            'CB-ACCESS-SIGN': signature_b64,
+            'CB-ACCESS-TIMESTAMP': timestamp,
+            'CB-ACCESS-KEY': self.key,
+            'CB-ACCESS-PASSPHRASE': self.passphrase
+        }
         
     async def get(self, path='/', params=None, raw=False):
         """Base method for making GET requests.

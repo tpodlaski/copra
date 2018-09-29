@@ -7,7 +7,11 @@ Uses http://httpbin.org/ - HTTP Request & Response Service
 """
 
 import asyncio
+import base64
 from datetime import datetime, timedelta
+import hashlib
+import hmac
+import time
 import unittest
 
 import aiohttp
@@ -60,42 +64,75 @@ class TestClient(unittest.TestCase):
                 client = Client(self.loop, auth=True, passphrase='MyPassphrase')
                             
             #auth, key, secret, passphrase
-            client = Client(self.loop, auth=True, key='MyKey', secret='MySecret', 
-                            passphrase='MyPassphrase')
+            client = Client(self.loop, auth=True, key='mykey', secret='mysecret', 
+                            passphrase='mypassphrase')
             self.assertTrue(client.auth)
-            self.assertEqual(client.key, 'MyKey')
-            self.assertEqual(client.secret, 'MySecret')
-            self.assertEqual(client.passphrase, 'MyPassphrase')
-            client.close()
+            self.assertEqual(client.key, 'mykey')
+            self.assertEqual(client.secret, 'mysecret')
+            self.assertEqual(client.passphrase, 'mypassphrase')
+            await client.close()
         
         self.loop.run_until_complete(go())
         
-    # def test_close(self):
-    #     async def go():
-    #         client = Client(self.loop)
-    #         self.assertFalse(client.session.closed)
+    def test_close(self):
+        async def go():
+            client = Client(self.loop)
+            self.assertFalse(client.session.closed)
+            await client.close()
+            self.assertTrue(client.session.closed)
             
-    #         await client.close()
-    #         self.assertTrue(client.session.closed)
-            
-    #     self.loop.run_until_complete(go())
+        self.loop.run_until_complete(go())
         
-    # def test_context_manager(self):
-    #     async def go():
-    #         async with Client(self.loop) as client:
-    #             self.assertFalse(client.session.closed)
-    #         self.assertTrue(client.session.closed)
+    def test_context_manager(self):
+        async def go():
+            async with Client(self.loop) as client:
+                self.assertFalse(client.session.closed)
+            self.assertTrue(client.session.closed)
             
-    #         try:
-    #             async with Client(self.loop) as client:
-    #                 self.assertFalse(client.session.closed)
-    #                 #Throws ValueError
-    #                 ob = await client.get_order_book('BTC-USD', level=99)
-    #         except ValueError as e:
-    #             pass
-    #         self.assertTrue(client.session.closed)
+            try:
+                async with Client(self.loop) as client:
+                    self.assertFalse(client.session.closed)
+                    #Throws ValueError
+                    ob = await client.get_order_book('BTC-USD', level=99)
+            except ValueError as e:
+                pass
+            self.assertTrue(client.session.closed)
             
-    #     self.loop.run_until_complete(go())
+        self.loop.run_until_complete(go())
+        
+    def test_get_auth_headers(self):
+        async def go():
+            async with Client(self.loop) as client:
+                with self.assertRaises(ValueError):
+                    client.get_auth_headers('/mypath')
+                    
+            key = 'mykey'
+            secret = 'bXlzZWNyZXQ='
+            passphrase = 'mypassphrase'
+            path = '/mypath'
+            
+            async with Client(self.loop, auth=True, key=key, secret=secret, 
+                              passphrase=passphrase) as client:
+                timestamp = time.time()
+                message = str(timestamp) + 'GET' + path
+                message = message.encode('ascii')
+                hmac_key = base64.b64decode(secret)
+                signature = hmac.new(hmac_key, message, hashlib.sha256)
+                signature_b64 = base64.b64encode(signature.digest()).decode('utf-8')
+                
+                headers = client.get_auth_headers(path, timestamp)
+                self.assertIsInstance(headers, dict)
+                self.assertIn('Content-Type', headers)
+                self.assertIn('CB-ACCESS-SIGN', headers)
+                self.assertIn('CB-ACCESS-TIMESTAMP', headers)
+                self.assertIn('CB-ACCESS-KEY', headers)
+                self.assertIn('CB-ACCESS-PASSPHRASE', headers)
+                self.assertEqual(headers['Content-Type'], 'Application/JSON')
+                self.assertEqual(headers['CB-ACCESS-TIMESTAMP'], str(timestamp))
+                self.assertEqual(headers['CB-ACCESS-KEY'], key)
+                self.assertEqual(headers['CB-ACCESS-PASSPHRASE'], passphrase)
+                
+        self.loop.run_until_complete(go())
         
     # def test_get(self):
     #     async def go():
