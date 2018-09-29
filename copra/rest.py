@@ -5,10 +5,12 @@ for the Coinbase Pro platform.
 """
 
 import asyncio
+from datetime import datetime, timedelta
 import logging
 import sys
 
 import aiohttp
+import dateutil.parser
 
 from copra import __version__
 
@@ -311,17 +313,103 @@ class Client():
         headers, body = await self.get('/products/{}/trades'.format(product_id),
                                        params)
         return (body, headers.get('cb-before', None), headers.get('cb-after', None))
+        
+    async def get_historic_rates(self, product_id, granularity=3600, start=None, stop=None):
+        """Historic rates for a product. 
+        
+        Rates are returned in grouped buckets based on requested granularity.
+        
+        ..note:: The maximum number of data points for a single request is 300 
+            candles. If your selection of start/end time and granularity will 
+            result in more than 300 data points, your request will be rejected. 
+            If you wish to retrieve fine granularity data over a larger time 
+            range, you will need to make multiple requests with new start/end 
+            ranges.
+          
+        ..note::  Historical rate data may be incomplete. No data is published 
+            for intervals where there are no ticks.
+        
+        :param str product_id: The product id whose rates wish to retrieve.
+            The product id is a string consisting of a base currency and a 
+            quote currency. eg., BTC-USD, ETH-EUR, etc. To see all of the 
+            product ids, use :meth:`rest.Client.get_products`.
+        
+        :param int granularity: Desired timeslice in seconds. The granularity 
+            field must be one of the following values: {60, 300, 900, 3600, 
+            21600, 86400}. Otherwise, your request will be rejected. These 
+            values correspond to timeslices representing one minute, five 
+            minutes, fifteen minutes, one hour, six hours, and one day, 
+            respectively. The default is 3600 (1 hour).
+            
+        :param str start: The start time of the requested historic rates as 
+            a str in ISO 8601 format. This field is optional. If it is set, 
+            then stop must be set as well If neither start nor stop are set, 
+            start will default to the time relative to now() that would return 
+            300 results based on the granularity.
+        
+        :param datetime stop: The end time of the requested historic rates as a
+            str in ISO 8601 format. This field is optional. If it is set then 
+            start must be set as well. If it is not set, stop will default to 
+            now().
+        
+         .. note:: If either one of the start or end fields are not provided 
+            then both fields will be ignored. If a custom time range is not 
+            declared then one ending now is selected.
+            
+        :returns: A list of lists where each list item is a "bucket" 
+            representing a timeslice of length granularity. The fields of the
+            bucket are: [ time, low, high, open, close, volume ]
+            
+            * **time** bucket start time as a Unix timestamp
+            * **low** lowest price during the bucket interval
+            * **high** highest price during the bucket interval
+            * **open** opening price (first trade) in the bucket interval
+            * **close** closing price (last trade) in the bucket interval
+            * **volume** volume of trading activity during the bucket interval
+            
+        :Example:
+        
+        [
+          [1538179200, 61.12, 61.75, 61.74, 61.18, 2290.8172972700004], 
+          [1538175600, 61.62, 61.8, 61.65, 61.75, 2282.2335001199995], 
+          [1538172000, 61.52, 61.79, 61.66, 61.65, 3877.4680861400007],
+          ...
+        ]
+            
+        :raises ValueError: If granularity is not one of the possible values.
+        
+        .. warning:: Historical rates should not be polled frequently. If you 
+            need real-time information, use the trade and book endpoints along 
+            with the websocket feed.
+        """
+        if granularity not in (60, 300, 900, 3600, 21600, 86400):
+            raise ValueError("invalid granularity {}".format(granularity))
+            
+        params = {'granularity': granularity}
+        
+        if start and stop:
+            params.update({'start': start, 'stop': stop})
+            
+        headers, body = await self.get('/products/{}/candles'.format(product_id),
+                                       params=params)
+                                       
+        if start and stop:
+            return [x for x in body if x[0] >= dateutil.parser.parse(start).timestamp()]
+        return body
     
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     
     client = Client(loop)
     
+    results = None
+    
     async def go():
-        trades, before, after = await client.get_trades('BTC-USD', 3)
-        print(trades)
-        trades, before, after = await client.get_trades('BTC-USD', 3, after=after)
-        print(trades)
+        global results
+        stop = datetime.utcnow()
+        start = stop - timedelta(days=1)
+        
+        results = await client.get_historic_rates('LTC-USD', 3600, start.isoformat(), stop.isoformat())
         
     
     loop.run_until_complete(go())

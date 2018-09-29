@@ -7,6 +7,7 @@ Uses http://httpbin.org/ - HTTP Request & Response Service
 """
 
 import asyncio
+from datetime import datetime, timedelta
 import unittest
 
 import aiohttp
@@ -151,45 +152,68 @@ class TestClient(unittest.TestCase):
                 
     #     self.loop.run_until_complete(go())
     
-    def test_get_trades(self):
+    # def test_get_trades(self):
+    #     async def go():
+    #         async with Client(self.loop) as client:
+    #             trades, before, after = await client.get_trades('BTC-USD')
+    #             self.assertIsInstance(trades, list)
+    #             self.assertIsInstance(before, str)
+    #             self.assertIsInstance(after, str)
+    #             self.assertEqual(len(trades), 100)
+    #             self.assertIn('time', trades[0])
+    #             self.assertIn('trade_id', trades[0])
+    #             self.assertIn('price', trades[0])
+    #             self.assertIn('size', trades[0])
+    #             self.assertIn('side', trades[0])
+                
+    #             trades, before, after = await client.get_trades('BTC-USD', 5)
+    #             self.assertIsInstance(trades, list)
+    #             self.assertEqual(len(trades), 5)
+                
+    #             trades_after, after_after, before_after = await client.get_trades('BTC-USD', 5, after=after)
+    #             self.assertIsInstance(trades_after, list)
+    #             self.assertEqual(len(trades_after), 5)
+    #             self.assertLess(trades_after[0]['trade_id'], trades[-1]['trade_id'])
+                
+    #             trades_before, after_before, before_before = await client.get_trades('BTC-USD', 5, before=before)
+    #             if (trades_before):
+    #                 self.assertGreater(trades_before[-1]['trade_id'], trades[0]['trade_id'])
+    #             else:
+    #                 self.assertIsNone(after_before)
+    #                 self.assertIsInstance(after_after, str)
+                    
+    #             await asyncio.sleep(20)
+                
+    #             trades_before, after_before, before_before = await client.get_trades('BTC-USD', 5, before=before)
+    #             if (trades_before):
+    #                 self.assertGreater(trades_before[-1]['trade_id'], trades[0]['trade_id'])
+    #             else:
+    #                 self.assertIsNone(after_before)
+    #                 self.assertIsInstance(after_after, str)
+
+    #     self.loop.run_until_complete(go())
+    
+    def test_get_historic_rates(self):
         async def go():
             async with Client(self.loop) as client:
-                trades, before, after = await client.get_trades('BTC-USD')
-                self.assertIsInstance(trades, list)
-                self.assertIsInstance(before, str)
-                self.assertIsInstance(after, str)
-                self.assertEqual(len(trades), 100)
-                self.assertIn('time', trades[0])
-                self.assertIn('trade_id', trades[0])
-                self.assertIn('price', trades[0])
-                self.assertIn('size', trades[0])
-                self.assertIn('side', trades[0])
-                
-                trades, before, after = await client.get_trades('BTC-USD', 5)
-                self.assertIsInstance(trades, list)
-                self.assertEqual(len(trades), 5)
-                
-                trades_after, after_after, before_after = await client.get_trades('BTC-USD', 5, after=after)
-                self.assertIsInstance(trades_after, list)
-                self.assertEqual(len(trades_after), 5)
-                self.assertLess(trades_after[0]['trade_id'], trades[-1]['trade_id'])
-                
-                trades_before, after_before, before_before = await client.get_trades('BTC-USD', 5, before=before)
-                if (trades_before):
-                    self.assertGreater(trades_before[-1]['trade_id'], trades[0]['trade_id'])
-                else:
-                    self.assertIsNone(after_before)
-                    self.assertIsInstance(after_after, str)
+                with self.assertRaises(ValueError):
+                    rates = await client.get_historic_rates('BTC-USD', granularity=100)
                     
-                await asyncio.sleep(20)
+                rates = await client.get_historic_rates('BTC-USD', 900)
+                self.assertIsInstance(rates, list)
+                self.assertGreaterEqual(len(rates), 300)
+                self.assertEqual(len(rates[0]), 6)
+                self.assertEqual(rates[0][0] - rates[1][0], 900)
                 
-                trades_before, after_before, before_before = await client.get_trades('BTC-USD', 5, before=before)
-                if (trades_before):
-                    self.assertGreater(trades_before[-1]['trade_id'], trades[0]['trade_id'])
-                else:
-                    self.assertIsNone(after_before)
-                    self.assertIsInstance(after_after, str)
-
+                stop = datetime.utcnow()
+                start = stop - timedelta(days=1)
+                rates = await client.get_historic_rates('LTC-USD', 3600, start.isoformat(), stop.isoformat())
+                self.assertIsInstance(rates, list)
+                self.assertEqual(len(rates), 24)
+                self.assertEqual(len(rates[0]), 6)
+                self.assertEqual(rates[0][0] - rates[1][0], 3600)
+                
+        
         self.loop.run_until_complete(go())
             
             
