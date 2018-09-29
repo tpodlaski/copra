@@ -108,7 +108,7 @@ class Client():
             'CB-ACCESS-PASSPHRASE': self.passphrase
         }
         
-    async def get(self, path='/', params=None, raw=False):
+    async def get(self, path='/', params=None, auth=False):
         """Base method for making GET requests.
         
         :param str path: The path not including the base URL of the
@@ -117,13 +117,16 @@ class Client():
         :param dict params: Optional dictionary of key/value str pairs
             to be appended to the request. The default is None.
             
+        :param boolean auth: Indicates whether or not this request needs to be
+            authenticated. The default is False.
+            
         :returns: A 2-tuple: (response header, response body). Headers is a dict 
             with the HTTP headers of the respone. The response body is a 
             JSON-formatted, UTF-8 encoded dict.
         """
         headers = {'USER-AGENT': _user_agent}
         
-        if self.auth:
+        if auth:
             headers.update(self.get_auth_headers(path))
         
         async with self.session.get(self.url + path, params=params, headers=headers) as resp:
