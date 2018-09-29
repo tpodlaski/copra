@@ -23,14 +23,39 @@ class Client():
     """Asyncronous REST client for Coinbase Pro.
     """
     
-    def __init__(self, loop, url=URL):
+    def __init__(self, loop, url=URL, auth=False, key='', secret='', passphrase=''):
         """
         
         :param loop: The asyncio loop that the client runs in.
         :type loop: asyncio loop
+        
+        :param bool auth:  Whether or not the (entire) REST session is
+            authenticated. If True, you will need an API key from the
+            Coinbase Pro website. The default is False.
+            
+        :param str key:  The API key to use for authentication. Required if auth
+            is True. The default is ''.
+            
+        :param str secret: The secret string for the API key used for
+            authenticaiton. Required if auth is True. The default is ''.
+            
+        :param str passphrase: The passphrase for the API key used for
+            authentication. Required if auth is True. The default is ''.
+            
+        :raises ValueError: If auth is True and key, secret, and passphrase are
+            not provided.
         """
         self.loop = loop
         self.url = url
+        
+        if auth and not (key and secret and passphrase):
+            raise ValueError('auth requires key, secret, and passphrase')
+        
+        self.auth = auth
+        self.key = key
+        self.secret = secret
+        self.passphrase = passphrase
+        
         self.session = aiohttp.ClientSession(loop=loop)
         
     async def close(self):

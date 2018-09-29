@@ -24,17 +24,51 @@ class TestClient(unittest.TestCase):
     def tearDown(self):
         self.loop.close()
     
-    # def test__init__(self):
-    #     async def go():
-    #         client = Client(self.loop)
-    #         self.assertEqual(client.url, 'https://api.pro.coinbase.com')
-    #         await client.close()
+    def test__init__(self):
+        async def go():
+            client = Client(self.loop)
+            self.assertEqual(client.url, 'https://api.pro.coinbase.com')
+            await client.close()
             
-    #         client = Client(self.loop, 'http://httpbin.org/')
-    #         self.assertEqual(client.url, 'http://httpbin.org/')
-    #         await client.close()
+            client = Client(self.loop, 'http://httpbin.org/')
+            self.assertEqual(client.url, 'http://httpbin.org/')
+            await client.close()
+            
+            #auth, no key, secret, or passphrase
+            with self.assertRaises(ValueError):
+                client = Client(self.loop, auth=True)
+            
+            #auth, key, no secret or passphrase
+            with self.assertRaises(ValueError):
+                client = Client(self.loop, auth=True, key='MyKey')
+            
+            #auth, key, secret, no passphrase
+            with self.assertRaises(ValueError):
+                client = Client(self.loop, auth=True, key='MyKey', secret='MySecret')
+                            
+            #auth, secret, no key or passphrase
+            with self.assertRaises(ValueError):
+                client = Client(self.loop, auth=True, secret='MySecret')
+            
+            #auth, secret, passphrase, no key
+            with self.assertRaises(ValueError):
+                client = Client(self.loop, auth=True, secret='MySecret',
+                                passphrase='MyPassphrase')
+                            
+            #auth, passphrase, no key or secret
+            with self.assertRaises(ValueError):
+                client = Client(self.loop, auth=True, passphrase='MyPassphrase')
+                            
+            #auth, key, secret, passphrase
+            client = Client(self.loop, auth=True, key='MyKey', secret='MySecret', 
+                            passphrase='MyPassphrase')
+            self.assertTrue(client.auth)
+            self.assertEqual(client.key, 'MyKey')
+            self.assertEqual(client.secret, 'MySecret')
+            self.assertEqual(client.passphrase, 'MyPassphrase')
+            client.close()
         
-    #     self.loop.run_until_complete(go())
+        self.loop.run_until_complete(go())
         
     # def test_close(self):
     #     async def go():
@@ -246,16 +280,16 @@ class TestClient(unittest.TestCase):
             
     #     self.loop.run_until_complete(go())
     
-    def test_get_server_time(self):
-        async def go():
-            async with Client(self.loop) as client:
-                time = await client.get_server_time()
-                self.assertIsInstance(time, dict)
-                self.assertIn('iso', time)
-                self.assertIn('epoch', time)
-                self.assertIsInstance(time['iso'], str)
-                self.assertIsInstance(time['epoch'], float)
+    # def test_get_server_time(self):
+    #     async def go():
+    #         async with Client(self.loop) as client:
+    #             time = await client.get_server_time()
+    #             self.assertIsInstance(time, dict)
+    #             self.assertIn('iso', time)
+    #             self.assertIn('epoch', time)
+    #             self.assertIsInstance(time['iso'], str)
+    #             self.assertIsInstance(time['epoch'], float)
                 
-        self.loop.run_until_complete(go())
+    #     self.loop.run_until_complete(go())
             
             
