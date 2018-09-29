@@ -231,19 +231,31 @@ class TestClient(unittest.TestCase):
             
     #     self.loop.run_until_complete(go())
     
-    def test_get_currencies(self):
+    # def test_get_currencies(self):
+    #     async def go():
+    #         async with Client(self.loop) as client:
+    #             currencies = await client.get_currencies()
+    #             self.assertIsInstance(currencies, list)
+    #             self.assertGreater(len(currencies), 1)
+    #             self.assertIsInstance(currencies[0], dict)
+    #             self.assertIn('id', currencies[0])
+    #             self.assertIn('name', currencies[0])
+    #             self.assertIn('min_size', currencies[0])
+    #             self.assertIn('status', currencies[0])
+    #             self.assertIn('message', currencies[0])
+            
+    #     self.loop.run_until_complete(go())
+    
+    def test_get_server_time(self):
         async def go():
             async with Client(self.loop) as client:
-                currencies = await client.get_currencies()
-                self.assertIsInstance(currencies, list)
-                self.assertGreater(len(currencies), 1)
-                self.assertIsInstance(currencies[0], dict)
-                self.assertIn('id', currencies[0])
-                self.assertIn('name', currencies[0])
-                self.assertIn('min_size', currencies[0])
-                self.assertIn('status', currencies[0])
-                self.assertIn('message', currencies[0])
-            
+                time = await client.get_server_time()
+                self.assertIsInstance(time, dict)
+                self.assertIn('iso', time)
+                self.assertIn('epoch', time)
+                self.assertIsInstance(time['iso'], str)
+                self.assertIsInstance(time['epoch'], float)
+                
         self.loop.run_until_complete(go())
             
             

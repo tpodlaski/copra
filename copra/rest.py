@@ -6,15 +6,12 @@ for the Coinbase Pro platform.
 
 import asyncio
 from datetime import datetime, timedelta
-import logging
 import sys
 
 import aiohttp
 import dateutil.parser
 
 from copra import __version__
-
-logger = logging.getLogger(__name__)
 
 URL = 'https://api.pro.coinbase.com'
 SANDBOX_URL = 'https://api-public.sandbox.pro.coinbase.com'
@@ -451,6 +448,23 @@ class Client():
         headers, body = await self.get('/currencies')
         return body
         
+    async def get_server_time(self):
+        """Get the API server time.
+        
+        :returns: A dict with two fields: iso and epoch. iso is an ISO 8601 str,
+            and epoch is a float. Both represent the current time at the API
+            server.
+            
+        :Example:
+        
+        {
+          'iso': '2018-09-29T03:02:27.753Z', 
+          'epoch': 1538190147.753
+        }
+        """
+        headers, body = await self.get('/time')
+        return body
+        
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     
@@ -460,7 +474,7 @@ if __name__ == '__main__':
     
     async def go():
         global results
-        results = await client.get_currencies()
+        results = await client.get_server_time()
 
     loop.run_until_complete(go())
     loop.run_until_complete(client.close())
