@@ -123,6 +123,9 @@ class Client():
         """
         headers = {'USER-AGENT': _user_agent}
         
+        if self.auth:
+            headers.update(self.get_auth_headers(path))
+        
         async with self.session.get(self.url + path, params=params, headers=headers) as resp:
             body = await resp.json()
             headers = dict(resp.headers)
