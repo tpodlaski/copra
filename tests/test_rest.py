@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 """Tests for `copra.rest` module.
 
 Uses http://httpbin.org/ - HTTP Request & Response Service
 """
+
 from dotenv import load_dotenv
 load_dotenv()
     
@@ -26,8 +26,9 @@ SECRET = os.getenv('SECRET')
 PASSPHRASE = os.getenv('PASSPHRASE')
 TEST_AUTH = True if (KEY and SECRET and PASSPHRASE) else False
 
+TEST_ACCOUNT = os.getenv('TEST_ACCOUNT')
 
-class TestClient(unittest.TestCase):
+class TestRest(unittest.TestCase):
     """Tests for copra.rest.client"""
     
     def setUp(self):
@@ -338,25 +339,43 @@ class TestClient(unittest.TestCase):
                 
     #     self.loop.run_until_complete(go())
     
-    @unittest.skipUnless(TEST_AUTH, "Authentication credentials not provided.")
-    def test_list_accounts(self):
+    # @unittest.skipUnless(TEST_AUTH, "Authentication credentials not provided.")
+    # def test_list_accounts(self):
+    #     async def go():
+    #         async with Client(self.loop) as client:
+    #             with self.assertRaises(ValueError):
+    #                 accounts = await client.list_accounts()
+            
+    #         async with Client(self.loop, auth=True, key=KEY, secret=SECRET, 
+    #                           passphrase=PASSPHRASE) as client:
+    #             accounts = await client.list_accounts()
+    #             self.assertIsInstance(accounts, list)
+    #             self.assertIsInstance(accounts[0], dict)
+    #             self.assertIn('id', accounts[0])
+    #             self.assertIn('currency', accounts[0])
+    #             self.assertIn('balance', accounts[0])
+    #             self.assertIn('available', accounts[0])
+    #             self.assertIn('hold', accounts[0])
+    #             self.assertIn('profile_id', accounts[0])
+                
+    #     self.loop.run_until_complete(go())
+        
+    @unittest.skipUnless(TEST_AUTH and TEST_ACCOUNT, "Auth credentials and test account ID required")
+    def test_get_account(self):
         async def go():
             async with Client(self.loop) as client:
                 with self.assertRaises(ValueError):
-                    accounts = await client.list_accounts()
+                    acount = await client.get(TEST_ACCOUNT)
             
             async with Client(self.loop, auth=True, key=KEY, secret=SECRET, 
                               passphrase=PASSPHRASE) as client:
-                accounts = await client.list_accounts()
-                self.assertIsInstance(accounts, list)
-                self.assertIsInstance(accounts[0], dict)
-                self.assertIn('id', accounts[0])
-                self.assertIn('currency', accounts[0])
-                self.assertIn('balance', accounts[0])
-                self.assertIn('available', accounts[0])
-                self.assertIn('hold', accounts[0])
-                self.assertIn('profile_id', accounts[0])
+                account = await client.get_account(TEST_ACCOUNT)
+                self.assertIsInstance(account, dict)
+                self.assertIn('id', account)
+                self.assertIn('currency', account)
+                self.assertIn('balance', account)
+                self.assertIn('available', account)
+                self.assertIn('hold', account)
+                self.assertIn('profile_id', account)
                 
         self.loop.run_until_complete(go())
-            
-            
