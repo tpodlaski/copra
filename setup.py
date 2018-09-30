@@ -11,7 +11,7 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['autobahn>=18.8.1', 'aiohttp>=3.4.4', 'python-dateutil']
+requirements = ['autobahn>=18.8.1', 'aiohttp>=3.4.4', 'python-dateutil', 'python-dotenv']
 
 setup_requirements = [ ]
 
