@@ -5,18 +5,27 @@
 
 Uses http://httpbin.org/ - HTTP Request & Response Service
 """
-
+from dotenv import load_dotenv
+load_dotenv()
+    
 import asyncio
 import base64
 from datetime import datetime, timedelta
 import hashlib
 import hmac
 import time
+import os
 import unittest
 
 import aiohttp
 
 from copra.rest import Client
+
+KEY = os.getenv('KEY')
+SECRET = os.getenv('SECRET')
+PASSPHRASE = os.getenv('PASSPHRASE')
+TEST_AUTH = True if (KEY and SECRET and PASSPHRASE) else False
+
 
 class TestClient(unittest.TestCase):
     """Tests for copra.rest.client"""
@@ -328,5 +337,26 @@ class TestClient(unittest.TestCase):
     #             self.assertIsInstance(time['epoch'], float)
                 
     #     self.loop.run_until_complete(go())
+    
+    @unittest.skipUnless(TEST_AUTH, "Authentication credentials not provided.")
+    def test_list_accounts(self):
+        async def go():
+            async with Client(self.loop) as client:
+                with self.assertRaises(ValueError):
+                    accounts = await client.list_accounts()
+            
+            async with Client(self.loop, auth=True, key=KEY, secret=SECRET, 
+                              passphrase=PASSPHRASE) as client:
+                accounts = await client.list_accounts()
+                self.assertIsInstance(accounts, list)
+                self.assertIsInstance(accounts[0], dict)
+                self.assertIn('id', accounts[0])
+                self.assertIn('currency', accounts[0])
+                self.assertIn('balance', accounts[0])
+                self.assertIn('available', accounts[0])
+                self.assertIn('hold', accounts[0])
+                self.assertIn('profile_id', accounts[0])
+                
+        self.loop.run_until_complete(go())
             
             

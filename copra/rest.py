@@ -535,16 +535,57 @@ class Client():
         headers, body = await self.get('/time')
         return body
         
+    async def list_accounts(self):
+        """Get a list of trading accounts.
+        
+        ..note:: This method requires authorization. The API key must have 
+            either the “view” or “trade” permission.
+        
+        :returns: A list of dicts where each dict contains information about
+            a trading a account. The fields of the dict are:
+            
+        * **id** The account ID
+        * **currency** Account currency
+        * **balance*** Total balance
+        * **available** Blalance available for use (=balance - hold)
+        * **hold** Funds on hold (not available for use)
+        * **profile_id**
+        
+        :Example:
+        
+        [
+          {
+            'id': 'a764610f-334e-4ece-b4dd-f31111ed58e7', 
+            'currency': 'USD', 
+            'balance': '1000.0000005931528000', 
+            'available': '1000.0000005931528', 
+            'hold': '0.0000000000000000', 
+            'profile_id': '019be148-d490-45f9-9ead-0d1f64127716'
+          },
+          ...
+        ]
+        
+        :raises ValueError: If the client is not configured for authorization.
+        """
+        headers, body = await self.get('/accounts', auth=True)
+        return body
+        
 if __name__ == '__main__':
+    import os
+    from dotenv import load_dotenv
+    load_dotenv()
+    
+    KEY = os.getenv("KEY")
+    SECRET = os.getenv("SECRET")
+    PASSPHRASE = os.getenv("PASSPHRASE")
+    
     loop = asyncio.get_event_loop()
     
-    client = Client(loop)
-    
-    results = None
+    client = Client(loop, auth=True, key=KEY, secret=SECRET, passphrase=PASSPHRASE)
     
     async def go():
         global results
-        results = await client.get_server_time()
+        results = await client.list_accounts()
 
     loop.run_until_complete(go())
     loop.run_until_complete(client.close())
