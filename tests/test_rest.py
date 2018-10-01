@@ -38,111 +38,111 @@ class TestRest(unittest.TestCase):
     def tearDown(self):
         self.loop.close()
     
-    def test__init__(self):
-        async def go():
-            client = Client(self.loop)
-            self.assertEqual(client.url, 'https://api.pro.coinbase.com')
-            await client.close()
+    # def test__init__(self):
+    #     async def go():
+    #         client = Client(self.loop)
+    #         self.assertEqual(client.url, 'https://api.pro.coinbase.com')
+    #         await client.close()
             
-            client = Client(self.loop, 'http://httpbin.org/')
-            self.assertEqual(client.url, 'http://httpbin.org/')
-            await client.close()
+    #         client = Client(self.loop, 'http://httpbin.org/')
+    #         self.assertEqual(client.url, 'http://httpbin.org/')
+    #         await client.close()
             
-            #auth, no key, secret, or passphrase
-            with self.assertRaises(ValueError):
-                client = Client(self.loop, auth=True)
+    #         #auth, no key, secret, or passphrase
+    #         with self.assertRaises(ValueError):
+    #             client = Client(self.loop, auth=True)
             
-            #auth, key, no secret or passphrase
-            with self.assertRaises(ValueError):
-                client = Client(self.loop, auth=True, key='MyKey')
+    #         #auth, key, no secret or passphrase
+    #         with self.assertRaises(ValueError):
+    #             client = Client(self.loop, auth=True, key='MyKey')
             
-            #auth, key, secret, no passphrase
-            with self.assertRaises(ValueError):
-                client = Client(self.loop, auth=True, key='MyKey', secret='MySecret')
+    #         #auth, key, secret, no passphrase
+    #         with self.assertRaises(ValueError):
+    #             client = Client(self.loop, auth=True, key='MyKey', secret='MySecret')
                             
-            #auth, secret, no key or passphrase
-            with self.assertRaises(ValueError):
-                client = Client(self.loop, auth=True, secret='MySecret')
+    #         #auth, secret, no key or passphrase
+    #         with self.assertRaises(ValueError):
+    #             client = Client(self.loop, auth=True, secret='MySecret')
             
-            #auth, secret, passphrase, no key
-            with self.assertRaises(ValueError):
-                client = Client(self.loop, auth=True, secret='MySecret',
-                                passphrase='MyPassphrase')
+    #         #auth, secret, passphrase, no key
+    #         with self.assertRaises(ValueError):
+    #             client = Client(self.loop, auth=True, secret='MySecret',
+    #                             passphrase='MyPassphrase')
                             
-            #auth, passphrase, no key or secret
-            with self.assertRaises(ValueError):
-                client = Client(self.loop, auth=True, passphrase='MyPassphrase')
+    #         #auth, passphrase, no key or secret
+    #         with self.assertRaises(ValueError):
+    #             client = Client(self.loop, auth=True, passphrase='MyPassphrase')
                             
-            #auth, key, secret, passphrase
-            client = Client(self.loop, auth=True, key='mykey', secret='mysecret', 
-                            passphrase='mypassphrase')
-            self.assertTrue(client.auth)
-            self.assertEqual(client.key, 'mykey')
-            self.assertEqual(client.secret, 'mysecret')
-            self.assertEqual(client.passphrase, 'mypassphrase')
-            await client.close()
+    #         #auth, key, secret, passphrase
+    #         client = Client(self.loop, auth=True, key='mykey', secret='mysecret', 
+    #                         passphrase='mypassphrase')
+    #         self.assertTrue(client.auth)
+    #         self.assertEqual(client.key, 'mykey')
+    #         self.assertEqual(client.secret, 'mysecret')
+    #         self.assertEqual(client.passphrase, 'mypassphrase')
+    #         await client.close()
         
-        self.loop.run_until_complete(go())
+    #     self.loop.run_until_complete(go())
         
-    def test_close(self):
-        async def go():
-            client = Client(self.loop)
-            self.assertFalse(client.session.closed)
-            await client.close()
-            self.assertTrue(client.session.closed)
+    # def test_close(self):
+    #     async def go():
+    #         client = Client(self.loop)
+    #         self.assertFalse(client.session.closed)
+    #         await client.close()
+    #         self.assertTrue(client.session.closed)
             
-        self.loop.run_until_complete(go())
+    #     self.loop.run_until_complete(go())
         
-    def test_context_manager(self):
-        async def go():
-            async with Client(self.loop) as client:
-                self.assertFalse(client.session.closed)
-            self.assertTrue(client.session.closed)
+    # def test_context_manager(self):
+    #     async def go():
+    #         async with Client(self.loop) as client:
+    #             self.assertFalse(client.session.closed)
+    #         self.assertTrue(client.session.closed)
             
-            try:
-                async with Client(self.loop) as client:
-                    self.assertFalse(client.session.closed)
-                    #Throws ValueError
-                    ob = await client.get_order_book('BTC-USD', level=99)
-            except ValueError as e:
-                pass
-            self.assertTrue(client.session.closed)
+    #         try:
+    #             async with Client(self.loop) as client:
+    #                 self.assertFalse(client.session.closed)
+    #                 #Throws ValueError
+    #                 ob = await client.get_order_book('BTC-USD', level=99)
+    #         except ValueError as e:
+    #             pass
+    #         self.assertTrue(client.session.closed)
             
-        self.loop.run_until_complete(go())
+    #     self.loop.run_until_complete(go())
         
-    def test_get_auth_headers(self):
-        async def go():
-            async with Client(self.loop) as client:
-                with self.assertRaises(ValueError):
-                    client.get_auth_headers('/mypath')
+    # def test_get_auth_headers(self):
+    #     async def go():
+    #         async with Client(self.loop) as client:
+    #             with self.assertRaises(ValueError):
+    #                 client.get_auth_headers('/mypath')
                     
-            key = 'mykey'
-            secret = 'bXlzZWNyZXQ='
-            passphrase = 'mypassphrase'
-            path = '/mypath'
+    #         key = 'mykey'
+    #         secret = 'bXlzZWNyZXQ='
+    #         passphrase = 'mypassphrase'
+    #         path = '/mypath'
             
-            async with Client(self.loop, auth=True, key=key, secret=secret, 
-                              passphrase=passphrase) as client:
-                timestamp = time.time()
-                message = str(timestamp) + 'GET' + path
-                message = message.encode('ascii')
-                hmac_key = base64.b64decode(secret)
-                signature = hmac.new(hmac_key, message, hashlib.sha256)
-                signature_b64 = base64.b64encode(signature.digest()).decode('utf-8')
+    #         async with Client(self.loop, auth=True, key=key, secret=secret, 
+    #                           passphrase=passphrase) as client:
+    #             timestamp = time.time()
+    #             message = str(timestamp) + 'GET' + path
+    #             message = message.encode('ascii')
+    #             hmac_key = base64.b64decode(secret)
+    #             signature = hmac.new(hmac_key, message, hashlib.sha256)
+    #             signature_b64 = base64.b64encode(signature.digest()).decode('utf-8')
                 
-                headers = client.get_auth_headers(path, timestamp)
-                self.assertIsInstance(headers, dict)
-                self.assertIn('Content-Type', headers)
-                self.assertIn('CB-ACCESS-SIGN', headers)
-                self.assertIn('CB-ACCESS-TIMESTAMP', headers)
-                self.assertIn('CB-ACCESS-KEY', headers)
-                self.assertIn('CB-ACCESS-PASSPHRASE', headers)
-                self.assertEqual(headers['Content-Type'], 'Application/JSON')
-                self.assertEqual(headers['CB-ACCESS-TIMESTAMP'], str(timestamp))
-                self.assertEqual(headers['CB-ACCESS-KEY'], key)
-                self.assertEqual(headers['CB-ACCESS-PASSPHRASE'], passphrase)
+    #             headers = client.get_auth_headers(path, timestamp)
+    #             self.assertIsInstance(headers, dict)
+    #             self.assertIn('Content-Type', headers)
+    #             self.assertIn('CB-ACCESS-SIGN', headers)
+    #             self.assertIn('CB-ACCESS-TIMESTAMP', headers)
+    #             self.assertIn('CB-ACCESS-KEY', headers)
+    #             self.assertIn('CB-ACCESS-PASSPHRASE', headers)
+    #             self.assertEqual(headers['Content-Type'], 'Application/JSON')
+    #             self.assertEqual(headers['CB-ACCESS-TIMESTAMP'], str(timestamp))
+    #             self.assertEqual(headers['CB-ACCESS-KEY'], key)
+    #             self.assertEqual(headers['CB-ACCESS-PASSPHRASE'], passphrase)
                 
-        self.loop.run_until_complete(go())
+    #     self.loop.run_until_complete(go())
         
     # def test_get(self):
     #     async def go():
@@ -360,22 +360,54 @@ class TestRest(unittest.TestCase):
                 
     #     self.loop.run_until_complete(go())
         
+    # @unittest.skipUnless(TEST_AUTH and TEST_ACCOUNT, "Auth credentials and test account ID required")
+    # def test_get_account(self):
+    #     async def go():
+    #         async with Client(self.loop) as client:
+    #             with self.assertRaises(ValueError):
+    #                 acount = await client.get_account(TEST_ACCOUNT)
+            
+    #         async with Client(self.loop, auth=True, key=KEY, secret=SECRET, 
+    #                           passphrase=PASSPHRASE) as client:
+    #             account = await client.get_account(TEST_ACCOUNT)
+    #             self.assertIsInstance(account, dict)
+    #             self.assertIn('id', account)
+    #             self.assertIn('currency', account)
+    #             self.assertIn('balance', account)
+    #             self.assertIn('available', account)
+    #             self.assertIn('hold', account)
+    #             self.assertIn('profile_id', account)
+                
+    #     self.loop.run_until_complete(go())
+        
     @unittest.skipUnless(TEST_AUTH and TEST_ACCOUNT, "Auth credentials and test account ID required")
-    def test_get_account(self):
+    def test_get_account_activity(self):
         async def go():
             async with Client(self.loop) as client:
                 with self.assertRaises(ValueError):
-                    acount = await client.get(TEST_ACCOUNT)
-            
+                    activity = await client.get_account_history(TEST_ACCOUNT)
+                    
             async with Client(self.loop, auth=True, key=KEY, secret=SECRET, 
                               passphrase=PASSPHRASE) as client:
-                account = await client.get_account(TEST_ACCOUNT)
-                self.assertIsInstance(account, dict)
-                self.assertIn('id', account)
-                self.assertIn('currency', account)
-                self.assertIn('balance', account)
-                self.assertIn('available', account)
-                self.assertIn('hold', account)
-                self.assertIn('profile_id', account)
+                results = await client.get_account_history(TEST_ACCOUNT)
+                self.assertEqual(len(results), 3)
+                self.assertIsInstance(results[0], list)
+                self.assertIsInstance(results[0][0], dict)
+                self.assertIsInstance(results[1], str)
+                self.assertIsInstance(results[2], str)
+                
+                next_results = await client.get_account_history(TEST_ACCOUNT, after=results[2])
+                self.assertEqual(len(next_results), 3)
+                self.assertIsInstance(next_results[0], list)
+                self.assertIsInstance(next_results[0][0], dict)
+                self.assertIsInstance(next_results[1], str)
+                self.assertIsInstance(next_results[2], str)
+                self.assertLess(next_results[0][0]['id'], results[0][-1]['id'])
+                
+                prev_results = await client.get_account_history(TEST_ACCOUNT, before=next_results[1])
+                self.assertEqual(prev_results, results)
+                
+                ten_results = await client.get_account_history(TEST_ACCOUNT, limit=10)
+                self.assertEqual(len(ten_results[0]), 10)
                 
         self.loop.run_until_complete(go())

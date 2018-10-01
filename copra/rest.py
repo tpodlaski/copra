@@ -11,6 +11,7 @@ import hashlib
 import hmac
 import sys
 import time
+import urllib.parse
 
 import aiohttp
 import dateutil.parser
@@ -33,18 +34,18 @@ class Client():
         :param loop: The asyncio loop that the client runs in.
         :type loop: asyncio loop
         
-        :param bool auth:  Whether or not the (entire) REST session is
-            authenticated. If True, you will need an API key from the
-            Coinbase Pro website. The default is False.
+        :param bool auth:  (optional) Whether or not the (entire) REST session is
+            authenticated. If True, you will need an API key from the Coinbase 
+            Pro website. The default is False.
             
-        :param str key:  The API key to use for authentication. Required if auth
-            is True. The default is ''.
+        :param str key:  (optional) The API key to use for authentication. 
+            Required if auth is True. The default is ''.
             
-        :param str secret: The secret string for the API key used for
+        :param str secret: (optional) The secret string for the API key used for
             authenticaiton. Required if auth is True. The default is ''.
             
-        :param str passphrase: The passphrase for the API key used for
-            authentication. Required if auth is True. The default is ''.
+        :param str passphrase: (optional) The passphrase for the API key used 
+            for authentication. Required if auth is True. The default is ''.
             
         :raises ValueError: If auth is True and key, secret, and passphrase are
             not provided.
@@ -79,10 +80,11 @@ class Client():
         :param str path: The path portion of the REST request. For example,
             '/products/BTC-USD/candles'
             
-        :param float timestamp: A UNIX timestamp. This parameter exists for
-            testing purposes and generally should not be used. If a timestamp
-            is provided it must be within 30 seconds of the API server's time.
-            This can be found using: use :meth:`rest.Client.get_server_time`.
+        :param float timestamp: (optional) A UNIX timestamp. This parameter 
+            exists for testing purposes and generally should not be used. If a 
+            timestamp is provided it must be within 30 seconds of the API 
+            server's time. This can be found using: 
+            :meth:`rest.Client.get_server_time`.
             
         :returns: A dict of headers to be added to the request.
         
@@ -111,25 +113,27 @@ class Client():
     async def get(self, path='/', params=None, auth=False):
         """Base method for making GET requests.
         
-        :param str path: The path not including the base URL of the
-            resource to be retrieved.
+        :param str path: (optional) The path not including the base URL of the
+            resource to be retrieved. The default is '/'.
             
-        :param dict params: Optional dictionary of key/value str pairs
+        :param dict params: (optional) Dictionary of key/value str pairs
             to be appended to the request. The default is None.
             
-        :param boolean auth: Indicates whether or not this request needs to be
-            authenticated. The default is False.
+        :param boolean auth: (optional) Indicates whether or not this request 
+            needs to be authenticated. The default is False.
             
         :returns: A 2-tuple: (response header, response body). Headers is a dict 
             with the HTTP headers of the respone. The response body is a 
             JSON-formatted, UTF-8 encoded dict.
         """
-        headers = {'USER-AGENT': _user_agent}
+        if params:
+            path += '?{}'.format(urllib.parse.urlencode(params))
         
+        headers = {'USER-AGENT': _user_agent}
         if auth:
             headers.update(self.get_auth_headers(path))
-        
-        async with self.session.get(self.url + path, params=params, headers=headers) as resp:
+            
+        async with self.session.get(self.url + path, headers=headers) as resp:
             body = await resp.json()
             headers = dict(resp.headers)
             return (headers, body)
@@ -189,8 +193,8 @@ class Client():
             and a quote currency. eg., BTC-USD, ETH-EUR, etc. To see all of 
             the product ids, use :meth:`rest.Client.get_products`.
             
-        :param int level: The level customizes the amount of detail shown. See
-            below for more detail. The default is 1.
+        :param int level: (optional) The level customizes the amount of detail 
+            shown. See below for more detail. The default is 1.
             
          **Levels**
         
@@ -314,36 +318,36 @@ class Client():
         Conversely, sell side indicates an up-tick.
         
         .. note:: This method is paginated. Methods that can return multiple 
-           pages of results return a 3-tuple instead of a just  dict or list like 
-           other methods. The first item in the tuple is the page of results -
-           a list or dict similar to other methods. The 2nd and 3rd items are
-           cursors for making requests for newer/earlier pages, the before cursor 
-           which the second item, and for making requests for older/later pages,
-           the after cursor which is the 3rd item.
+            pages of results return a 3-tuple instead of a dict or list like most
+            other methods. The first item in the tuple is the page of results -
+            a list or dict similar to other methods. The 2nd and 3rd items are
+            cursors for making requests for newer/earlier pages, the before cursor 
+            which the second item, and for making requests for older/later pages,
+            the after cursor which is the 3rd item.
         
         :param str product_id: The product id whose trades are to be retrieved.
             The product id is a string consisting of a base currency and a 
             quote currency. eg., BTC-USD, ETH-EUR, etc. To see all of the 
             product ids, use :meth:`rest.Client.get_products`.
             
-        :param int limit: The number of trades to be returned per request. The
-            default (and maximum) value is 100.
+        :param int limit: (optional) The number of results to be returned per 
+            request. The default (and maximum) value is 100.
             
-        :param int before: The before cursor value. Used to reuest a page of
-            results newer than a previous request. This would be the before 
-            cursor returned in that earlier call to this method.
+        :param int before: (optional) The before cursor value. Used to reuest a 
+            page of results newer than a previous request. This would be the 
+            before cursor returned in that earlier call to this method.
         
-        :param int after: The after cursor value. Used to reuest a page of
-            results older than a previous request. This would be the older 
-            cursor returned in that earlier call to this method.
+        :param int after: (optional) The after cursor value. Used to reuest a 
+            page of results older than a previous request. This would be the 
+            older cursor returned in that earlier call to this method.
             
         :returns: A 3-tuple: (trades, before cursor, after cursor)
             The first item is a list of dicts representing trades for the 
             product specified. The second item is the before cursor which
             can be used in squbsequent calls to retrieve a page of results
-            newer than this one. The third item is the after cursor which 
+            newer than the current one. The third item is the after cursor which 
             can be used in subsequent calls to retrieve the page of results 
-            that is older than this one. NOTE: the before cursor and after
+            that is older than the current one. NOTE: the before cursor and after
             cursor may be None if there is not an earlier page or later page
             respectively.
         
@@ -401,23 +405,23 @@ class Client():
             quote currency. eg., BTC-USD, ETH-EUR, etc. To see all of the 
             product ids, use :meth:`rest.Client.get_products`.
         
-        :param int granularity: Desired timeslice in seconds. The granularity 
-            field must be one of the following values: {60, 300, 900, 3600, 
-            21600, 86400}. Otherwise, your request will be rejected. These 
-            values correspond to timeslices representing one minute, five 
+        :param int granularity: (optional) Desired timeslice in seconds. The 
+            granularity field must be one of the following values: {60, 300, 
+            900, 3600, 21600, 86400}. Otherwise, your request will be rejected. 
+            These values correspond to timeslices representing one minute, five 
             minutes, fifteen minutes, one hour, six hours, and one day, 
             respectively. The default is 3600 (1 hour).
             
-        :param str start: The start time of the requested historic rates as 
-            a str in ISO 8601 format. This field is optional. If it is set, 
-            then stop must be set as well If neither start nor stop are set, 
-            start will default to the time relative to now() that would return 
-            300 results based on the granularity.
+        :param str start: (optional) The start time of the requested historic 
+            rates as a str in ISO 8601 format. This field is optional. If it is 
+            set, then stop must be set as well If neither start nor stop are 
+            set, start will default to the time relative to now() that would 
+            return 300 results based on the granularity.
         
-        :param datetime stop: The end time of the requested historic rates as a
-            str in ISO 8601 format. This field is optional. If it is set then 
-            start must be set as well. If it is not set, stop will default to 
-            now().
+        :param datetime stop: (optional) The end time of the requested historic 
+            rates as a str in ISO 8601 format. This field is optional. If it is 
+            set then start must be set as well. If it is not set, stop will 
+            default to now().
         
          .. note:: If either one of the start or end fields are not provided 
             then both fields will be ignored. If a custom time range is not 
@@ -602,6 +606,102 @@ class Client():
         headers, body = await self.get('/accounts/{}'.format(account_id), auth=True)
         return body
         
+    async def get_account_history(self, account_id, limit=100, before=None, after=None):
+        """List activity for an account.account
+        
+        Account activity either increases or decreases your account balance. 
+        Items are paginated and sorted latest first.
+        
+        ..note:: This method requires authorization. The API key must have 
+            either the “view” or “trade” permission.
+            
+        .. note:: This method is paginated. Methods that can return multiple 
+            pages of results return a 3-tuple instead of a dict or list like most
+            other methods. The first item in the tuple is the page of results -
+            a list or dict similar to other methods. The 2nd and 3rd items are
+            cursors for making requests for newer/earlier pages, the before cursor 
+            which the second item, and for making requests for older/later pages,
+            the after cursor which is the 3rd item.
+           
+        :param str account_id: The id of the account whose history is to be
+            retrieved.
+            
+        :param int limit: (optional) The number of results to be returned per 
+            request. The default (and maximum) value is 100.
+            
+        :param int before: (optional) The before cursor value. Used to reuest a 
+            page of results newer than a previous request. This would be the 
+            before cursor returned in that earlier call to this method. The 
+            default is None.
+        
+        :param int after: (optional) The after cursor value. Used to reuest a 
+            page of results older than a previous request. This would be the 
+            older cursor returned in that earlier call to this method. The
+            default is None.
+        
+        :returns: A 3-tuple (history, before cursor, after cursor)
+            The first item is a list of dicts each representing an instance of
+            account activity. The different types of activity returned are:
+            
+            * **transfer** Funds moved to/from Coinbase to Coinbase Pro
+            * **match** Funds moved as a result of a trade
+            * **fee** Fee as a result of a trade
+            * **rebate** Fee rebate
+            
+            The details field contains type-specific details about the specific
+            transaction.
+        
+            The second item in the tuple is the before cursor which can be used 
+            in squbsequent calls to retrieve a page of results newer than 
+            the current one. The third item is the after cursor which can be 
+            used in subsequent calls to retrieve the page of results that is 
+            older than the current one. NOTE: the before cursor and after
+            cursor may be None if there is not an earlier page or later page
+            respectively.
+        
+        :Example:
+        
+        (
+          [
+            {
+              'created_at': '2018-09-28T19:31:21.211159Z', 
+              'id': 10712040275, 
+              'amount': '-600.9103845810000000', 
+              'balance': '0.0000005931528000', 'type': 
+              'match', 
+              'details': {
+                           'order_id': 'd2fadbb5-8769-4b80-91da-be3d9c6bd38d', 
+                           'trade_id': '34209042', 
+                           'product_id': 'BTC-USD'
+                         }
+            }, 
+            {
+              'created_at': '2018-09-23T23:13:45.771507Z', 
+              'id': 1065316993, 
+              'amount': '-170.0000000000000000', 
+              'balance': '6.7138918107528000', 
+              'type': 'transfer', 
+              'details': {
+                           'transfer_id': 'd00841ff-c572-4726-b9bf-17e783159256', 
+                           'transfer_type': 'withdraw'
+                         }
+            }, 
+            ...
+          ],
+          '1071064024',
+          '1008063508'
+        )
+        """
+        params = {'limit': limit}
+        if before:
+            params.update({'before': before})
+        if after:
+            params.update({'after': after})
+            
+        headers, body = await self.get('/accounts/{}/ledger'.format(account_id), 
+                                       params=params, auth=True)
+        return (body, headers.get('cb-before', None), headers.get('cb-after', None))
+        
         
 if __name__ == '__main__':
     import os
@@ -618,7 +718,7 @@ if __name__ == '__main__':
     
     async def go():
         global results
-        results = await client.get_account(os.getenv("TEST_ACCOUNT"))
+        results = await client.get_account_history(os.getenv("TEST_ACCOUNT"))
 
     loop.run_until_complete(go())
     loop.run_until_complete(client.close())
