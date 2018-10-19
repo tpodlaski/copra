@@ -21,8 +21,8 @@ from copra import __version__
 URL = 'https://api.pro.coinbase.com'
 SANDBOX_URL = 'https://api-public.sandbox.pro.coinbase.com'
 
-_user_agent = 'Python/{} copra/{}'.format(
-    '.'.join([str(x) for x in sys.version_info[:3]]), __version__)
+USER_AGENT = 'Python/{} copra/{}'.format(
+                '.'.join([str(x) for x in sys.version_info[:3]]), __version__)
 
 class Client():
     """Asyncronous REST client for Coinbase Pro.
@@ -129,7 +129,7 @@ class Client():
         if params:
             path += '?{}'.format(urllib.parse.urlencode(params))
         
-        headers = {'USER-AGENT': _user_agent}
+        headers = {'USER-AGENT': USER_AGENT}
         if auth:
             headers.update(self.get_auth_headers(path))
             
@@ -691,6 +691,8 @@ class Client():
           '1071064024',
           '1008063508'
         )
+        
+        :raises ValueError: If the client is not configured for authorization.
         """
         params = {'limit': limit}
         if before:
@@ -702,6 +704,90 @@ class Client():
                                        params=params, auth=True)
         return (body, headers.get('cb-before', None), headers.get('cb-after', None))
         
+    async def get_holds(self, account_id, limit=100, before=None, after=None):
+        """Get any existing holds on an account.
+        
+        Holds are placed on an account for any active orders or pending withdraw 
+        requests. As an order is filled, the hold amount is updated. If an order 
+        is canceled, any remaining hold is removed. For a withdraw, once it is 
+        completed, the hold is removed.
+        
+        ..note:: This method requires authorization. The API key must have 
+            either the “view” or “trade” permission.
+            
+        .. note:: This method is paginated. Methods that can return multiple 
+            pages of results return a 3-tuple instead of a dict or list like most
+            other methods. The first item in the tuple is the page of results -
+            a list or dict similar to other methods. The 2nd and 3rd items are
+            cursors for making requests for newer/earlier pages, the before cursor 
+            which the second item, and for making requests for older/later pages,
+            the after cursor which is the 3rd item.
+            
+        :param str account_id: The acount ID to be checked for holds.
+        
+        :param int limit: (optional) The number of results to be returned per 
+            request. The default (and maximum) value is 100.
+        
+        :param int before: (optional) The before cursor value. Used to reuest a 
+            page of results newer than a previous request. This would be the 
+            before cursor returned in that earlier call to this method. The 
+            default is None.
+        
+        :param int after: (optional) The after cursor value. Used to reuest a 
+            page of results older than a previous request. This would be the 
+            older cursor returned in that earlier call to this method. The
+            default is None.
+            
+        :returns: A 3-tuple (holds, before cursor, after cursor)
+            The first item is a list of dicts each representing a hold on the 
+            account. The fields of the dict are:
+            
+            * **id** The hold id
+            * **acount_id** The id of the account the hold is on
+            * **created_at** The date and time the hold was created
+            * **updated_at** The date and time the hold was updated
+            * **amount** The amount of the hold
+            * **type** The reason for the hold, either **order** or **transfer**
+            * **ref** The id of the order or the transfer that caused the hold
+            
+            The second item in the tuple is the before cursor which can be used 
+            in squbsequent calls to retrieve a page of results newer than 
+            the current one. The third item is the after cursor which can be 
+            used in subsequent calls to retrieve the page of results that is 
+            older than the current one. NOTE: the before cursor and after
+            cursor may be None if there is not an earlier page or later page
+            respectively.
+            
+        :Example:
+        
+        (
+          [
+            {
+              "id": "82dcd140-c3c7-4507-8de4-2c529cd1a28f",
+              "account_id": "e0b3f39a-183d-453e-b754-0c13e5bab0b3",
+              "created_at": "2014-11-06T10:34:47.123456Z",
+              "updated_at": "2014-11-06T10:40:47.123456Z",
+              "amount": "4.23",
+              "type": "order",
+              "ref": "0a205de4-dd35-4370-a285-fe8fc375a273",
+            },
+            ...
+          ],
+          '1071064024',
+          '1008063508'
+        )
+            
+        :raises ValueError: If the client is not configured for authorization.
+        """
+        params = {'limit': limit}
+        if before:
+            params.update({'before': before})
+        if after:
+            params.update({'after': after})
+            
+        headers, body = await self.get('/accounts/{}/holds'.format(account_id), 
+                                       params=params, auth=True)
+        return (body, headers.get('cb-before', None), headers.get('cb-after', None))
         
 if __name__ == '__main__':
     import os
@@ -717,8 +803,8 @@ if __name__ == '__main__':
     client = Client(loop, auth=True, key=KEY, secret=SECRET, passphrase=PASSPHRASE)
     
     async def go():
-        global results
-        results = await client.get_account_history(os.getenv("TEST_ACCOUNT"))
+        holds, before, after = await client.get_holds(os.getenv("TEST_ACCOUNT"))
+        print(holds)
 
     loop.run_until_complete(go())
     loop.run_until_complete(client.close())
