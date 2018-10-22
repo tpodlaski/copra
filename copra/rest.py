@@ -63,6 +63,12 @@ class Client():
         
         self.session = aiohttp.ClientSession(loop=loop)
         
+    @property
+    def closed(self):
+        """True if the client has been closed, False otherwise
+        """
+        return self.session.closed
+        
     async def close(self):
         """Close the client session and release all aquired resources.
         """
@@ -101,7 +107,7 @@ class Client():
         hmac_key = base64.b64decode(self.secret)
         signature = hmac.new(hmac_key, message, hashlib.sha256)
         signature_b64 = base64.b64encode(signature.digest()).decode('utf-8')
-    
+        
         return {
             'Content-Type': 'Application/JSON',
             'CB-ACCESS-SIGN': signature_b64,
@@ -374,7 +380,12 @@ class Client():
           '51590012', 
           '51590010'
         )
+        
+        :raises ValueError: If before and after paramters are both sent.
         """
+        if before and after:
+            raise ValueError("before and after cannot both be provided.")  
+        
         params = {'limit': limit}
         if before:
             params.update({'before': before})

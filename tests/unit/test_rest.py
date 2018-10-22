@@ -1,46 +1,93 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Tests for `copra.rest` module.
-
-Uses http://httpbin.org/ - HTTP Request & Response Service
+"""Unit tests for `copra.rest` module.
 """
 
-from dotenv import load_dotenv
-load_dotenv()
-    
 import asyncio
 from datetime import datetime, timedelta
 import time
 import os
+from unittest import mock
 from urllib.parse import parse_qs, urlparse
 
 import aiohttp
 from asynctest import CoroutineMock, patch, TestCase
 
-from copra.rest import Client, USER_AGENT
-
-# KEY = os.getenv('KEY')
-# SECRET = os.getenv('SECRET')
-# PASSPHRASE = os.getenv('PASSPHRASE')
-# TEST_AUTH = True if (KEY and SECRET and PASSPHRASE) else False
-
-# TEST_ACCOUNT = os.getenv('TEST_ACCOUNT')
+from copra.rest import Client, URL, USER_AGENT
 
 TEST_KEY = 'a035b37f42394a6d343231f7f772b99d'
 TEST_SECRET = 'aVGe54dHHYUSudB3sJdcQx4BfQ6K5oVdcYv4eRtDN6fBHEQf5Go6BACew4G0iFjfLKJHmWY5ZEwlqxdslop4CC=='
 TEST_PASSPHRASE = 'a2f9ee4dx2b'
 
+UNAUTH_HEADERS = {'USER-AGENT': USER_AGENT}
+
+AUTH_HEADERS = {'USER-AGENT': USER_AGENT,
+                'Content-Type': 'Application/JSON',
+                'CB-ACCESS-TIMESTAMP': '*',
+                'CB-ACCESS-SIGN': '*',
+                'CB-ACCESS-KEY': TEST_KEY,
+                'CB-ACCESS-PASSPHRASE': TEST_PASSPHRASE}
+
+
 class TestRest(TestCase):
     """Tests for copra.rest.client"""
     
+    def setUp(self):
+        mock_get_patcher = patch('aiohttp.ClientSession.get')
+        self.mock_get = mock_get_patcher.start()
+        self.mock_get.side_effect = self.update_mock_get
+        self.mock_get.return_value.__aenter__.return_value.json = CoroutineMock()
+        self.addCleanup(mock_get_patcher.stop)
+        
+        self.client = Client(self.loop)
+        self.auth_client = Client(self.loop, auth=True, key=TEST_KEY, 
+                                  secret=TEST_SECRET, passphrase=TEST_PASSPHRASE)       
+    def tearDown(self):
+        self.loop.create_task(self.client.close())
+        self.loop.create_task(self.auth_client.close())
+
+    def update_mock_get(self, *args, **kwargs):
+        self.mock_get.args = args
+        self.mock_get.kwargs = kwargs
+        (self.mock_get.scheme, self.mock_get.netloc, 
+         self.mock_get.path, self.mock_get.params, self.mock_get.query_str, 
+         self.fragment) = urlparse(args[0])
+        
+        self.mock_get.query = parse_qs(self.mock_get.query_str)
+        return mock.DEFAULT
+        
+    def check_mock_get_args(self, expected_args, expected_kwargs):
+        self.assertEqual(len(self.mock_get.args), len(expected_args))
+        for i, arg_type in enumerate(expected_args):
+            self.assertIsInstance(self.mock_get.args[i], arg_type)
+            
+        self.assertEqual(len(self.mock_get.kwargs), len(expected_kwargs))
+        for name, arg_type in expected_kwargs.items():
+            self.assertIn(name, self.mock_get.kwargs)
+            self.assertIsInstance(self.mock_get.kwargs[name], arg_type)
+            
+    def check_mock_get_url(self, expected_url, expected_query=None):
+        self.assertEqual('{}://{}{}'.format(self.mock_get.scheme, 
+            self.mock_get.netloc, self.mock_get.path), expected_url)
+        
+        self.assertEqual(len(self.mock_get.query), len(expected_query))
+        for expected_key, expected_val in expected_query.items():
+            self.assertIn(expected_key, self.mock_get.query)
+            self.assertEqual(self.mock_get.query[expected_key][0], expected_val)
+            
+    def check_mock_get_headers(self, expected_headers):
+        self.assertEqual(len(self.mock_get.kwargs['headers']), len(expected_headers))
+        for expected_key, expected_val in expected_headers.items():
+            self.assertIn(expected_key, self.mock_get.kwargs['headers'])
+            if not expected_val == '*':
+                self.assertEqual(self.mock_get.kwargs['headers'][expected_key], expected_val)
+        
     async def test__init__(self):
-        client = Client(self.loop)
-        self.assertEqual(client.url, 'https://api.pro.coinbase.com')
-        await client.close()
-    
-        client = Client(self.loop, 'http://www.test.server')
-        self.assertEqual(client.url,'http://www.test.server')
-        await client.close()
+        self.assertEqual(self.client.url, URL)
+        self. assertFalse(self.client.auth)
+
+        async with Client(self.loop, 'http://www.test.server') as client:
+            self.assertEqual(client.url,'http://www.test.server')
             
         #auth, no key, secret, or passphrase
         with self.assertRaises(ValueError):
@@ -68,380 +115,406 @@ class TestRest(TestCase):
             client = Client(self.loop, auth=True, passphrase='MyPassphrase')
                         
         #auth, key, secret, passphrase
-        client = Client(self.loop, auth=True, key='mykey', secret='mysecret', 
-                        passphrase='mypassphrase')
-        self.assertTrue(client.auth)
-        self.assertEqual(client.key, 'mykey')
-        self.assertEqual(client.secret, 'mysecret')
-        self.assertEqual(client.passphrase, 'mypassphrase')
-        await client.close()
+        self.assertTrue(self.auth_client.auth)
+        self.assertEqual(self.auth_client.key, TEST_KEY)
+        self.assertEqual(self.auth_client.secret, TEST_SECRET)
+        self.assertEqual(self.auth_client.passphrase, TEST_PASSPHRASE)
+
 
     async def test_close(self):
         client = Client(self.loop)
         self.assertFalse(client.session.closed)
+        self.assertFalse(client.closed)
         await client.close()
         self.assertTrue(client.session.closed)
+        self.assertTrue(client.closed)
             
 
     async def test_context_manager(self):
         async with Client(self.loop) as client:
-            self.assertFalse(client.session.closed)
-        self.assertTrue(client.session.closed)
+            self.assertFalse(client.closed)
+        self.assertTrue(client.closed)
         
         try:
             async with Client(self.loop) as client:
-                self.assertFalse(client.session.closed)
+                self.assertFalse(client.closed)
                 #Throws ValueError
                 ob = await client.get_order_book('BTC-USD', level=99)
         except ValueError as e:
             pass
-        self.assertTrue(client.session.closed)
+        self.assertTrue(client.closed)
             
 
     async def test_get_auth_headers(self):
+        
         async with Client(self.loop) as client:
             with self.assertRaises(ValueError):
                 client.get_auth_headers('/mypath')
                     
-        async with Client(self.loop, auth=True, key=TEST_KEY, 
-                          secret=TEST_SECRET, 
-                          passphrase=TEST_PASSPHRASE) as client:
-                              
-            headers = client.get_auth_headers('/mypath', 1539968909.917318)
-            self.assertIsInstance(headers, dict)
-            self.assertEqual(headers['Content-Type'], 'Application/JSON')
-            self.assertEqual(headers['CB-ACCESS-SIGN'], 'haapGobLuJMel4ku5s7ptzyNkQdYtLPMXgQJq5f1/cg=')
-            self.assertEqual(headers['CB-ACCESS-TIMESTAMP'], str(1539968909.917318))
-            self.assertEqual(headers['CB-ACCESS-KEY'], TEST_KEY)
-            self.assertEqual(headers['CB-ACCESS-PASSPHRASE'], TEST_PASSPHRASE)
-    
-    @patch('aiohttp.ClientSession.get')
-    async def test_unauth_get(self, mock_get):
-        async with Client(self.loop, 'http://www.test.server') as client:
-            mock_get.return_value.__aenter__.return_value.json = CoroutineMock()
-            
-            resp = await client.get('/mypath', {'key1': 'item1', 'key2': 'item2'})
-            
-            self.assertEqual(len(mock_get.call_args[0]), 1)
-            self.assertIsInstance(mock_get.call_args[0][0], str)
-            
-            scheme, netloc, path, params, query_str, fragment = urlparse(mock_get.call_args[0][0])
-            
-            self.assertEqual(scheme, 'http')
-            self.assertEqual(netloc, 'www.test.server')
-            self.assertEqual(path, '/mypath')
-            
-            query = parse_qs(query_str)
-            self.assertEqual(len(query), 2)
-            self.assertEqual(query['key1'][0], 'item1')
-            self.assertEqual(query['key2'][0], 'item2')
-            
-            self.assertEqual(len(mock_get.call_args[1]), 1)
-            headers = mock_get.call_args[1]['headers']
-            self.assertEqual(len(headers), 1)
-            self.assertEqual(headers['USER-AGENT'], USER_AGENT)
+        headers = self.auth_client.get_auth_headers('/mypath', 1539968909.917318)
+        self.assertIsInstance(headers, dict)
+        self.assertEqual(headers['Content-Type'], 'Application/JSON')
+        self.assertEqual(headers['CB-ACCESS-SIGN'], 'haapGobLuJMel4ku5s7ptzyNkQdYtLPMXgQJq5f1/cg=')
+        self.assertEqual(headers['CB-ACCESS-TIMESTAMP'], str(1539968909.917318))
+        self.assertEqual(headers['CB-ACCESS-KEY'], TEST_KEY)
+        self.assertEqual(headers['CB-ACCESS-PASSPHRASE'], TEST_PASSPHRASE)
 
-   
-    @patch('aiohttp.ClientSession.get')
-    async def test_auth_get(self, mock_get):
-        async with Client(self.loop, 'https://www.test.server', auth=True,
-                          key=TEST_KEY, secret=TEST_SECRET, 
-                          passphrase=TEST_PASSPHRASE) as client:
-                              
-            mock_get.return_value.__aenter__.return_value.json = CoroutineMock()
-            
-            resp = await client.get('/mypath', auth=True)
-            
-            self.assertEqual(len(mock_get.call_args[0]), 1)
-            self.assertIsInstance(mock_get.call_args[0][0], str)
-            
-            scheme, netloc, path, params, query_str, fragment = urlparse(mock_get.call_args[0][0])
-            
-            self.assertEqual(scheme, 'https')
-            self.assertEqual(netloc, 'www.test.server')
-            self.assertEqual(path, '/mypath')
-            
-            query = parse_qs(query_str)
-            self.assertEqual(len(query), 0)
-            
-            self.assertEqual(len(mock_get.call_args[1]), 1)
-            headers = mock_get.call_args[1]['headers']
-            self.assertEqual(len(headers), 6)
-            self.assertEqual(headers['USER-AGENT'], USER_AGENT)
-            self.assertEqual(headers['Content-Type'], 'Application/JSON')
-            self.assertIn('CB-ACCESS-TIMESTAMP', headers)
-            self.assertIn('CB-ACCESS-SIGN', headers)
-            self.assertEqual(headers['CB-ACCESS-KEY'], TEST_KEY)
-            self.assertEqual(headers['CB-ACCESS-PASSPHRASE'], TEST_PASSPHRASE)
 
-    # def test_get(self):
-    #     async def go():
-    #         async with Client(self.loop, 'http://httpbin.org/') as client:
-    #             params = {'key1': 'item1', 'key2': 'item2'}
-    #             fullresp = await client.get('/get', params)
-    #             self.assertEqual(len(fullresp), 2)
-    #             headers, body = fullresp[:]
-    #             self.assertIsInstance(headers, dict)
-    #             self.assertIn('Content-Length', headers)
-    #             self.assertIsInstance(body, dict)
-    #             self.assertEqual(len(body['args']), 2)
-    #             self.assertEqual(body['args']['key1'], 'item1')
-    #             self.assertEqual(body['args']['key2'], 'item2')
-    #             self.assertEqual(body['url'], 'http://httpbin.org/get?key1=item1&key2=item2')
+    async def test_get(self):
+        path = '/myauthpath'
+        query = {'key3': 'item3', 'key4': 'item4'}
+        
+        #Unauthorized call by unauthorized client
+        resp = await self.client.get(path, query)
+        self.check_mock_get_args([str], {'headers': dict})
+        self.check_mock_get_url('{}{}'.format(URL, path), query)
+        self.check_mock_get_headers(UNAUTH_HEADERS)
+        
+        #Authorized call by unauthorized client
+        with self.assertRaises(ValueError):
+            resp = await self.client.get(path, query, auth=True)
+            
+        #Unauthorized call by authorized client
+        resp = await self.auth_client.get(path, query)
+        self.check_mock_get_args([str], {'headers': dict})
+        self.check_mock_get_url('{}{}'.format(URL, path), query)
+        self.check_mock_get_headers(UNAUTH_HEADERS)
+        
+        #Authorized call by authorized client
+        resp = await self.auth_client.get(path, query, auth=True)
+        self.check_mock_get_args([str], {'headers': dict})
+        self.check_mock_get_url('{}{}'.format(URL, path), query)
+        self.check_mock_get_headers(AUTH_HEADERS)
 
-    #     self.loop.run_until_complete(go())
-        
-    # def test_get_products(self):
-    #     async def go():
-    #         async with Client(self.loop) as client:
-    #             products = await client.get_products()
-    #             self.assertIsInstance(products, list)
-    #             self.assertIsInstance(products[0], dict)
-    #             self.assertGreater(len(products), 1)
-    #             self.assertIn('base_currency', products[0])
-    #             self.assertIn('quote_currency', products[0])
 
-    #     self.loop.run_until_complete(go())
-            
-    # def test_get_order_book(self):
-    #     async def go():
-    #         async with Client(self.loop) as client:
-            
-    #             with self.assertRaises(ValueError):
-    #                 ob = await client.get_order_book('BTC-USD', 99)
-                
-    #             ob1 = await client.get_order_book('BTC-USD')
-    #             self.assertIsInstance(ob1, dict)
-    #             self.assertEqual(len(ob1), 3)
-    #             self.assertIn('sequence', ob1)
-    #             self.assertIn('bids', ob1)
-    #             self.assertIn('asks', ob1)
-    #             self.assertEqual(len(ob1['bids']), 1)
-    #             self.assertEqual(len(ob1['asks']), 1)
-            
-    #             ob1 = await client.get_order_book('BTC-USD', level=1)
-    #             self.assertIsInstance(ob1, dict)
-    #             self.assertEqual(len(ob1), 3)
-    #             self.assertIn('sequence', ob1)
-    #             self.assertIn('bids', ob1)
-    #             self.assertIn('asks', ob1)
-    #             self.assertEqual(len(ob1['bids']), 1)
-    #             self.assertEqual(len(ob1['asks']), 1)
-            
-    #             ob2 = await client.get_order_book('BTC-USD', level=2)
-    #             self.assertIsInstance(ob2, dict)
-    #             self.assertEqual(len(ob2), 3)
-    #             self.assertIn('sequence', ob2)
-    #             self.assertIn('bids', ob2)
-    #             self.assertIn('asks', ob2)
-    #             self.assertEqual(len(ob2['bids']), 50)
-    #             self.assertEqual(len(ob2['asks']), 50)
-            
-    #             ob3 = await client.get_order_book('BTC-USD', level=3)
-    #             self.assertIsInstance(ob3, dict)
-    #             self.assertEqual(len(ob3), 3)
-    #             self.assertIn('sequence', ob3)
-    #             self.assertIn('bids', ob3)
-    #             self.assertIn('asks', ob3)
-    #             self.assertGreater(len(ob3['bids']), 50)
-    #             self.assertGreater(len(ob3['asks']), 50)
-            
-    #     self.loop.run_until_complete(go())
+    async def test_get_products(self):
         
-    # def test_get_ticker(self):
-    #     async def go():
-    #         async with Client(self.loop) as client:
-    #             tick = await client.get_ticker('BTC-USD')
-    #             self.assertIsInstance(tick, dict)
-    #             self.assertIn('trade_id', tick)
-    #             self.assertIn('price', tick)
-    #             self.assertIn('size', tick)
-    #             self.assertIn('bid', tick)
-    #             self.assertIn('ask', tick)
-    #             self.assertIn('volume', tick)
-    #             self.assertIn('time', tick)
-                
-    #     self.loop.run_until_complete(go())
-    
-    # def test_get_trades(self):
-    #     async def go():
-    #         async with Client(self.loop) as client:
-    #             trades, before, after = await client.get_trades('BTC-USD')
-    #             self.assertIsInstance(trades, list)
-    #             self.assertIsInstance(before, str)
-    #             self.assertIsInstance(after, str)
-    #             self.assertEqual(len(trades), 100)
-    #             self.assertIn('time', trades[0])
-    #             self.assertIn('trade_id', trades[0])
-    #             self.assertIn('price', trades[0])
-    #             self.assertIn('size', trades[0])
-    #             self.assertIn('side', trades[0])
-                
-    #             trades, before, after = await client.get_trades('BTC-USD', 5)
-    #             self.assertIsInstance(trades, list)
-    #             self.assertEqual(len(trades), 5)
-                
-    #             trades_after, after_after, before_after = await client.get_trades('BTC-USD', 5, after=after)
-    #             self.assertIsInstance(trades_after, list)
-    #             self.assertEqual(len(trades_after), 5)
-    #             self.assertLess(trades_after[0]['trade_id'], trades[-1]['trade_id'])
-                
-    #             trades_before, after_before, before_before = await client.get_trades('BTC-USD', 5, before=before)
-    #             if (trades_before):
-    #                 self.assertGreater(trades_before[-1]['trade_id'], trades[0]['trade_id'])
-    #             else:
-    #                 self.assertIsNone(after_before)
-    #                 self.assertIsInstance(after_after, str)
-                    
-    #             await asyncio.sleep(20)
-                
-    #             trades_before, after_before, before_before = await client.get_trades('BTC-USD', 5, before=before)
-    #             if (trades_before):
-    #                 self.assertGreater(trades_before[-1]['trade_id'], trades[0]['trade_id'])
-    #             else:
-    #                 self.assertIsNone(after_before)
-    #                 self.assertIsInstance(after_after, str)
+        products = await self.client.get_products()
+            
+        self.check_mock_get_args([str], {'headers': dict})
+        self.check_mock_get_url('{}{}'.format(URL, '/products'), {})
+        self.check_mock_get_headers(UNAUTH_HEADERS)
+            
 
-    #     self.loop.run_until_complete(go())
-    
-    # def test_get_historic_rates(self):
-    #     async def go():
-    #         async with Client(self.loop) as client:
-    #             with self.assertRaises(ValueError):
-    #                 rates = await client.get_historic_rates('BTC-USD', granularity=100)
-                    
-    #             rates = await client.get_historic_rates('BTC-USD', 900)
-    #             self.assertIsInstance(rates, list)
-    #             self.assertGreaterEqual(len(rates), 300)
-    #             self.assertEqual(len(rates[0]), 6)
-    #             self.assertEqual(rates[0][0] - rates[1][0], 900)
-                
-    #             stop = datetime.utcnow()
-    #             start = stop - timedelta(days=1)
-    #             rates = await client.get_historic_rates('LTC-USD', 3600, start.isoformat(), stop.isoformat())
-    #             self.assertIsInstance(rates, list)
-    #             self.assertEqual(len(rates), 24)
-    #             self.assertEqual(len(rates[0]), 6)
-    #             self.assertEqual(rates[0][0] - rates[1][0], 3600)
-                
+    async def test_get_order_book(self):            
+
+        with self.assertRaises(TypeError):
+            ob = await self.client.get_order_book()
+            
+        with self.assertRaises(ValueError):
+            ob = await self.client.get_order_book('BTC-USD', 99)
+            
+        #Default level 1
+        ob = await self.client.get_order_book('BTC-USD')
         
-    #     self.loop.run_until_complete(go())
-    
-    # def test_get_24hour_stats(self):
-    #     async def go():
-    #         async with Client(self.loop) as client:
-    #             stats = await client.get_24hour_stats('BTC-USD')
-    #             self.assertIsInstance(stats, dict)
-    #             self.assertEqual(len(stats), 6)
-    #             self.assertIn('open', stats)
-    #             self.assertIn('high', stats)
-    #             self.assertIn('low', stats)
-    #             self.assertIn('volume', stats)
-    #             self.assertIn('last', stats)
-    #             self.assertIn('volume_30day', stats)
-            
-    #     self.loop.run_until_complete(go())
-    
-    # def test_get_currencies(self):
-    #     async def go():
-    #         async with Client(self.loop) as client:
-    #             currencies = await client.get_currencies()
-    #             self.assertIsInstance(currencies, list)
-    #             self.assertGreater(len(currencies), 1)
-    #             self.assertIsInstance(currencies[0], dict)
-    #             self.assertIn('id', currencies[0])
-    #             self.assertIn('name', currencies[0])
-    #             self.assertIn('min_size', currencies[0])
-    #             self.assertIn('status', currencies[0])
-    #             self.assertIn('message', currencies[0])
-            
-    #     self.loop.run_until_complete(go())
-    
-    # def test_get_server_time(self):
-    #     async def go():
-    #         async with Client(self.loop) as client:
-    #             time = await client.get_server_time()
-    #             self.assertIsInstance(time, dict)
-    #             self.assertIn('iso', time)
-    #             self.assertIn('epoch', time)
-    #             self.assertIsInstance(time['iso'], str)
-    #             self.assertIsInstance(time['epoch'], float)
-                
-    #     self.loop.run_until_complete(go())
-    
-    # @unittest.skipUnless(TEST_AUTH, "Authentication credentials not provided.")
-    # def test_list_accounts(self):
-    #     async def go():
-    #         async with Client(self.loop) as client:
-    #             with self.assertRaises(ValueError):
-    #                 accounts = await client.list_accounts()
-            
-    #         async with Client(self.loop, auth=True, key=KEY, secret=SECRET, 
-    #                           passphrase=PASSPHRASE) as client:
-    #             accounts = await client.list_accounts()
-    #             self.assertIsInstance(accounts, list)
-    #             self.assertIsInstance(accounts[0], dict)
-    #             self.assertIn('id', accounts[0])
-    #             self.assertIn('currency', accounts[0])
-    #             self.assertIn('balance', accounts[0])
-    #             self.assertIn('available', accounts[0])
-    #             self.assertIn('hold', accounts[0])
-    #             self.assertIn('profile_id', accounts[0])
-                
-    #     self.loop.run_until_complete(go())
+        self.check_mock_get_args([str], {'headers': dict})
+        self.check_mock_get_url('{}{}'.format(URL, '/products/BTC-USD/book'), 
+                                {'level': '1'})
+        self.check_mock_get_headers(UNAUTH_HEADERS)
+
+        #Level 1
+        ob = await self.client.get_order_book('BTC-USD', level=1)
         
-    # @unittest.skipUnless(TEST_AUTH and TEST_ACCOUNT, "Auth credentials and test account ID required")
-    # def test_get_account(self):
-    #     async def go():
-    #         async with Client(self.loop) as client:
-    #             with self.assertRaises(ValueError):
-    #                 acount = await client.get_account(TEST_ACCOUNT)
+        self.check_mock_get_args([str], {'headers': dict})
+        self.check_mock_get_url('{}{}'.format(URL, '/products/BTC-USD/book'), 
+                                {'level': '1'})
+        self.check_mock_get_headers(UNAUTH_HEADERS)
             
-    #         async with Client(self.loop, auth=True, key=KEY, secret=SECRET, 
-    #                           passphrase=PASSPHRASE) as client:
-    #             account = await client.get_account(TEST_ACCOUNT)
-    #             self.assertIsInstance(account, dict)
-    #             self.assertIn('id', account)
-    #             self.assertIn('currency', account)
-    #             self.assertIn('balance', account)
-    #             self.assertIn('available', account)
-    #             self.assertIn('hold', account)
-    #             self.assertIn('profile_id', account)
-                
-    #     self.loop.run_until_complete(go())
+        #Level 2
+        ob = await self.client.get_order_book('BTC-USD', level=2)
         
-    # @unittest.skipUnless(TEST_AUTH and TEST_ACCOUNT, "Auth credentials and test account ID required")
-    # def test_get_account_activity(self):
-    #     async def go():
-    #         async with Client(self.loop) as client:
-    #             with self.assertRaises(ValueError):
-    #                 activity = await client.get_account_history(TEST_ACCOUNT)
-                    
-    #         async with Client(self.loop, auth=True, key=KEY, secret=SECRET, 
-    #                           passphrase=PASSPHRASE) as client:
-    #             results = await client.get_account_history(TEST_ACCOUNT)
-    #             self.assertEqual(len(results), 3)
-    #             self.assertIsInstance(results[0], list)
-    #             self.assertIsInstance(results[0][0], dict)
-    #             self.assertIsInstance(results[1], str)
-    #             self.assertIsInstance(results[2], str)
-                
-    #             next_results = await client.get_account_history(TEST_ACCOUNT, after=results[2])
-    #             self.assertEqual(len(next_results), 3)
-    #             self.assertIsInstance(next_results[0], list)
-    #             self.assertIsInstance(next_results[0][0], dict)
-    #             self.assertIsInstance(next_results[1], str)
-    #             self.assertIsInstance(next_results[2], str)
-    #             self.assertLess(next_results[0][0]['id'], results[0][-1]['id'])
-                
-    #             prev_results = await client.get_account_history(TEST_ACCOUNT, before=next_results[1])
-    #             self.assertEqual(prev_results, results)
-                
-    #             ten_results = await client.get_account_history(TEST_ACCOUNT, limit=10)
-    #             self.assertEqual(len(ten_results[0]), 10)
-                
-    #     self.loop.run_until_complete(go())
+        self.check_mock_get_args([str], {'headers': dict})
+        self.check_mock_get_url('{}{}'.format(URL, '/products/BTC-USD/book'), 
+                                {'level': '2'})
+        self.check_mock_get_headers(UNAUTH_HEADERS)
+            
+        #Level 3
+        ob = await self.client.get_order_book('BTC-USD', level=3)
+        
+        self.check_mock_get_args([str], {'headers': dict})
+        self.check_mock_get_url('{}{}'.format(URL, '/products/BTC-USD/book'), 
+                                {'level': '3'})
+        self.check_mock_get_headers(UNAUTH_HEADERS)
+
     
+    async def test_get_ticker(self):
+        
+        with self.assertRaises(TypeError):
+            tick = await self.client.get_ticker()
+            
+        tick = await self.client.get_ticker('BTC-USD')
+        
+        self.check_mock_get_args([str], {'headers': dict})
+        self.check_mock_get_url('{}{}'.format(URL, '/products/BTC-USD/ticker'), {})
+        self.check_mock_get_headers(UNAUTH_HEADERS)
+
+
+    async def test_get_trades(self):
+        
+        with self.assertRaises(TypeError):
+            trades, before, after = await self.client.get_trades()
+            
+        with self.assertRaises(ValueError):
+            trades, before, after = await self.client.get_trades('BTC-USD', before=1, after=100)
+            
+        trades, before, after = await self.client.get_trades('BTC-USD')
+        
+        self.check_mock_get_args([str], {'headers': dict})
+        self.check_mock_get_url('{}{}'.format(URL, '/products/BTC-USD/trades'), 
+                                {'limit': '100'})
+        self.check_mock_get_headers(UNAUTH_HEADERS)
+
+        ret_headers = {'cb-before': '51590012', 'cb-after': '51590010'}
+
+        body = [
+                    {
+                      'time': '2018-09-27T22:49:16.105Z', 
+                      'trade_id': 51584925, 
+                      'price': '6681.01000000', 
+                      'size': '0.02350019', 
+                      'side': 'sell'
+                    }, 
+                    {
+                      'time': '2018-09-27T22:49:12.39Z', 
+                      'trade_id': 51584924, 
+                      'price': '6681.00000000', 
+                      'size': '0.01020000', 
+                      'side': 'buy'
+                    }
+              ]
+        
+        self.mock_get.return_value.__aenter__.return_value.headers = ret_headers
+        self.mock_get.return_value.__aenter__.return_value.json.return_value = body
+            
+        trades, before, after = await self.client.get_trades('BTC-USD', limit=5)
+        
+        self.check_mock_get_args([str], {'headers': dict})
+        self.check_mock_get_url('{}{}'.format(URL, '/products/BTC-USD/trades'), 
+                                {'limit': '5'})
+        self.check_mock_get_headers(UNAUTH_HEADERS)
+
+        self.assertEqual(trades, body)
+        self.assertEqual(before, ret_headers['cb-before'])
+        self.assertEqual(after, ret_headers['cb-after'])
+            
+        prev_trades, prev_before, prev_after = await self.client.get_trades('BTC-USD', before=before)
+        
+        self.check_mock_get_args([str], {'headers': dict})
+        self.check_mock_get_url('{}{}'.format(URL, '/products/BTC-USD/trades'), 
+                                {'limit': '100', 'before': before})
+        self.check_mock_get_headers(UNAUTH_HEADERS)
+            
+        next_trades, next_before, next_after = await self.client.get_trades('BTC-USD', after=after)
+        
+        self.check_mock_get_args([str], {'headers': dict})
+        self.check_mock_get_url('{}{}'.format(URL, '/products/BTC-USD/trades'), 
+                                {'limit': '100', 'after': after})
+        self.check_mock_get_headers(UNAUTH_HEADERS)
+
+
+    async def test_get_historic_rates(self):
+        
+        with self.assertRaises(TypeError):
+            rates = await self.client.get_historic_rates()
+            
+        with self.assertRaises(ValueError):
+            rates = await self.client.get_historic_rates('BTC-USD', granularity=100)
+            
+        rates = await self.client.get_historic_rates('BTC-USD')
+        
+        self.check_mock_get_args([str], {'headers': dict})
+        self.check_mock_get_url('{}{}'.format(URL, '/products/BTC-USD/candles'), 
+                                {'granularity': '3600'})
+        self.check_mock_get_headers(UNAUTH_HEADERS)
+            
+        stop = datetime.utcnow()
+        start = stop - timedelta(days=1)
+            
+        rates = await self.client.get_historic_rates('BTC-USD', 900, 
+                                                     start.isoformat(), 
+                                                     stop.isoformat())
+        
+        self.check_mock_get_args([str], {'headers': dict})
+        self.check_mock_get_url('{}{}'.format(URL, '/products/BTC-USD/candles'), 
+                                {'granularity': '900', 
+                                 'start': start.isoformat(), 
+                                 'stop': stop.isoformat()
+                                })
+        self.check_mock_get_headers(UNAUTH_HEADERS)
+            
+            
+    async def test_get_24hour_stats(self):
+
+        with self.assertRaises(TypeError):
+            stats = await self.client.get_24hour_stats()
+
+        stats = await self.client.get_24hour_stats('BTC-USD')
+        
+        self.check_mock_get_args([str], {'headers': dict})
+        self.check_mock_get_url('{}{}'.format(URL, '/products/BTC-USD/stats'), {})
+        self.check_mock_get_headers(UNAUTH_HEADERS)
+
+
+    async def test_get_currencies(self):
+
+        currencies = await self.client.get_currencies()
+        
+        self.check_mock_get_args([str], {'headers': dict})
+        self.check_mock_get_url('{}{}'.format(URL, '/currencies'), {})
+        self.check_mock_get_headers(UNAUTH_HEADERS)
+        
+    async def test_get_server_time(self):
+        
+        time = await self.client.get_server_time()
+        
+        self.check_mock_get_args([str], {'headers': dict})
+        self.check_mock_get_url('{}{}'.format(URL, '/time'), {})
+        self.check_mock_get_headers(UNAUTH_HEADERS)
+         
+
+    async def test_list_accounts(self):
+        
+        with self.assertRaises(ValueError):
+            accounts = await self.client.list_accounts()        
+        
+        accounts = await self.auth_client.list_accounts()
+                
+        self.check_mock_get_args([str], {'headers': dict})
+        self.check_mock_get_url('{}{}'.format(URL, '/accounts'), {})
+        self.check_mock_get_headers(AUTH_HEADERS)
+
+    
+    async def test_get_account(self):
+
+        with self.assertRaises(TypeError):
+            trades, before, after = await self.auth_client.get_account()        
+
+        with self.assertRaises(ValueError):
+            acount = await self.client.get_account(42)
+            
+        account = await self.auth_client.get_account(42)    
+
+        self.check_mock_get_args([str], {'headers': dict})
+        self.check_mock_get_url('{}{}'.format(URL, '/accounts/42'), {})
+        self.check_mock_get_headers(AUTH_HEADERS)
+
+    
+    async def test_get_account_history(self):
+
+        with self.assertRaises(TypeError):
+            trades, before, after = await self.auth_client.get_account_history()
+            
+        with self.assertRaises(ValueError):
+            trades, before, after = await self.client.get_account_history(42)
+            
+        ret_headers = {'cb-before': '1071064024', 'cb-after': '1008063508'}
+
+        body = [
+                 {
+                   'created_at': '2018-09-28T19:31:21.211159Z', 
+                   'id': 10712040275, 
+                   'amount': '-600.9103845810000000', 
+                   'balance': '0.0000005931528000', 'type': 
+                   'match', 
+                   'details': {
+                                'order_id': 'd2fadbb5-8769-4b80-91da-be3d9c6bd38d', 
+                                'trade_id': '34209042', 
+                                'product_id': 'BTC-USD'
+                              }
+                 }, 
+                 {
+                   'created_at': '2018-09-23T23:13:45.771507Z', 
+                   'id': 1065316993, 
+                   'amount': '-170.0000000000000000', 
+                   'balance': '6.7138918107528000', 
+                   'type': 'transfer', 
+                   'details': {
+                                'transfer_id': 'd00841ff-c572-4726-b9bf-17e783159256', 
+                                'transfer_type': 'withdraw'
+                              }
+                 }
+              ]
+        
+        self.mock_get.return_value.__aenter__.return_value.headers = ret_headers
+        self.mock_get.return_value.__aenter__.return_value.json.return_value = body
+        
+        trades, before, after = await self.auth_client.get_account_history(42, limit=5)
+        
+        self.assertEqual(before, '1071064024')
+        self.assertEqual(after, '1008063508')
+        self.assertEqual(trades, body)
+        
+        self.check_mock_get_args([str], {'headers': dict})
+        self.check_mock_get_url('{}{}'.format(URL, '/accounts/42/ledger'), 
+                               {'limit': '5'})
+        self.check_mock_get_headers(AUTH_HEADERS)
+        
+        trades, before, after = await self.auth_client.get_account_history(42, before=before)
+        
+        self.check_mock_get_args([str], {'headers': dict})
+        self.check_mock_get_url('{}{}'.format(URL, '/accounts/42/ledger'), 
+                               {'limit': '100', 'before': before})
+        self.check_mock_get_headers(AUTH_HEADERS)       
+
+        trades, before, after = await self.auth_client.get_account_history(42, after=after)
+        
+         
+        self.check_mock_get_args([str], {'headers': dict})
+        self.check_mock_get_url('{}{}'.format(URL, '/accounts/42/ledger'), 
+                               {'limit': '100', 'after': after})
+        self.check_mock_get_headers(AUTH_HEADERS)  
+
+
+    async def test_get_holds(self):
+        
+        with self.assertRaises(TypeError):
+            holds, before, after = await self.auth_client.get_holds()
+            
+        with self.assertRaises(ValueError):
+            holds, before, after = await self.client.get_holds(42)
+            
+        ret_headers = {'cb-before': '1071064024', 'cb-after': '1008063508'}
+        
+        body = [
+                 {
+                   "id": "82dcd140-c3c7-4507-8de4-2c529cd1a28f",
+                   "account_id": "e0b3f39a-183d-453e-b754-0c13e5bab0b3",
+                   "created_at": "2014-11-06T10:34:47.123456Z",
+                   "updated_at": "2014-11-06T10:40:47.123456Z",
+                   "amount": "4.23",
+                   "type": "order",
+                   "ref": "0a205de4-dd35-4370-a285-fe8fc375a273",
+                  }
+                ]
+                
+        self.mock_get.return_value.__aenter__.return_value.headers = ret_headers
+        self.mock_get.return_value.__aenter__.return_value.json.return_value = body
+                
+        holds, before, after = await self.auth_client.get_holds(42, limit=5)
+        
+        self.assertEqual(before, '1071064024')
+        self.assertEqual(after, '1008063508')
+        self.assertEqual(holds, body)
+        
+        self.check_mock_get_args([str], {'headers': dict})
+        self.check_mock_get_url('{}{}'.format(URL, '/accounts/42/holds'), 
+                               {'limit': '5'})
+        self.check_mock_get_headers(AUTH_HEADERS)
+        
+        holds, before, after = await self.auth_client.get_holds(42, before=before)
+                                                              
+        self.check_mock_get_args([str], {'headers': dict})
+        self.check_mock_get_url('{}{}'.format(URL, '/accounts/42/holds'), 
+                               {'limit': '100', 'before': before})
+        self.check_mock_get_headers(AUTH_HEADERS)
+        
+        holds, before, after = await self.auth_client.get_holds(42, after=after)
+                                                              
+        self.check_mock_get_args([str], {'headers': dict})
+        self.check_mock_get_url('{}{}'.format(URL, '/accounts/42/holds'), 
+                               {'limit': '100', 'after': after})
+        self.check_mock_get_headers(AUTH_HEADERS)
+        
     #@patch('aiohttp.ClientSession.get')
     # def test_get_holds(self, mock_get):
     #     async def go():
