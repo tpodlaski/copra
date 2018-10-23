@@ -689,3 +689,27 @@ load_dotenv()
     #             self.assertEqual(len(ten_results[0]), 10)
                 
     #     self.loop.run_until_complete(go())
+    
+    #@patch('aiohttp.ClientSession.get')
+    # def test_get_holds(self, mock_get):
+    #     async def go():
+    #         async with Client(self.loop) as client:
+    #             with self.assertRaises(ValueError):
+    #                 holds, before, after = await client.get_holds('ACCOUNT ID')
+                    
+    #         holds = [{'key', 'hold place holder'}] 
+            
+    #         mo = MagicMock()
+    #         mo.__aenter__ = MagicMock(return_value = mo)
+    #         mo.__aexit__ = MagicMock(return_value = None)
+    #         mock_get.return_value = mo
+            
+
+    #         async with Client(self.loop, auth=True, key=MOCK_KEY, 
+    #                           secret=MOCK_SECRET, 
+    #                           passphrase=MOCK_PASSPHRASE) as client:
+    #                 holds, before, after = await client.get_holds('ACCOUNT ID')
+                    
+    #                 print(holds)
+        
+    #     self.loop.run_until_complete(go())

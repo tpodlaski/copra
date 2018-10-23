@@ -800,6 +800,170 @@ class Client():
                                        params=params, auth=True)
         return (body, headers.get('cb-before', None), headers.get('cb-after', None))
         
+        
+    async def place_order(self, side, product_id, order_type='limit', price=None,
+                          size=None, funds=None, time_in_force='GTC', 
+                          cancel_after=None, post_only=True, stop=None,
+                          stop_price=None, client_oid=None, stp='dc'):
+        """Place a new order.
+        
+        You can place two types of orders: limit and market. Orders can only be 
+        placed if your account has sufficient funds. Once an order is placed, 
+        your account funds will be put on hold for the duration of the order. 
+        How much and which funds are put on hold depends on the order type and 
+        parameters specified. 
+        
+        ..note:: This method requires authorization. The API key must have 
+            the “trade” permission.
+            
+        :param str side: Either buy or sell
+        
+        :param str product_id: The product id to be bought or sold.
+            The product id is a string consisting of a base currency and a 
+            quote currency. eg., BTC-USD, ETH-EUR, etc. To see all of the 
+            product ids, use :meth:`rest.Client.get_products`.
+            
+        :param str order_type: The type of the order. This must be either limit
+            or market. The order type you specify will influence which other 
+            order parameters are required as well as how your order will be 
+            executed by the matching engine. If order_type is not specified, 
+            the order will default to a limit order.
+            
+        :param float price: For limit orders this is the price the order is to
+            be executed at. This paramater may also be a string to avoid 
+            floating point issues. The default is None.
+            
+        :param float size: For both limit and market orders this is the quantity
+            of the cryptocurrency to buy or sell. This parameter may also be
+            a string. The default is None
+            
+        :param float funds: For market orders, this is the amount of quote
+            currency to be used for a purchase (buy) or the amount to be 
+            obtained from a sale (sell). Either size or funds must be set
+            for a market order but not both. This may also be a string. The
+            default is None.
+        
+        :param str time_in_force: For limit orders, time in force policies 
+            provide guarantees about the lifetime of an order. There are 
+            four policies: good till canceled GTC, good till time GTT, immediate 
+            or cancel IOC, and fill or kill FOK. The default is GTC.
+            
+        :param str cancel_after: The length of time before a GTT order is 
+            cancelled. Must be either min, hour, or day. time_in_force must 
+            be GTT or an error is raised. If cancel_after is not set for a GTT
+            order, the order will be treated as GTC. The default is None.
+            
+        :param bool post_only: The post only flag for limit orders. It indicates 
+            that the order should only make liquidity. If any part of the order 
+            results in taking liquidity, the order will be rejected and no part 
+            of it will execute. This flag is ignored for IOC and FOK orders. The
+            default is True.
+            
+        :param str stop: If this is a stop order, this value must be either loss
+            or entry. Requires stop_price to be set. The default is None.
+            
+        :param float stop_price: The trigger price for stop orders. Ignored if
+            stop is not set. This may also be a string. The default is None.
+            
+        :param str client_oid: A self generated ID to identify the order. The
+            default is None.
+            
+        :param str stp: Self trade preservation flag. The possible values are
+            dc (decrease and cancel), co (cancel oldest), cn (cancel newest),
+            or cb (cancel both). The default is dc.
+            
+        ..note:: To see a more detailed explanation of these parameters and to
+            learn more about the order life cycle, please see the official 
+            Coinbase Pro API documentation at: https://docs.gdax.com/#channels.
+        
+        :raises ValueError: If... 
+        
+            * The client is not configured for authorization.
+            * The side is not either "buy" or "sell".
+            * The order_type is not either "limit" or "market".
+            * If the order_type is limit and size and price are
+                not set.
+            * The time_in_force for a limit order is not GTC, GTT, IOC or FOK.
+            * cancel_after is set for a limit order but time_in_force isn't GTT.
+            * cancel_after for a limit order is set but isn't min, hour or day.
+            * A market order doesn't have either funds or size set.
+            * A market order has both funds and size set.
+            * stop is set to something other than loss or entry.
+            * A stop order does not have stop_price set.
+            * stp is a value other than dc. co, cn, or cb.
+        """
+        
+        if side not in ('buy', 'sell'):
+            raise ValueError("Invalid side: {}. Must be either buy or sell".format(side))
+            
+        if order_type not in ('limit', 'market'):
+            raise ValueError("Invalid order type: {}. Must be either market or limit".format(order_type))
+            
+        if stop and stop not in ('loss', 'entry'):
+            raise ValueError("Invalid stop: {}. Must be either loss or entry.".format(stop))
+            
+        if stop and not stop_price:
+            raise ValueError("Stop orders must have stop_price set.")
+            
+        if stp not in ('dc', 'co', 'cn', 'cb'):
+            raise ValueError('Invalid stp: {}. Must be dc, co, cn, or cb.'.format(stp))
+        
+        params = {
+                  'side': side,
+                  'product_id': product_id,
+                  'order_type': order_type,
+                  'stp': stp
+                 }
+                 
+        if stop:
+            params.update({'stop': stop, 'stop_price': stop_price})
+            
+        if client_oid:
+            params['client_oid'] = client_oid
+                 
+        if order_type == 'limit':
+            
+            if not (price and size):
+                raise ValueError('Limit orders must have both price and size set.')
+                
+            if time_in_force not in ('GTC', 'GTT', 'IOC', 'FOK'):
+                raise ValueError('time_in_force must be GTC, GCC, IOC or FOK.')
+                
+            if cancel_after and not time_in_force == 'GTT':
+                raise ValueError('cancel_after requires time_in_force to be GTT')
+                
+            if cancel_after and cancel_after not in ('min', 'hour', 'day'):
+                raise ValueError('cancel_after must be min, hour, or day')
+                
+            params.update({
+                            'price': price,
+                            'size': size,
+                            'time_in_force': time_in_force,
+                            'post_only': post_only
+                         })
+                         
+            if cancel_after:
+                params['cancel_after'] = cancel_after
+                
+        else:
+            
+            if not (funds or size):
+                raise ValueError('Market orders must have funds or size set.')
+                
+            if funds and size:
+                raise ValueError("Market orders can't have both funds and size set.")
+                
+            if size:
+                params['size'] = size
+                
+            if funds:
+                params['funds'] = funds
+        
+        resp = await self.get('/orders', params=params, auth=True)
+        
+        return resp
+        
+        
 if __name__ == '__main__':
     import os
     from dotenv import load_dotenv
