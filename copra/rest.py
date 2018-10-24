@@ -23,8 +23,67 @@ SANDBOX_URL = 'https://api-public.sandbox.pro.coinbase.com'
 
 USER_AGENT = 'Python/{} copra/{}'.format(
                 '.'.join([str(x) for x in sys.version_info[:3]]), __version__)
+                
+HEADERS = {'USER-AGENT': USER_AGENT}
 
-class Client():
+class BaseClient():
+    """Generic asyncronous REST client.
+    
+    This client provides the core GET/POST/DELETE functionality for the 
+    copra.rest.Client class.
+    """
+    
+    def __init__(self, loop):
+        """
+        
+        :param loop: The asyncio loop that the client runs in.
+        :type loop: asyncio loop
+        """
+        self.loop = loop
+        self.session = aiohttp.ClientSession(loop=loop)
+    
+       
+    @property
+    def closed(self):
+        """True if the client has been closed, False otherwise
+        """
+        return self.session.closed
+        
+        
+    async def close(self):
+        """Close the client session and release all aquired resources.
+        """
+        await self.session.close()
+        
+    
+    async def __aenter__(self):
+        return self
+    
+    async def __aexit__(self, exc_type, exc_value, traceback):
+        await self.session.close()
+        
+        
+    async def get(self, url, params=None, headers=HEADERS):
+        """Base method for making GET requests.
+        
+        :param str url: The url of the resource to be retrieved.
+        
+        :param dict params: (optional) key/value pairs to be sent as parameters 
+            in the query string of the request.
+            
+        :param dict headers: (optional) key/value pairs to be sent as headers
+            for the request. The default is just the USER-AGENT string for the
+            copra client.
+        
+        """
+        if params:
+            url += '?{}'.format(urllib.parse.urlencode(params))
+            
+        resp = await self.session.get(url, headers=headers)
+        
+        return resp
+
+class Client(BaseClient):
     """Asyncronous REST client for Coinbase Pro.
     """
     
@@ -50,7 +109,6 @@ class Client():
         :raises ValueError: If auth is True and key, secret, and passphrase are
             not provided.
         """
-        self.loop = loop
         self.url = url
         
         if auth and not (key and secret and passphrase):
@@ -60,26 +118,10 @@ class Client():
         self.key = key
         self.secret = secret
         self.passphrase = passphrase
-        
-        self.session = aiohttp.ClientSession(loop=loop)
-        
-    @property
-    def closed(self):
-        """True if the client has been closed, False otherwise
-        """
-        return self.session.closed
-        
-    async def close(self):
-        """Close the client session and release all aquired resources.
-        """
-        await self.session.close()
-        
-    async def __aenter__(self):
-        return self
-    
-    async def __aexit__(self, exc_type, exc_value, traceback):
-        await self.session.close()
-        
+
+        super().__init__(loop)
+
+
     def get_auth_headers(self, path, timestamp=None):
         """Get the headers necessary to authenticate a client request.
         
@@ -109,6 +151,7 @@ class Client():
         signature_b64 = base64.b64encode(signature.digest()).decode('utf-8')
         
         return {
+            'USER-AGENT': USER_AGENT,
             'Content-Type': 'Application/JSON',
             'CB-ACCESS-SIGN': signature_b64,
             'CB-ACCESS-TIMESTAMP': timestamp,
@@ -116,8 +159,9 @@ class Client():
             'CB-ACCESS-PASSPHRASE': self.passphrase
         }
         
+
     async def get(self, path='/', params=None, auth=False):
-        """Base method for making GET requests.
+        """Method for making GET requests.
         
         :param str path: (optional) The path not including the base URL of the
             resource to be retrieved. The default is '/'.
@@ -132,17 +176,38 @@ class Client():
             with the HTTP headers of the respone. The response body is a 
             JSON-formatted, UTF-8 encoded dict.
         """
-        if params:
-            path += '?{}'.format(urllib.parse.urlencode(params))
+        req_headers = self.get_auth_headers(path) if auth else HEADERS
+        resp = await super().get(self.url + path, params, headers=req_headers)
+        body = await resp.json()
+        headers = dict(resp.headers)
+        return (headers, body)
+
+
+    async def post(self, path='/', data=None, auth=False):
+        """Base method for making POST requests.
         
+        :param str path: (optional) The path not including the base URL of the
+            resource to be POST'ed to. The default is '/'
+            
+        :param dict data: (optional) Dictionary of key/value str pairs
+            to be sent in the body of the request. The default is None.
+            
+        :param boolean auth: (optional) Indicates whether or not this request 
+            needs to be authenticated. The default is False.
+            
+        :returns: A 2-tuple: (response header, response body). Headers is a dict 
+            with the HTTP headers of the respone. The response body is a 
+            JSON-formatted, UTF-8 encoded dict.
+        """
         headers = {'USER-AGENT': USER_AGENT}
         if auth:
             headers.update(self.get_auth_headers(path))
             
-        async with self.session.get(self.url + path, headers=headers) as resp:
+        async with self.session.post(self.url + path, data, headers=headers) as resp:
             body = await resp.json()
             headers = dict(resp.headers)
             return (headers, body)
+            
             
     async def get_products(self):
         """Get a list of available currency pairs for trading.
@@ -962,6 +1027,10 @@ class Client():
         resp = await self.get('/orders', params=params, auth=True)
         
         return resp
+        
+    
+    async def cancel_order(self):
+        pass
         
         
 if __name__ == '__main__':

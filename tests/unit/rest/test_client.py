@@ -7,81 +7,56 @@ import asyncio
 from datetime import datetime, timedelta
 import time
 import os
-from unittest import mock
-from urllib.parse import parse_qs, urlparse
 
 import aiohttp
 from asynctest import CoroutineMock, patch, TestCase
 
-from copra.rest import Client, URL, USER_AGENT
+from copra.rest import Client, URL, HEADERS
+from tests.unit.rest.util import *
+
 
 TEST_KEY = 'a035b37f42394a6d343231f7f772b99d'
 TEST_SECRET = 'aVGe54dHHYUSudB3sJdcQx4BfQ6K5oVdcYv4eRtDN6fBHEQf5Go6BACew4G0iFjfLKJHmWY5ZEwlqxdslop4CC=='
 TEST_PASSPHRASE = 'a2f9ee4dx2b'
 
-UNAUTH_HEADERS = {'USER-AGENT': USER_AGENT}
+AUTH_HEADERS = UNAUTH_HEADERS = HEADERS
 
-AUTH_HEADERS = {'USER-AGENT': USER_AGENT,
-                'Content-Type': 'Application/JSON',
-                'CB-ACCESS-TIMESTAMP': '*',
-                'CB-ACCESS-SIGN': '*',
-                'CB-ACCESS-KEY': TEST_KEY,
-                'CB-ACCESS-PASSPHRASE': TEST_PASSPHRASE}
+AUTH_HEADERS.update({
+                      'Content-Type': 'Application/JSON',
+                      'CB-ACCESS-TIMESTAMP': '*',
+                      'CB-ACCESS-SIGN': '*',
+                      'CB-ACCESS-KEY': TEST_KEY,
+                      'CB-ACCESS-PASSPHRASE': TEST_PASSPHRASE
+                    })
 
 
 class TestRest(TestCase):
     """Tests for copra.rest.client"""
     
+    update_mock_get = update_mock_get
+    check_mock_get_args = check_mock_get_args
+    check_mock_get_url = check_mock_get_url
+    check_mock_get_headers = check_mock_get_headers
+    
+    def setup(self):
+        pass
+    
     def setUp(self):
-        mock_get_patcher = patch('aiohttp.ClientSession.get')
+        mock_get_patcher = patch('aiohttp.ClientSession.get', new_callable=CoroutineMock)
         self.mock_get = mock_get_patcher.start()
         self.mock_get.side_effect = self.update_mock_get
-        self.mock_get.return_value.__aenter__.return_value.json = CoroutineMock()
+        self.mock_get.return_value.json = CoroutineMock()
         self.addCleanup(mock_get_patcher.stop)
         
         self.client = Client(self.loop)
         self.auth_client = Client(self.loop, auth=True, key=TEST_KEY, 
                                   secret=TEST_SECRET, passphrase=TEST_PASSPHRASE)       
+    
     def tearDown(self):
         self.loop.create_task(self.client.close())
         self.loop.create_task(self.auth_client.close())
 
-    def update_mock_get(self, *args, **kwargs):
-        self.mock_get.args = args
-        self.mock_get.kwargs = kwargs
-        (self.mock_get.scheme, self.mock_get.netloc, 
-         self.mock_get.path, self.mock_get.params, self.mock_get.query_str, 
-         self.fragment) = urlparse(args[0])
-        
-        self.mock_get.query = parse_qs(self.mock_get.query_str)
-        return mock.DEFAULT
-        
-    def check_mock_get_args(self, expected_args, expected_kwargs):
-        self.assertEqual(len(self.mock_get.args), len(expected_args))
-        for i, arg_type in enumerate(expected_args):
-            self.assertIsInstance(self.mock_get.args[i], arg_type)
-            
-        self.assertEqual(len(self.mock_get.kwargs), len(expected_kwargs))
-        for name, arg_type in expected_kwargs.items():
-            self.assertIn(name, self.mock_get.kwargs)
-            self.assertIsInstance(self.mock_get.kwargs[name], arg_type)
-            
-    def check_mock_get_url(self, expected_url, expected_query=None):
-        self.assertEqual('{}://{}{}'.format(self.mock_get.scheme, 
-            self.mock_get.netloc, self.mock_get.path), expected_url)
-        
-        self.assertEqual(len(self.mock_get.query), len(expected_query))
-        for expected_key, expected_val in expected_query.items():
-            self.assertIn(expected_key, self.mock_get.query)
-            self.assertEqual(self.mock_get.query[expected_key][0], expected_val)
-            
-    def check_mock_get_headers(self, expected_headers):
-        self.assertEqual(len(self.mock_get.kwargs['headers']), len(expected_headers))
-        for expected_key, expected_val in expected_headers.items():
-            self.assertIn(expected_key, self.mock_get.kwargs['headers'])
-            if not expected_val == '*':
-                self.assertEqual(self.mock_get.kwargs['headers'][expected_key], expected_val)
-        
+
     async def test__init__(self):
         self.assertEqual(self.client.url, URL)
         self. assertFalse(self.client.auth)
@@ -121,30 +96,6 @@ class TestRest(TestCase):
         self.assertEqual(self.auth_client.passphrase, TEST_PASSPHRASE)
 
 
-    async def test_close(self):
-        client = Client(self.loop)
-        self.assertFalse(client.session.closed)
-        self.assertFalse(client.closed)
-        await client.close()
-        self.assertTrue(client.session.closed)
-        self.assertTrue(client.closed)
-            
-
-    async def test_context_manager(self):
-        async with Client(self.loop) as client:
-            self.assertFalse(client.closed)
-        self.assertTrue(client.closed)
-        
-        try:
-            async with Client(self.loop) as client:
-                self.assertFalse(client.closed)
-                #Throws ValueError
-                ob = await client.get_order_book('BTC-USD', level=99)
-        except ValueError as e:
-            pass
-        self.assertTrue(client.closed)
-            
-
     async def test_get_auth_headers(self):
         
         async with Client(self.loop) as client:
@@ -161,8 +112,8 @@ class TestRest(TestCase):
 
 
     async def test_get(self):
-        path = '/myauthpath'
-        query = {'key3': 'item3', 'key4': 'item4'}
+        path = '/mypath'
+        query = {'key1': 'item1', 'key2': 'item2'}
         
         #Unauthorized call by unauthorized client
         resp = await self.client.get(path, query)
@@ -283,8 +234,8 @@ class TestRest(TestCase):
                     }
               ]
         
-        self.mock_get.return_value.__aenter__.return_value.headers = ret_headers
-        self.mock_get.return_value.__aenter__.return_value.json.return_value = body
+        self.mock_get.return_value.headers = ret_headers
+        self.mock_get.return_value.json.return_value = body
             
         trades, before, after = await self.client.get_trades('BTC-USD', limit=5)
         
@@ -411,33 +362,33 @@ class TestRest(TestCase):
 
         body = [
                  {
-                   'created_at': '2018-09-28T19:31:21.211159Z', 
-                   'id': 10712040275, 
-                   'amount': '-600.9103845810000000', 
-                   'balance': '0.0000005931528000', 'type': 
-                   'match', 
-                   'details': {
+                  'created_at': '2018-09-28T19:31:21.211159Z', 
+                  'id': 10712040275, 
+                  'amount': '-600.9103845810000000', 
+                  'balance': '0.0000005931528000', 'type': 
+                  'match', 
+                  'details': {
                                 'order_id': 'd2fadbb5-8769-4b80-91da-be3d9c6bd38d', 
                                 'trade_id': '34209042', 
                                 'product_id': 'BTC-USD'
                               }
                  }, 
                  {
-                   'created_at': '2018-09-23T23:13:45.771507Z', 
-                   'id': 1065316993, 
-                   'amount': '-170.0000000000000000', 
-                   'balance': '6.7138918107528000', 
-                   'type': 'transfer', 
-                   'details': {
+                  'created_at': '2018-09-23T23:13:45.771507Z', 
+                  'id': 1065316993, 
+                  'amount': '-170.0000000000000000', 
+                  'balance': '6.7138918107528000', 
+                  'type': 'transfer', 
+                  'details': {
                                 'transfer_id': 'd00841ff-c572-4726-b9bf-17e783159256', 
                                 'transfer_type': 'withdraw'
                               }
                  }
               ]
         
-        self.mock_get.return_value.__aenter__.return_value.headers = ret_headers
-        self.mock_get.return_value.__aenter__.return_value.json.return_value = body
-        
+        self.mock_get.return_value.headers = ret_headers
+        self.mock_get.return_value.json.return_value = body
+
         trades, before, after = await self.auth_client.get_account_history(42, limit=5)
         
         self.assertEqual(before, '1071064024')
@@ -446,14 +397,14 @@ class TestRest(TestCase):
         
         self.check_mock_get_args([str], {'headers': dict})
         self.check_mock_get_url('{}{}'.format(URL, '/accounts/42/ledger'), 
-                               {'limit': '5'})
+                              {'limit': '5'})
         self.check_mock_get_headers(AUTH_HEADERS)
         
         trades, before, after = await self.auth_client.get_account_history(42, before=before)
         
         self.check_mock_get_args([str], {'headers': dict})
         self.check_mock_get_url('{}{}'.format(URL, '/accounts/42/ledger'), 
-                               {'limit': '100', 'before': before})
+                              {'limit': '100', 'before': before})
         self.check_mock_get_headers(AUTH_HEADERS)       
 
         trades, before, after = await self.auth_client.get_account_history(42, after=after)
@@ -461,7 +412,7 @@ class TestRest(TestCase):
          
         self.check_mock_get_args([str], {'headers': dict})
         self.check_mock_get_url('{}{}'.format(URL, '/accounts/42/ledger'), 
-                               {'limit': '100', 'after': after})
+                              {'limit': '100', 'after': after})
         self.check_mock_get_headers(AUTH_HEADERS)  
 
 
@@ -477,18 +428,18 @@ class TestRest(TestCase):
         
         body = [
                  {
-                   "id": "82dcd140-c3c7-4507-8de4-2c529cd1a28f",
-                   "account_id": "e0b3f39a-183d-453e-b754-0c13e5bab0b3",
-                   "created_at": "2014-11-06T10:34:47.123456Z",
-                   "updated_at": "2014-11-06T10:40:47.123456Z",
-                   "amount": "4.23",
-                   "type": "order",
-                   "ref": "0a205de4-dd35-4370-a285-fe8fc375a273",
+                  "id": "82dcd140-c3c7-4507-8de4-2c529cd1a28f",
+                  "account_id": "e0b3f39a-183d-453e-b754-0c13e5bab0b3",
+                  "created_at": "2014-11-06T10:34:47.123456Z",
+                  "updated_at": "2014-11-06T10:40:47.123456Z",
+                  "amount": "4.23",
+                  "type": "order",
+                  "ref": "0a205de4-dd35-4370-a285-fe8fc375a273",
                   }
                 ]
                 
-        self.mock_get.return_value.__aenter__.return_value.headers = ret_headers
-        self.mock_get.return_value.__aenter__.return_value.json.return_value = body
+        self.mock_get.return_value.headers = ret_headers
+        self.mock_get.return_value.json.return_value = body
                 
         holds, before, after = await self.auth_client.get_holds(42, limit=5)
         
@@ -498,21 +449,21 @@ class TestRest(TestCase):
         
         self.check_mock_get_args([str], {'headers': dict})
         self.check_mock_get_url('{}{}'.format(URL, '/accounts/42/holds'), 
-                               {'limit': '5'})
+                              {'limit': '5'})
         self.check_mock_get_headers(AUTH_HEADERS)
         
         holds, before, after = await self.auth_client.get_holds(42, before=before)
                                                               
         self.check_mock_get_args([str], {'headers': dict})
         self.check_mock_get_url('{}{}'.format(URL, '/accounts/42/holds'), 
-                               {'limit': '100', 'before': before})
+                              {'limit': '100', 'before': before})
         self.check_mock_get_headers(AUTH_HEADERS)
         
         holds, before, after = await self.auth_client.get_holds(42, after=after)
                                                               
         self.check_mock_get_args([str], {'headers': dict})
         self.check_mock_get_url('{}{}'.format(URL, '/accounts/42/holds'), 
-                               {'limit': '100', 'after': after})
+                              {'limit': '100', 'after': after})
         self.check_mock_get_headers(AUTH_HEADERS)
 
       
@@ -664,15 +615,15 @@ class TestRest(TestCase):
         self.check_mock_get_args([str], {'headers': dict})
         self.check_mock_get_url('{}{}'.format(URL, '/orders'), 
                               {'side': 'buy', 
-                               'product_id': 'BTC-USD',
-                               'order_type': 'limit',
-                               'price': '100.1',
-                               'size': '5',
-                               'time_in_force': 'GTC',
-                               'post_only': 'True',
-                               'stop': 'loss',
-                               'stop_price': '105',
-                               'stp': 'dc'
+                              'product_id': 'BTC-USD',
+                              'order_type': 'limit',
+                              'price': '100.1',
+                              'size': '5',
+                              'time_in_force': 'GTC',
+                              'post_only': 'True',
+                              'stop': 'loss',
+                              'stop_price': '105',
+                              'stp': 'dc'
                               })
         self.check_mock_get_headers(AUTH_HEADERS)
         
