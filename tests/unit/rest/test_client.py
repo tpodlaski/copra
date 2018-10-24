@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Unit tests for `copra.rest` module.
+"""Unit tests for `copra.rest.Client` class.
 """
 
 import asyncio
