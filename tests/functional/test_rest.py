@@ -15,23 +15,6 @@ load_dotenv()
 
 # TEST_ACCOUNT = os.getenv('TEST_ACCOUNT')
 
-    # def test_get(self):
-    #     async def go():
-    #         async with Client(self.loop, 'http://httpbin.org/') as client:
-    #             params = {'key1': 'item1', 'key2': 'item2'}
-    #             fullresp = await client.get('/get', params)
-    #             self.assertEqual(len(fullresp), 2)
-    #             headers, body = fullresp[:]
-    #             self.assertIsInstance(headers, dict)
-    #             self.assertIn('Content-Length', headers)
-    #             self.assertIsInstance(body, dict)
-    #             self.assertEqual(len(body['args']), 2)
-    #             self.assertEqual(body['args']['key1'], 'item1')
-    #             self.assertEqual(body['args']['key2'], 'item2')
-    #             self.assertEqual(body['url'], 'http://httpbin.org/get?key1=item1&key2=item2')
-
-    #     self.loop.run_until_complete(go())
-    
     # def test_get_products(self):
     #     async def go():
     #         async with Client(self.loop) as client:

@@ -6,7 +6,6 @@
 import asyncio
 from datetime import datetime, timedelta
 import time
-import os
 
 import aiohttp
 from asynctest import CoroutineMock, patch, TestCase
@@ -37,10 +36,7 @@ class TestRest(TestCase):
     check_mock_get_args = check_mock_get_args
     check_mock_get_url = check_mock_get_url
     check_mock_get_headers = check_mock_get_headers
-    
-    def setup(self):
-        pass
-    
+
     def setUp(self):
         mock_get_patcher = patch('aiohttp.ClientSession.get', new_callable=CoroutineMock)
         self.mock_get = mock_get_patcher.start()
