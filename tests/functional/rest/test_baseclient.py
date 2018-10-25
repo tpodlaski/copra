@@ -19,6 +19,7 @@ class TestBaseClient(TestCase):
         
     def tearDown(self):
         self.loop.create_task(self.client.close())
+        self.loop.run_until_complete(asyncio.sleep(0.250))
 
     async def test_user_agent(self):
         

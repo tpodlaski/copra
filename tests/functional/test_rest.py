@@ -1,31 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-"""Tests for `copra.rest` module.
-
-Uses http://httpbin.org/ - HTTP Request & Response Service
-"""
-
-from dotenv import load_dotenv
-load_dotenv()
-
-# KEY = os.getenv('KEY')
-# SECRET = os.getenv('SECRET')
-# PASSPHRASE = os.getenv('PASSPHRASE')
-# TEST_AUTH = True if (KEY and SECRET and PASSPHRASE) else False
-
-# TEST_ACCOUNT = os.getenv('TEST_ACCOUNT')
-
-    # def test_get_products(self):
-    #     async def go():
-    #         async with Client(self.loop) as client:
-    #             products = await client.get_products()
-    #             self.assertIsInstance(products, list)
-    #             self.assertIsInstance(products[0], dict)
-    #             self.assertGreater(len(products), 1)
-    #             self.assertIn('base_currency', products[0])
-    #             self.assertIn('quote_currency', products[0])
-
-    #     self.loop.run_until_complete(go())
 
 
     # def test_get_order_book(self):

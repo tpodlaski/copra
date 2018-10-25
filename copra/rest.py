@@ -54,7 +54,6 @@ class BaseClient():
         """Close the client session and release all aquired resources.
         """
         await self.session.close()
-        
     
     async def __aenter__(self):
         return self
