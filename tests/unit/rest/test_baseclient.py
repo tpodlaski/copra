@@ -13,7 +13,7 @@ from tests.unit.rest.util import *
 
         
 class TestBaseClient(TestCase):
-    """Tests for copra.rest.client"""
+    """Tests for copra.rest.BaseClient"""
     
     update_mock_get = update_mock_get
     check_mock_get_args = check_mock_get_args
@@ -67,7 +67,7 @@ class TestBaseClient(TestCase):
         
         url = 'http://httpbin.org/'
         params = {'key1': 'item1', 'key2': 'item2'}
-        headers = {'USER-AGENT': '007', 'Content-Type:': 'shaken'}
+        headers = {'USER-AGENT': '007', 'Content-Type': 'shaken'}
         
         #No params, default headers
         resp = await client.get(url)

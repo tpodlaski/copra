@@ -31,7 +31,7 @@ AUTH_HEADERS.update({
 
 
 class TestRest(TestCase):
-    """Tests for copra.rest.client"""
+    """Tests for copra.rest.Client"""
     
     update_mock_get = update_mock_get
     check_mock_get_args = check_mock_get_args
