@@ -92,14 +92,49 @@ class TestRest(TestCase):
         self.assertGreaterEqual(len(ob3['asks']), 50)
         self.assertGreaterEqual(len(ob3['asks'][0]), 3)            
 
+    
+    async def test_get_ticker(self):
+        
+        keys = ('trade_id', 'price', 'size', 'bid', 'ask', 'volume', 'time')
+        
+        tick = await self.client.get_ticker('BTC-USD')
+        self.assertIsInstance(tick, dict)
+        self.assertEqual(len(tick), len(keys))
+        for key in keys:
+            self.assertIn(key, tick)
+        
+    
+    async def test_get_trades(self):
+        
+        keys = ('time', 'trade_id', 'price', 'size', 'side')
+        
+        trades, before, after = await self.client.get_trades('BTC-USD')
+        self.assertIsInstance(trades, list)
+        self.assertIsInstance(trades[0], dict)
+        self.assertIsInstance(before, str)
+        self.assertIsInstance(after, str)
+        self.assertEqual(len(trades), 100)
+        for key in keys:
+            self.assertIn(key, trades[0])
             
+        trades, before, after = await self.client.get_trades('BTC-USD', 5)
+        self.assertEqual(len(trades), 5)
 
+        trades_after, after_after, before_after = await self.client.get_trades('BTC-USD', 5, after=after)
+        self.assertLess(trades_after[0]['trade_id'], trades[-1]['trade_id'])
+                
+        trades_before, after_before, before_before = await self.client.get_trades('BTC-USD', 5, before=before)
+        if trades_before:
+            self.assertGreater(trades_before[-1]['trade_id'], trades[0]['trade_id'])
+        else:
+            self.assertIsNone(after_before)
+            self.assertIsInstance(after_after, str)
             
-    #             ob3 = await client.get_order_book('BTC-USD', level=3)
-    #             self.assertIsInstance(ob3, dict)
-    #             self.assertEqual(len(ob3), 3)
-    #             self.assertIn('sequence', ob3)
-    #             self.assertIn('bids', ob3)
-    #             self.assertIn('asks', ob3)
-    #             self.assertGreater(len(ob3['bids']), 50)
-    #             self.assertGreater(len(ob3['asks']), 50)
+            await asyncio.sleep(20)
+    
+            trades_before, after_before, before_before = await self.client.get_trades('BTC-USD', 5, before=before)
+            if (trades_before):
+                self.assertGreater(trades_before[-1]['trade_id'], trades[0]['trade_id'])
+            else:
+                self.assertIsNone(after_before)
+                self.assertIsInstance(after_after, str)
