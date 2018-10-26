@@ -32,109 +32,131 @@ class TestRest(TestCase):
         self.loop.create_task(self.auth_client.close())
         self.loop.run_until_complete(asyncio.sleep(0.250))
 
-    async def test_get_products(self):
+    # async def test_get_products(self):
         
-        keys = ('id', 'base_currency', 'quote_currency', 'base_min_size', 
-                'base_max_size', 'quote_increment', 'display_name', 'status',
-                'margin_enabled', 'status_message', 'min_market_funds', 
-                'max_market_funds', 'post_only', 'limit_only', 'cancel_only')
+    #     keys = ('id', 'base_currency', 'quote_currency', 'base_min_size', 
+    #             'base_max_size', 'quote_increment', 'display_name', 'status',
+    #             'margin_enabled', 'status_message', 'min_market_funds', 
+    #             'max_market_funds', 'post_only', 'limit_only', 'cancel_only')
         
-        # Sometimes returns 'accesible' as a key. ?? 
+    #     # Sometimes returns 'accesible' as a key. ?? 
         
-        products = await self.client.get_products()
+    #     products = await self.client.get_products()
 
-        self.assertIsInstance(products, list)
-        self.assertGreater(len(products), 1)
-        self.assertIsInstance(products[0], dict)
-        self.assertGreaterEqual(len(products[0]), len(keys))
-        for key in keys:
-            self.assertIn(key, products[0])
+    #     self.assertIsInstance(products, list)
+    #     self.assertGreater(len(products), 1)
+    #     self.assertIsInstance(products[0], dict)
+    #     self.assertGreaterEqual(len(products[0]), len(keys))
+    #     for key in keys:
+    #         self.assertIn(key, products[0])
             
             
-    async def test_order_book(self):
+    # async def test_order_book(self):
         
-        keys = ('sequence', 'bids', 'asks')
+    #     keys = ('sequence', 'bids', 'asks')
         
-        ob1 = await self.client.get_order_book('BTC-USD', level=1)
-        self.assertIsInstance(ob1, dict)
-        self.assertEqual(len(ob1), len(keys))
-        for key in keys:
-            self.assertIn(key, ob1)
-        self.assertIsInstance(ob1['bids'], list)
-        self.assertEqual(len(ob1['bids']), 1)
-        self.assertEqual(len(ob1['bids'][0]), 3)
-        self.assertIsInstance(ob1['asks'], list)
-        self.assertEqual(len(ob1['asks']), 1)
-        self.assertEqual(len(ob1['asks'][0]), 3)
+    #     ob1 = await self.client.get_order_book('BTC-USD', level=1)
+    #     self.assertIsInstance(ob1, dict)
+    #     self.assertEqual(len(ob1), len(keys))
+    #     for key in keys:
+    #         self.assertIn(key, ob1)
+    #     self.assertIsInstance(ob1['bids'], list)
+    #     self.assertEqual(len(ob1['bids']), 1)
+    #     self.assertEqual(len(ob1['bids'][0]), 3)
+    #     self.assertIsInstance(ob1['asks'], list)
+    #     self.assertEqual(len(ob1['asks']), 1)
+    #     self.assertEqual(len(ob1['asks'][0]), 3)
         
-        ob2 = await self.client.get_order_book('BTC-USD', level=2)
-        self.assertIsInstance(ob2, dict)
-        self.assertEqual(len(ob2), len(keys))
-        for key in keys:
-            self.assertIn(key, ob2)
-        self.assertIsInstance(ob2['bids'], list)
-        self.assertEqual(len(ob2['bids']), 50)
-        self.assertEqual(len(ob2['bids'][0]), 3)
-        self.assertIsInstance(ob2['asks'], list)
-        self.assertEqual(len(ob2['asks']), 50)
-        self.assertEqual(len(ob2['asks'][0]), 3)
+    #     ob2 = await self.client.get_order_book('BTC-USD', level=2)
+    #     self.assertIsInstance(ob2, dict)
+    #     self.assertEqual(len(ob2), len(keys))
+    #     for key in keys:
+    #         self.assertIn(key, ob2)
+    #     self.assertIsInstance(ob2['bids'], list)
+    #     self.assertEqual(len(ob2['bids']), 50)
+    #     self.assertEqual(len(ob2['bids'][0]), 3)
+    #     self.assertIsInstance(ob2['asks'], list)
+    #     self.assertEqual(len(ob2['asks']), 50)
+    #     self.assertEqual(len(ob2['asks'][0]), 3)
                 
         
-        ob3 = await self.client.get_order_book('BTC-USD', level=2)
-        self.assertIsInstance(ob3, dict)
-        self.assertEqual(len(ob3), len(keys))
-        for key in keys:
-            self.assertIn(key, ob3)
-        self.assertIsInstance(ob3['bids'], list)
-        self.assertEqual(len(ob3['bids']), 50)
-        self.assertEqual(len(ob3['bids'][0]), 3)
-        self.assertIsInstance(ob3['asks'], list)
-        self.assertGreaterEqual(len(ob3['asks']), 50)
-        self.assertGreaterEqual(len(ob3['asks'][0]), 3)            
+    #     ob3 = await self.client.get_order_book('BTC-USD', level=2)
+    #     self.assertIsInstance(ob3, dict)
+    #     self.assertEqual(len(ob3), len(keys))
+    #     for key in keys:
+    #         self.assertIn(key, ob3)
+    #     self.assertIsInstance(ob3['bids'], list)
+    #     self.assertEqual(len(ob3['bids']), 50)
+    #     self.assertEqual(len(ob3['bids'][0]), 3)
+    #     self.assertIsInstance(ob3['asks'], list)
+    #     self.assertGreaterEqual(len(ob3['asks']), 50)
+    #     self.assertGreaterEqual(len(ob3['asks'][0]), 3)            
 
     
-    async def test_get_ticker(self):
+    # async def test_get_ticker(self):
         
-        keys = ('trade_id', 'price', 'size', 'bid', 'ask', 'volume', 'time')
+    #     keys = ('trade_id', 'price', 'size', 'bid', 'ask', 'volume', 'time')
         
-        tick = await self.client.get_ticker('BTC-USD')
-        self.assertIsInstance(tick, dict)
-        self.assertEqual(len(tick), len(keys))
-        for key in keys:
-            self.assertIn(key, tick)
+    #     tick = await self.client.get_ticker('BTC-USD')
+    #     self.assertIsInstance(tick, dict)
+    #     self.assertEqual(len(tick), len(keys))
+    #     for key in keys:
+    #         self.assertIn(key, tick)
         
     
-    async def test_get_trades(self):
+    # async def test_get_trades(self):
         
-        keys = ('time', 'trade_id', 'price', 'size', 'side')
+    #     keys = ('time', 'trade_id', 'price', 'size', 'side')
         
-        trades, before, after = await self.client.get_trades('BTC-USD')
-        self.assertIsInstance(trades, list)
-        self.assertIsInstance(trades[0], dict)
-        self.assertIsInstance(before, str)
-        self.assertIsInstance(after, str)
-        self.assertEqual(len(trades), 100)
-        for key in keys:
-            self.assertIn(key, trades[0])
+    #     trades, before, after = await self.client.get_trades('BTC-USD')
+    #     self.assertIsInstance(trades, list)
+    #     self.assertIsInstance(trades[0], dict)
+    #     self.assertIsInstance(before, str)
+    #     self.assertIsInstance(after, str)
+    #     self.assertEqual(len(trades), 100)
+    #     for key in keys:
+    #         self.assertIn(key, trades[0])
             
-        trades, before, after = await self.client.get_trades('BTC-USD', 5)
-        self.assertEqual(len(trades), 5)
+    #     trades, before, after = await self.client.get_trades('BTC-USD', 5)
+    #     self.assertEqual(len(trades), 5)
 
-        trades_after, after_after, before_after = await self.client.get_trades('BTC-USD', 5, after=after)
-        self.assertLess(trades_after[0]['trade_id'], trades[-1]['trade_id'])
+    #     trades_after, after_after, before_after = await self.client.get_trades('BTC-USD', 5, after=after)
+    #     self.assertLess(trades_after[0]['trade_id'], trades[-1]['trade_id'])
                 
-        trades_before, after_before, before_before = await self.client.get_trades('BTC-USD', 5, before=before)
-        if trades_before:
-            self.assertGreater(trades_before[-1]['trade_id'], trades[0]['trade_id'])
-        else:
-            self.assertIsNone(after_before)
-            self.assertIsInstance(after_after, str)
+    #     trades_before, after_before, before_before = await self.client.get_trades('BTC-USD', 5, before=before)
+    #     if trades_before:
+    #         self.assertGreater(trades_before[-1]['trade_id'], trades[0]['trade_id'])
+    #     else:
+    #         self.assertIsNone(after_before)
+    #         self.assertIsInstance(after_after, str)
             
-            await asyncio.sleep(20)
+    #         await asyncio.sleep(20)
     
-            trades_before, after_before, before_before = await self.client.get_trades('BTC-USD', 5, before=before)
-            if (trades_before):
-                self.assertGreater(trades_before[-1]['trade_id'], trades[0]['trade_id'])
-            else:
-                self.assertIsNone(after_before)
-                self.assertIsInstance(after_after, str)
+    #         trades_before, after_before, before_before = await self.client.get_trades('BTC-USD', 5, before=before)
+    #         if (trades_before):
+    #             self.assertGreater(trades_before[-1]['trade_id'], trades[0]['trade_id'])
+    #         else:
+    #             self.assertIsNone(after_before)
+    #             self.assertIsInstance(after_after, str)
+                
+    async def test_get_historic_rates(self):
+        
+        rates = self.client.get_historic_rates('BTC-USD', 900)
+        print(rates)
+        
+    # def test_get_historic_rates(self):
+    #     async def go():
+    #         async with Client(self.loop) as client:
+    #             rates = await client.get_historic_rates('BTC-USD', 900)
+    #             self.assertIsInstance(rates, list)
+    #             self.assertGreaterEqual(len(rates), 300)
+    #             self.assertEqual(len(rates[0]), 6)
+    #             self.assertEqual(rates[0][0] - rates[1][0], 900)
+                
+    #             stop = datetime.utcnow()
+    #             start = stop - timedelta(days=1)
+    #             rates = await client.get_historic_rates('LTC-USD', 3600, start.isoformat(), stop.isoformat())
+    #             self.assertIsInstance(rates, list)
+    #             self.assertEqual(len(rates), 24)
+    #             self.assertEqual(len(rates[0]), 6)
+    #             self.assertEqual(rates[0][0] - rates[1][0], 3600)
