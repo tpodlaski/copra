@@ -32,6 +32,9 @@ class TestRest(TestCase):
         self.loop.create_task(self.client.close())
         self.loop.create_task(self.auth_client.close())
         self.loop.run_until_complete(asyncio.sleep(0.250))
+        #try to avoid public rate limit
+        self.loop.run_until_complete(asyncio.sleep(0.5))
+
 
     async def test_get_products(self):
         
@@ -155,3 +158,38 @@ class TestRest(TestCase):
         self.assertEqual(len(rates), 24)
         self.assertEqual(len(rates[0]), 6)
         self.assertEqual(rates[0][0] - rates[1][0], 3600)
+ 
+        
+    async def test_get_24hour_stats(self):
+        
+        keys = ('open', 'high', 'low', 'volume', 'last', 'volume_30day')
+        
+        stats = await self.client.get_24hour_stats('BTC-USD')
+        self.assertIsInstance(stats, dict)
+        self.assertEqual(len(stats), len(keys))
+        for key in keys:
+            self.assertIn(key, stats)
+       
+       
+    async def test_get_currencies(self):
+        
+        keys = ('id', 'name', 'min_size', 'status', 'message')
+        
+        currencies = await self.client.get_currencies()
+        self.assertIsInstance(currencies, list)
+        self.assertGreater(len(currencies), 1)
+        self.assertIsInstance(currencies[0], dict)
+        self.assertEqual(len(currencies[0]), len(keys))
+        for key in keys:
+            self.assertIn(key, currencies[0])
+    
+    
+    async def test_get_server_time(self):
+        
+        time = await self.client.get_server_time()
+        self.assertIsInstance(time, dict)
+        self.assertIn('iso', time)
+        self.assertIn('epoch', time)
+        self.assertIsInstance(time['iso'], str)
+        self.assertIsInstance(time['epoch'], float)        
+    

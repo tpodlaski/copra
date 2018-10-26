@@ -26,6 +26,7 @@ USER_AGENT = 'Python/{} copra/{}'.format(
                 
 HEADERS = {'USER-AGENT': USER_AGENT}
 
+
 class BaseClient():
     """Generic asyncronous REST client.
     
@@ -81,6 +82,7 @@ class BaseClient():
         resp = await self.session.get(url, headers=headers)
         
         return resp
+
 
 class Client(BaseClient):
     """Asyncronous REST client for Coinbase Pro.
@@ -250,6 +252,7 @@ class Client(BaseClient):
         """
         headers, body = await self.get('/products')
         return body
+
         
     async def get_order_book(self, product_id, level=1):
         """Get a list of open orders for a product. 
@@ -348,6 +351,7 @@ class Client(BaseClient):
         headers, body = await self.get('/products/{}/book'.format(product_id), 
                                        params={'level': level})
         return body
+ 
         
     async def get_ticker(self, product_id):
         """Get information about the last trade for a specific product.
@@ -378,6 +382,7 @@ class Client(BaseClient):
         """
         header, body = await self.get('/products/{}/ticker'.format(product_id))
         return body
+
         
     async def get_trades(self, product_id, limit=100, before=None, after=None):
         """List the latest trades for a product.
@@ -459,6 +464,7 @@ class Client(BaseClient):
         headers, body = await self.get('/products/{}/trades'.format(product_id),
                                        params)
         return (body, headers.get('cb-before', None), headers.get('cb-after', None))
+
         
     async def get_historic_rates(self, product_id, granularity=3600, start=None, stop=None):
         """Historic rates for a product. 
@@ -542,7 +548,8 @@ class Client(BaseClient):
         if start and stop:
             return [x for x in body if x[0] >= dateutil.parser.parse(start).timestamp()]
         return body
-        
+
+       
     async def get_24hour_stats(self, product_id):
         """Get 24 hr stats for a product.
         
@@ -567,6 +574,7 @@ class Client(BaseClient):
         """
         headers, body = await self.get('/products/{}/stats'.format(product_id))
         return body
+
         
     async def get_currencies(self):
         """List known currencies.
@@ -596,6 +604,7 @@ class Client(BaseClient):
         """
         headers, body = await self.get('/currencies')
         return body
+
         
     async def get_server_time(self):
         """Get the API server time.
@@ -613,6 +622,7 @@ class Client(BaseClient):
         """
         headers, body = await self.get('/time')
         return body
+
         
     async def list_accounts(self):
         """Get a list of trading accounts.
