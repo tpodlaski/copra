@@ -74,7 +74,8 @@ class BaseClient():
         :param dict headers: (optional) key/value pairs to be sent as headers
             for the request. The default is just the USER-AGENT string for the
             copra client.
-        
+            
+        :returns: aiohttp.ClientResponse object 
         """
         if params:
             url += '?{}'.format(urllib.parse.urlencode(params))
@@ -82,6 +83,23 @@ class BaseClient():
         resp = await self.session.get(url, headers=headers)
         
         return resp
+        
+        
+    async def post(self, url, data=None, headers=HEADERS):
+        """Base method for making POST requests.
+        
+        :param str url The url of the resource to be POST'ed to.
+            
+        :param dict data: (optional) Dictionary of key/value str pairs
+            to be sent in the body of the request. The default is None.
+            
+        :param dict headers: (optional) key/value pairs to be sent as headers
+            for the request. The default is just the USER-AGENT string for the
+            copra client.
+            
+        :returns: aiohttp.ClientResponse object
+        """
+        return await self.session.post(url, data, headers)
 
 
 class Client(BaseClient):
@@ -789,6 +807,7 @@ class Client(BaseClient):
         headers, body = await self.get('/accounts/{}/ledger'.format(account_id), 
                                        params=params, auth=True)
         return (body, headers.get('cb-before', None), headers.get('cb-after', None))
+
         
     async def get_holds(self, account_id, limit=100, before=None, after=None):
         """Get any existing holds on an account.

@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 import os
 import time
 
-from asynctest import TestCase, skipUnless
+from asynctest import TestCase, skipUnless, expectedFailure
 
 from copra.rest import Client, SANDBOX_URL
 
@@ -216,3 +216,31 @@ class TestRest(TestCase):
         self.assertIsInstance(account, dict)
         for key in keys:
             self.assertIn(key, account)
+            
+            
+    # TO DO
+    @expectedFailure
+    @skipUnless(TEST_AUTH and TEST_ACCOUNT, "Auth credentials and test account ID required")
+    async def test_get_account_history(self):
+        assert False
+        
+    # TO DO   
+    @expectedFailure
+    @skipUnless(TEST_AUTH and TEST_ACCOUNT, "Auth credentials and test account ID required")
+    async def test_get_holds(self):
+        assert False
+        
+        
+    # TO DO   
+    @expectedFailure
+    @skipUnless(TEST_AUTH and TEST_ACCOUNT, "Auth credentials and test account ID required")
+    async def test_place_order(self):
+        assert False
+        
+        
+    
+        
+    
+    
+    
+    
