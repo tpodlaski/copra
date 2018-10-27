@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Utilitiy functions to be assigned as methods of unittest.TestCase.
+"""Utilitiy functions to be assigned as methods of asynctest.TestCase.
 """
 
 from unittest import mock
@@ -8,14 +8,18 @@ from urllib.parse import parse_qs, urlparse
 
 from asynctest import CoroutineMock
 
-def update_mock_get(self, *args, **kwargs):
-    self.mock_get.args = args
-    self.mock_get.kwargs = kwargs
-    (self.mock_get.scheme, self.mock_get.netloc, 
-     self.mock_get.path, self.mock_get.params, self.mock_get.query_str, 
-     self.fragment) = urlparse(args[0])
-    self.mock_get.query = parse_qs(self.mock_get.query_str)
+
+def update_mock_req(mock_req, *args, **kwargs):
+    mock_req.args = args
+    mock_req.kwargs = kwargs
+    (mock_req.scheme, mock_req.netloc, mock_req.path, mock_req.params, 
+     mock_req.query_str, mock_req.fragment) = urlparse(args[0])
+    mock_req.query = parse_qs(mock_req.query_str)
     return mock.DEFAULT
+
+
+def update_mock_get(self, *args, **kwargs):
+    return update_mock_req(self.mock_get, *args, **kwargs)
 
 
 def check_mock_get_args(self, expected_args, expected_kwargs):
