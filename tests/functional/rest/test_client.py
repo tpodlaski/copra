@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 import os
 import time
 
-from asynctest import TestCase
+from asynctest import TestCase, skipUnless
 
 from copra.rest import Client, SANDBOX_URL
 
@@ -19,6 +19,7 @@ KEY = os.getenv('KEY')
 SECRET = os.getenv('SECRET')
 PASSPHRASE = os.getenv('PASSPHRASE')
 TEST_AUTH = True if (KEY and SECRET and PASSPHRASE) else False
+TEST_ACCOUNT = os.getenv('TEST_ACCOUNT')
 
 class TestRest(TestCase):
     """Tests for copra.rest.Client"""
@@ -191,5 +192,27 @@ class TestRest(TestCase):
         self.assertIn('iso', time)
         self.assertIn('epoch', time)
         self.assertIsInstance(time['iso'], str)
-        self.assertIsInstance(time['epoch'], float)        
-    
+        self.assertIsInstance(time['epoch'], float)
+        
+        
+    @skipUnless(TEST_AUTH, "Authentication credentials not provided.")
+    async def test_list_accounts(self):
+        
+        keys = ('id', 'currency', 'balance', 'available', 'hold', 'profile_id')
+        
+        accounts = await self.auth_client.list_accounts()
+        self.assertIsInstance(accounts, list)
+        self.assertIsInstance(accounts[0], dict)
+        for key in keys:
+            self.assertIn(key, accounts[0])
+        
+
+    @skipUnless(TEST_AUTH and TEST_ACCOUNT, "Auth credentials and test account ID required")
+    async def test_get_account(self):
+        
+        keys = ('id', 'currency', 'balance', 'available', 'hold', 'profile_id')
+        
+        account = await self.auth_client.get_account(TEST_ACCOUNT)
+        self.assertIsInstance(account, dict)
+        for key in keys:
+            self.assertIn(key, account)

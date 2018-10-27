@@ -690,7 +690,8 @@ class Client(BaseClient):
         """
         headers, body = await self.get('/accounts/{}'.format(account_id), auth=True)
         return body
-        
+
+      
     async def get_account_history(self, account_id, limit=100, before=None, after=None):
         """List activity for an account.account
         
