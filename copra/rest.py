@@ -83,7 +83,7 @@ class BaseClient():
         return await self.session.get(url, headers=headers)
 
         
-    async def post(self, url, data=None, headers=HEADERS):
+    async def post(self, url, data={}, headers=HEADERS):
         """Base method for making POST requests.
         
         :param str url The url of the resource to be POST'ed to.
@@ -97,7 +97,7 @@ class BaseClient():
             
         :returns: aiohttp.ClientResponse object
         """
-        return await self.session.post(url, data, headers)
+        return await self.session.post(url, data=data, headers=headers)
 
 
 class Client(BaseClient):

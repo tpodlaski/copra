@@ -57,3 +57,6 @@ class TestBaseClient(TestCase):
                                      params=params)
         args = (await resp.json())['args']
         self.assertEqual(args, params)
+        
+    
+    

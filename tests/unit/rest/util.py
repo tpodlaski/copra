@@ -31,6 +31,10 @@ class MockTestCase(TestCase):
         self.mock_get = mock_get_patcher.start()
         self.addCleanup(mock_get_patcher.stop)
         
+        mock_post_patcher = patch('aiohttp.ClientSession.post', new_callable=MockRequest)
+        self.mock_post = mock_post_patcher.start()
+        self.addCleanup(mock_post_patcher.stop)
+        
         
     def check_mock_req_args(self, mock_req, expected_args, expected_kwargs):
         self.assertEqual(len(mock_req.args), len(expected_args))
@@ -45,11 +49,17 @@ class MockTestCase(TestCase):
         for expected_key, expected_val in expected_query.items():
             self.assertIn(expected_key, mock_req.query)
             self.assertEqual(mock_req.query[expected_key][0], expected_val)
-            
-            
+       
+    
     def check_mock_req_headers(self, mock_req, expected_headers):
         self.assertEqual(len(mock_req.kwargs['headers']), len(expected_headers))
         for expected_key, expected_val in expected_headers.items():
             self.assertIn(expected_key, mock_req.kwargs['headers'])
             if not expected_val == '*':
                 self.assertEqual(mock_req.kwargs['headers'][expected_key], expected_val)
+                
+                
+    def check_mock_req_data(self, mock_req, expected_data):
+        self.assertEqual(len(mock_req.kwargs['data']), len(expected_data))
+        for expected_key, expected_val in expected_data.items():
+            self.assertIn(expected_key, mock_req.kwargs['data'])
