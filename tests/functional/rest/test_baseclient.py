@@ -44,8 +44,8 @@ class TestBaseClient(TestCase):
         headers = await resp.json()
         self.assertEqual(headers['headers']['User-Agent'], '007')
         self.assertEqual(headers['headers']['Content-Type'], 'shaken')
-
         
+
     async def test_get(self):
         
         resp = await self.client.get(HTTPBIN + '/get')
@@ -58,5 +58,17 @@ class TestBaseClient(TestCase):
         args = (await resp.json())['args']
         self.assertEqual(args, params)
         
+        
+    async def test_post(self):
+        
+        resp = await self.client.post(HTTPBIN + '/post')
+        data = (await resp.json())['data']
+        self.assertEqual(data, '')
+        
+        data = {'key1': 'item1', 'key2': 'item2'}
+        resp = await self.client.post(HTTPBIN + '/post',
+                                     data=data)
+        form = (await resp.json())['form']
+        self.assertEqual(form, data)
     
     
