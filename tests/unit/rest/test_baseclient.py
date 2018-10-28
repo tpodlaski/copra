@@ -6,26 +6,13 @@
 import asyncio
 
 import aiohttp
-from asynctest import CoroutineMock, patch, TestCase
 
 from copra.rest import BaseClient, HEADERS
-from tests.unit.rest.util import *
+from tests.unit.rest.util import MockTestCase
 
         
-class TestBaseClient(TestCase):
+class TestBaseClient(MockTestCase):
     """Tests for copra.rest.BaseClient"""
-    
-    update_mock_get = update_mock_get
-    check_mock_get_args = check_mock_get_args
-    check_mock_get_url = check_mock_get_url
-    check_mock_get_headers = check_mock_get_headers
-        
-    def setUp(self):
-        mock_get_patcher = patch('aiohttp.ClientSession.get', new_callable=CoroutineMock)
-        self.mock_get = mock_get_patcher.start()
-        self.mock_get.side_effect = self.update_mock_get
-        self.addCleanup(mock_get_patcher.stop)
-        
     
     async def test___init__(self):
         client = BaseClient(self.loop)
@@ -71,27 +58,27 @@ class TestBaseClient(TestCase):
         
         #No params, default headers
         resp = await client.get(url)
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url(url, {})
-        self.check_mock_get_headers(HEADERS)
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, url, {})
+        self.check_mock_req_headers(self.mock_get, HEADERS)
         
         #Params, default headers
         resp = await client.get(url, params)
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url(url, params)
-        self.check_mock_get_headers(HEADERS)
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, url, params)
+        self.check_mock_req_headers(self.mock_get, HEADERS)
         
         #Params, no headers
         resp = await client.get(url, params, headers={})
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url(url, params)
-        self.check_mock_get_headers({})
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, url, params)
+        self.check_mock_req_headers(self.mock_get, {})
         
         #Params, non-default headers
         resp = await client.get(url, params, headers=headers)
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url(url, params)
-        self.check_mock_get_headers(headers)
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, url, params)
+        self.check_mock_req_headers(self.mock_get, headers)
         
         
         

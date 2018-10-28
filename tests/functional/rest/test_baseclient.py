@@ -21,6 +21,7 @@ class TestBaseClient(TestCase):
         self.loop.create_task(self.client.close())
         self.loop.run_until_complete(asyncio.sleep(0.250))
 
+
     async def test_user_agent(self):
         
         # Default agent
@@ -33,6 +34,7 @@ class TestBaseClient(TestCase):
                                      headers={'USER-AGENT': 'Maxwell Smart'})
         ua_dict = await resp.json()
         self.assertEqual(ua_dict['user-agent'], 'Maxwell Smart')
+
         
     async def test_headers(self):
         
@@ -42,6 +44,7 @@ class TestBaseClient(TestCase):
         headers = await resp.json()
         self.assertEqual(headers['headers']['User-Agent'], '007')
         self.assertEqual(headers['headers']['Content-Type'], 'shaken')
+
         
     async def test_get(self):
         

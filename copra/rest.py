@@ -80,10 +80,8 @@ class BaseClient():
         if params:
             url += '?{}'.format(urllib.parse.urlencode(params))
             
-        resp = await self.session.get(url, headers=headers)
-        
-        return resp
-        
+        return await self.session.get(url, headers=headers)
+
         
     async def post(self, url, data=None, headers=HEADERS):
         """Base method for making POST requests.

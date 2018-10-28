@@ -37,6 +37,7 @@ class TestRest(TestCase):
         self.loop.run_until_complete(asyncio.sleep(0.5))
 
 
+
     async def test_get_products(self):
         
         keys = ('id', 'base_currency', 'quote_currency', 'base_min_size', 

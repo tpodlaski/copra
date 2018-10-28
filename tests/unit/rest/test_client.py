@@ -8,10 +8,10 @@ from datetime import datetime, timedelta
 import time
 
 import aiohttp
-from asynctest import CoroutineMock, patch, TestCase
+from asynctest import CoroutineMock
 
 from copra.rest import Client, URL, HEADERS
-from tests.unit.rest.util import *
+from tests.unit.rest.util import MockTestCase
 
 
 TEST_KEY = 'a035b37f42394a6d343231f7f772b99d'
@@ -29,21 +29,12 @@ AUTH_HEADERS.update({
                     })
 
 
-class TestRest(TestCase):
+class TestRest(MockTestCase):
     """Tests for copra.rest.Client"""
-    
-    update_mock_get = update_mock_get
-    check_mock_get_args = check_mock_get_args
-    check_mock_get_url = check_mock_get_url
-    check_mock_get_headers = check_mock_get_headers
 
     def setUp(self):
-        mock_get_patcher = patch('aiohttp.ClientSession.get', new_callable=CoroutineMock)
-        self.mock_get = mock_get_patcher.start()
-        self.mock_get.side_effect = self.update_mock_get
+        super().setUp()
         self.mock_get.return_value.json = CoroutineMock()
-        self.addCleanup(mock_get_patcher.stop)
-        
         self.client = Client(self.loop)
         self.auth_client = Client(self.loop, auth=True, key=TEST_KEY, 
                                   secret=TEST_SECRET, passphrase=TEST_PASSPHRASE)       
@@ -113,9 +104,9 @@ class TestRest(TestCase):
         
         #Unauthorized call by unauthorized client
         resp = await self.client.get(path, query)
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, path), query)
-        self.check_mock_get_headers(UNAUTH_HEADERS)
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, path), query)
+        self.check_mock_req_headers(self.mock_get, UNAUTH_HEADERS)
         
         #Authorized call by unauthorized client
         with self.assertRaises(ValueError):
@@ -123,24 +114,24 @@ class TestRest(TestCase):
             
         #Unauthorized call by authorized client
         resp = await self.auth_client.get(path, query)
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, path), query)
-        self.check_mock_get_headers(UNAUTH_HEADERS)
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, path), query)
+        self.check_mock_req_headers(self.mock_get, UNAUTH_HEADERS)
         
         #Authorized call by authorized client
         resp = await self.auth_client.get(path, query, auth=True)
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, path), query)
-        self.check_mock_get_headers(AUTH_HEADERS)
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, path), query)
+        self.check_mock_req_headers(self.mock_get, AUTH_HEADERS)
 
 
     async def test_get_products(self):
         
         products = await self.client.get_products()
             
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, '/products'), {})
-        self.check_mock_get_headers(UNAUTH_HEADERS)
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/products'), {})
+        self.check_mock_req_headers(self.mock_get, UNAUTH_HEADERS)
             
 
     async def test_get_order_book(self):            
@@ -154,34 +145,34 @@ class TestRest(TestCase):
         #Default level 1
         ob = await self.client.get_order_book('BTC-USD')
         
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, '/products/BTC-USD/book'), 
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/products/BTC-USD/book'), 
                                 {'level': '1'})
-        self.check_mock_get_headers(UNAUTH_HEADERS)
+        self.check_mock_req_headers(self.mock_get, UNAUTH_HEADERS)
 
         #Level 1
         ob = await self.client.get_order_book('BTC-USD', level=1)
         
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, '/products/BTC-USD/book'), 
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/products/BTC-USD/book'), 
                                 {'level': '1'})
-        self.check_mock_get_headers(UNAUTH_HEADERS)
+        self.check_mock_req_headers(self.mock_get, UNAUTH_HEADERS)
             
         #Level 2
         ob = await self.client.get_order_book('BTC-USD', level=2)
         
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, '/products/BTC-USD/book'), 
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/products/BTC-USD/book'), 
                                 {'level': '2'})
-        self.check_mock_get_headers(UNAUTH_HEADERS)
+        self.check_mock_req_headers(self.mock_get, UNAUTH_HEADERS)
             
         #Level 3
         ob = await self.client.get_order_book('BTC-USD', level=3)
         
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, '/products/BTC-USD/book'), 
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/products/BTC-USD/book'), 
                                 {'level': '3'})
-        self.check_mock_get_headers(UNAUTH_HEADERS)
+        self.check_mock_req_headers(self.mock_get, UNAUTH_HEADERS)
 
     
     async def test_get_ticker(self):
@@ -191,9 +182,9 @@ class TestRest(TestCase):
             
         tick = await self.client.get_ticker('BTC-USD')
         
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, '/products/BTC-USD/ticker'), {})
-        self.check_mock_get_headers(UNAUTH_HEADERS)
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/products/BTC-USD/ticker'), {})
+        self.check_mock_req_headers(self.mock_get, UNAUTH_HEADERS)
 
 
     async def test_get_trades(self):
@@ -206,10 +197,10 @@ class TestRest(TestCase):
             
         trades, before, after = await self.client.get_trades('BTC-USD')
         
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, '/products/BTC-USD/trades'), 
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/products/BTC-USD/trades'), 
                                 {'limit': '100'})
-        self.check_mock_get_headers(UNAUTH_HEADERS)
+        self.check_mock_req_headers(self.mock_get, UNAUTH_HEADERS)
 
         ret_headers = {'cb-before': '51590012', 'cb-after': '51590010'}
 
@@ -235,10 +226,10 @@ class TestRest(TestCase):
             
         trades, before, after = await self.client.get_trades('BTC-USD', limit=5)
         
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, '/products/BTC-USD/trades'), 
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/products/BTC-USD/trades'), 
                                 {'limit': '5'})
-        self.check_mock_get_headers(UNAUTH_HEADERS)
+        self.check_mock_req_headers(self.mock_get, UNAUTH_HEADERS)
 
         self.assertEqual(trades, body)
         self.assertEqual(before, ret_headers['cb-before'])
@@ -246,17 +237,17 @@ class TestRest(TestCase):
             
         prev_trades, prev_before, prev_after = await self.client.get_trades('BTC-USD', before=before)
         
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, '/products/BTC-USD/trades'), 
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/products/BTC-USD/trades'), 
                                 {'limit': '100', 'before': before})
-        self.check_mock_get_headers(UNAUTH_HEADERS)
+        self.check_mock_req_headers(self.mock_get, UNAUTH_HEADERS)
             
         next_trades, next_before, next_after = await self.client.get_trades('BTC-USD', after=after)
         
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, '/products/BTC-USD/trades'), 
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/products/BTC-USD/trades'), 
                                 {'limit': '100', 'after': after})
-        self.check_mock_get_headers(UNAUTH_HEADERS)
+        self.check_mock_req_headers(self.mock_get, UNAUTH_HEADERS)
 
 
     async def test_get_historic_rates(self):
@@ -269,10 +260,10 @@ class TestRest(TestCase):
             
         rates = await self.client.get_historic_rates('BTC-USD')
         
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, '/products/BTC-USD/candles'), 
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/products/BTC-USD/candles'), 
                                 {'granularity': '3600'})
-        self.check_mock_get_headers(UNAUTH_HEADERS)
+        self.check_mock_req_headers(self.mock_get, UNAUTH_HEADERS)
             
         stop = datetime.utcnow()
         start = stop - timedelta(days=1)
@@ -281,13 +272,13 @@ class TestRest(TestCase):
                                                      start.isoformat(), 
                                                      stop.isoformat())
         
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, '/products/BTC-USD/candles'), 
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/products/BTC-USD/candles'), 
                                 {'granularity': '900', 
                                  'start': start.isoformat(), 
                                  'stop': stop.isoformat()
                                 })
-        self.check_mock_get_headers(UNAUTH_HEADERS)
+        self.check_mock_req_headers(self.mock_get, UNAUTH_HEADERS)
             
             
     async def test_get_24hour_stats(self):
@@ -297,26 +288,26 @@ class TestRest(TestCase):
 
         stats = await self.client.get_24hour_stats('BTC-USD')
         
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, '/products/BTC-USD/stats'), {})
-        self.check_mock_get_headers(UNAUTH_HEADERS)
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/products/BTC-USD/stats'), {})
+        self.check_mock_req_headers(self.mock_get, UNAUTH_HEADERS)
 
 
     async def test_get_currencies(self):
 
         currencies = await self.client.get_currencies()
         
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, '/currencies'), {})
-        self.check_mock_get_headers(UNAUTH_HEADERS)
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/currencies'), {})
+        self.check_mock_req_headers(self.mock_get, UNAUTH_HEADERS)
         
     async def test_get_server_time(self):
         
         time = await self.client.get_server_time()
         
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, '/time'), {})
-        self.check_mock_get_headers(UNAUTH_HEADERS)
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/time'), {})
+        self.check_mock_req_headers(self.mock_get, UNAUTH_HEADERS)
          
 
     async def test_list_accounts(self):
@@ -326,9 +317,9 @@ class TestRest(TestCase):
         
         accounts = await self.auth_client.list_accounts()
                 
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, '/accounts'), {})
-        self.check_mock_get_headers(AUTH_HEADERS)
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/accounts'), {})
+        self.check_mock_req_headers(self.mock_get, AUTH_HEADERS)
 
     
     async def test_get_account(self):
@@ -341,9 +332,9 @@ class TestRest(TestCase):
             
         account = await self.auth_client.get_account(42)    
 
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, '/accounts/42'), {})
-        self.check_mock_get_headers(AUTH_HEADERS)
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/accounts/42'), {})
+        self.check_mock_req_headers(self.mock_get, AUTH_HEADERS)
 
     
     async def test_get_account_history(self):
@@ -391,25 +382,25 @@ class TestRest(TestCase):
         self.assertEqual(after, '1008063508')
         self.assertEqual(trades, body)
         
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, '/accounts/42/ledger'), 
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/accounts/42/ledger'), 
                               {'limit': '5'})
-        self.check_mock_get_headers(AUTH_HEADERS)
+        self.check_mock_req_headers(self.mock_get, AUTH_HEADERS)
         
         trades, before, after = await self.auth_client.get_account_history(42, before=before)
         
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, '/accounts/42/ledger'), 
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/accounts/42/ledger'), 
                               {'limit': '100', 'before': before})
-        self.check_mock_get_headers(AUTH_HEADERS)       
+        self.check_mock_req_headers(self.mock_get, AUTH_HEADERS)       
 
         trades, before, after = await self.auth_client.get_account_history(42, after=after)
         
          
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, '/accounts/42/ledger'), 
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/accounts/42/ledger'), 
                               {'limit': '100', 'after': after})
-        self.check_mock_get_headers(AUTH_HEADERS)  
+        self.check_mock_req_headers(self.mock_get, AUTH_HEADERS)  
 
 
     async def test_get_holds(self):
@@ -443,24 +434,24 @@ class TestRest(TestCase):
         self.assertEqual(after, '1008063508')
         self.assertEqual(holds, body)
         
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, '/accounts/42/holds'), 
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/accounts/42/holds'), 
                               {'limit': '5'})
-        self.check_mock_get_headers(AUTH_HEADERS)
+        self.check_mock_req_headers(self.mock_get, AUTH_HEADERS)
         
         holds, before, after = await self.auth_client.get_holds(42, before=before)
                                                               
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, '/accounts/42/holds'), 
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/accounts/42/holds'), 
                               {'limit': '100', 'before': before})
-        self.check_mock_get_headers(AUTH_HEADERS)
+        self.check_mock_req_headers(self.mock_get, AUTH_HEADERS)
         
         holds, before, after = await self.auth_client.get_holds(42, after=after)
                                                               
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, '/accounts/42/holds'), 
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/accounts/42/holds'), 
                               {'limit': '100', 'after': after})
-        self.check_mock_get_headers(AUTH_HEADERS)
+        self.check_mock_req_headers(self.mock_get, AUTH_HEADERS)
 
       
     async def test_place_order(self):
@@ -519,8 +510,8 @@ class TestRest(TestCase):
         resp = await self.auth_client.place_order('buy', 'BTC-USD',
                                                   price=100.1, size=5)
         
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, '/orders'), 
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/orders'), 
                               {'side': 'buy', 
                                 'product_id': 'BTC-USD',
                                 'order_type': 'limit',
@@ -530,15 +521,15 @@ class TestRest(TestCase):
                                 'post_only': 'True',
                                 'stp': 'dc'
                               })
-        self.check_mock_get_headers(AUTH_HEADERS)
+        self.check_mock_req_headers(self.mock_get, AUTH_HEADERS)
                               
         # GTT order with cancel_after
         resp = await self.auth_client.place_order('buy', 'BTC-USD',
                             price=300, size=88, order_type='limit',
                             time_in_force='GTT', cancel_after='hour')
                             
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, '/orders'), 
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/orders'), 
                               {'side': 'buy', 
                                 'product_id': 'BTC-USD',
                                 'order_type': 'limit',
@@ -549,7 +540,7 @@ class TestRest(TestCase):
                                 'post_only': 'True',
                                 'stp': 'dc'
                               })
-        self.check_mock_get_headers(AUTH_HEADERS)                               
+        self.check_mock_req_headers(self.mock_get, AUTH_HEADERS)                               
         
         # Market orders #############################################
         
@@ -567,29 +558,29 @@ class TestRest(TestCase):
         resp = await self.auth_client.place_order('buy', 'BTC-USD', size=5, 
                                                   order_type='market')
         
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, '/orders'), 
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/orders'), 
                               {'side': 'buy', 
                                 'product_id': 'BTC-USD',
                                 'order_type': 'market',
                                 'size': '5',
                                 'stp': 'dc'
                               })
-        self.check_mock_get_headers(AUTH_HEADERS) 
+        self.check_mock_req_headers(self.mock_get, AUTH_HEADERS) 
         
         # Funds
         resp = await self.auth_client.place_order('buy', 'BTC-USD', funds=1000, 
                                                   order_type='market')
         
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, '/orders'), 
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/orders'), 
                               {'side': 'buy', 
                                 'product_id': 'BTC-USD',
                                 'order_type': 'market',
                                 'funds': '1000',
                                 'stp': 'dc'
                               })
-        self.check_mock_get_headers(AUTH_HEADERS)
+        self.check_mock_req_headers(self.mock_get, AUTH_HEADERS)
         
         # Stop orders #############################################
         
@@ -608,8 +599,8 @@ class TestRest(TestCase):
         resp = await self.auth_client.place_order('buy', 'BTC-USD', price=100.1, 
                         size=5, stop='loss', stop_price=105)
                         
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, '/orders'), 
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/orders'), 
                               {'side': 'buy', 
                               'product_id': 'BTC-USD',
                               'order_type': 'limit',
@@ -621,14 +612,14 @@ class TestRest(TestCase):
                               'stop_price': '105',
                               'stp': 'dc'
                               })
-        self.check_mock_get_headers(AUTH_HEADERS)
+        self.check_mock_req_headers(self.mock_get, AUTH_HEADERS)
         
         # Valid order with client_oid and stp set
         resp = await self.auth_client.place_order('buy', 'BTC-USD', price=100.1, 
             size=5, client_oid=42, stp='co')
          
-        self.check_mock_get_args([str], {'headers': dict})
-        self.check_mock_get_url('{}{}'.format(URL, '/orders'), 
+        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/orders'), 
                               {'side': 'buy', 
                                 'product_id': 'BTC-USD',
                                 'order_type': 'limit',
@@ -639,5 +630,5 @@ class TestRest(TestCase):
                                 'client_oid': '42',
                                 'stp': 'co'
                               })
-        self.check_mock_get_headers(AUTH_HEADERS)
+        self.check_mock_req_headers(self.mock_get, AUTH_HEADERS)
         

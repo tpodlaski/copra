@@ -6,41 +6,50 @@
 from unittest import mock
 from urllib.parse import parse_qs, urlparse
 
-from asynctest import CoroutineMock
+from asynctest import CoroutineMock, TestCase, patch
 
+class MockRequest(CoroutineMock):
 
-def update_mock_req(mock_req, *args, **kwargs):
-    mock_req.args = args
-    mock_req.kwargs = kwargs
-    (mock_req.scheme, mock_req.netloc, mock_req.path, mock_req.params, 
-     mock_req.query_str, mock_req.fragment) = urlparse(args[0])
-    mock_req.query = parse_qs(mock_req.query_str)
-    return mock.DEFAULT
-
-
-def update_mock_get(self, *args, **kwargs):
-    return update_mock_req(self.mock_get, *args, **kwargs)
-
-
-def check_mock_get_args(self, expected_args, expected_kwargs):
-    self.assertEqual(len(self.mock_get.args), len(expected_args))
-    for i, arg_type in enumerate(expected_args):
-        self.assertIsInstance(self.mock_get.args[i], arg_type)
-
+    def __init__(self, name):
+        super().__init__(name)
+        self.side_effect = self.update
         
-def check_mock_get_url(self, expected_url, expected_query=None):
-    self.assertEqual('{}://{}{}'.format(self.mock_get.scheme, 
-        self.mock_get.netloc, self.mock_get.path), expected_url)
+    def update(self, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
+        (self.scheme, self.netloc, self.path, self.params,  self.query_str, 
+         self.fragment) = urlparse(args[0])
+        self.url = '{}://{}{}'.format(self.scheme, self.netloc, self.path)
+        self.query = parse_qs(self.query_str)
+        return mock.DEFAULT
+
+
+class MockTestCase(TestCase):
     
-    self.assertEqual(len(self.mock_get.query), len(expected_query))
-    for expected_key, expected_val in expected_query.items():
-        self.assertIn(expected_key, self.mock_get.query)
-        self.assertEqual(self.mock_get.query[expected_key][0], expected_val)
-
+    def setUp(self):
+        mock_get_patcher = patch('aiohttp.ClientSession.get', new_callable=MockRequest)
+        self.mock_get = mock_get_patcher.start()
+        self.addCleanup(mock_get_patcher.stop)
         
-def check_mock_get_headers(self, expected_headers):
-    self.assertEqual(len(self.mock_get.kwargs['headers']), len(expected_headers))
-    for expected_key, expected_val in expected_headers.items():
-        self.assertIn(expected_key, self.mock_get.kwargs['headers'])
-        if not expected_val == '*':
-            self.assertEqual(self.mock_get.kwargs['headers'][expected_key], expected_val)
+        
+    def check_mock_req_args(self, mock_req, expected_args, expected_kwargs):
+        self.assertEqual(len(mock_req.args), len(expected_args))
+        for i, arg_type in enumerate(expected_args):
+            self.assertIsInstance(mock_req.args[i], arg_type)
+        
+
+    def check_mock_req_url(self, mock_req, expected_url, expected_query=None):
+        self.assertEqual(mock_req.url, expected_url)
+        
+        self.assertEqual(len(mock_req.query), len(expected_query))
+        for expected_key, expected_val in expected_query.items():
+            self.assertIn(expected_key, mock_req.query)
+            self.assertEqual(mock_req.query[expected_key][0], expected_val)
+            
+            
+    def check_mock_req_headers(self, mock_req, expected_headers):
+        self.assertEqual(len(mock_req.kwargs['headers']), len(expected_headers))
+        for expected_key, expected_val in expected_headers.items():
+            self.assertIn(expected_key, mock_req.kwargs['headers'])
+            if not expected_val == '*':
+                self.assertEqual(mock_req.kwargs['headers'][expected_key], expected_val)
