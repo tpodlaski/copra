@@ -62,8 +62,8 @@ class TestBaseClient(TestCase):
     async def test_post(self):
         
         resp = await self.client.post(HTTPBIN + '/post')
-        data = (await resp.json())['data']
-        self.assertEqual(data, '')
+        data = (await resp.json())['form']
+        self.assertEqual(data, {})
         
         data = {'key1': 'item1', 'key2': 'item2'}
         resp = await self.client.post(HTTPBIN + '/post',

@@ -13,13 +13,15 @@ import time
 
 from asynctest import TestCase, skipUnless, expectedFailure
 
-from copra.rest import Client, SANDBOX_URL
+from copra.rest import Client, SANDBOX_URL, USER_AGENT
 
 KEY = os.getenv('KEY')
 SECRET = os.getenv('SECRET')
 PASSPHRASE = os.getenv('PASSPHRASE')
 TEST_AUTH = True if (KEY and SECRET and PASSPHRASE) else False
 TEST_ACCOUNT = os.getenv('TEST_ACCOUNT')
+
+HTTPBIN = 'http://httpbin.org'
 
 class TestRest(TestCase):
     """Tests for copra.rest.Client"""
@@ -37,7 +39,33 @@ class TestRest(TestCase):
         self.loop.run_until_complete(asyncio.sleep(0.5))
 
 
-
+    async def test_get(self):
+        async with Client(self.loop, HTTPBIN) as client:
+            headers, body = await client.get('/get')
+            self.assertEqual(body['args'], {})
+            self.assertEqual(body['headers']['User-Agent'], USER_AGENT)
+            self.assertIsInstance(headers, dict)
+            self.assertIn('Content-Type', headers)
+            self.assertIn('Content-Length', headers)
+            
+            params = {'key1': 'item1', 'key2': 'item2'}
+            headers, body = await client.get('/get', params=params)
+            self.assertEqual(body['args'], params)
+            
+            
+    async def test_post(self):
+        async with Client(self.loop, HTTPBIN) as client:
+            headers, body = await client.post('/post')
+            self.assertEqual(body['form'], {})
+            self.assertEqual(body['headers']['User-Agent'], USER_AGENT)
+            self.assertIsInstance(headers, dict)
+            self.assertIn('Content-Type', headers)
+            self.assertIn('Content-Length', headers)
+            
+            data = {'key1': 'item1', 'key2': 'item2'}
+            headers, body = await client.post('/post', data=data)
+            self.assertEqual(body['form'], data)
+        
     async def test_get_products(self):
         
         keys = ('id', 'base_currency', 'quote_currency', 'base_min_size', 
@@ -238,10 +266,3 @@ class TestRest(TestCase):
     async def test_place_order(self):
         assert False
         
-        
-    
-        
-    
-    
-    
-    
