@@ -998,18 +998,18 @@ class Client(BaseClient):
         if stp not in ('dc', 'co', 'cn', 'cb'):
             raise ValueError('Invalid stp: {}. Must be dc, co, cn, or cb.'.format(stp))
         
-        params = {
-                  'side': side,
-                  'product_id': product_id,
-                  'order_type': order_type,
-                  'stp': stp
-                 }
+        data = {
+                 'side': side,
+                 'product_id': product_id,
+                 'order_type': order_type,
+                 'stp': stp
+                }
                  
         if stop:
-            params.update({'stop': stop, 'stop_price': stop_price})
+            data.update({'stop': stop, 'stop_price': stop_price})
             
         if client_oid:
-            params['client_oid'] = client_oid
+            data['client_oid'] = client_oid
                  
         if order_type == 'limit':
             
@@ -1025,15 +1025,15 @@ class Client(BaseClient):
             if cancel_after and cancel_after not in ('min', 'hour', 'day'):
                 raise ValueError('cancel_after must be min, hour, or day')
                 
-            params.update({
-                            'price': price,
-                            'size': size,
-                            'time_in_force': time_in_force,
-                            'post_only': post_only
-                         })
+            data.update({
+                          'price': price,
+                          'size': size,
+                          'time_in_force': time_in_force,
+                          'post_only': post_only
+                        })
                          
             if cancel_after:
-                params['cancel_after'] = cancel_after
+                data['cancel_after'] = cancel_after
                 
         else:
             
@@ -1044,12 +1044,12 @@ class Client(BaseClient):
                 raise ValueError("Market orders can't have both funds and size set.")
                 
             if size:
-                params['size'] = size
+                data['size'] = size
                 
             if funds:
-                params['funds'] = funds
+                data['funds'] = funds
         
-        resp = await self.get('/orders', params=params, auth=True)
+        resp = await self.post('/orders', data=data, auth=True)
         
         return resp
         

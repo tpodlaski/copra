@@ -544,37 +544,39 @@ class TestRest(MockTestCase):
         resp = await self.auth_client.place_order('buy', 'BTC-USD',
                                                   price=100.1, size=5)
         
-        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
-        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/orders'), 
-                              {'side': 'buy', 
-                                'product_id': 'BTC-USD',
-                                'order_type': 'limit',
-                                'price': '100.1',
-                                'size': '5',
-                                'time_in_force': 'GTC',
-                                'post_only': 'True',
-                                'stp': 'dc'
-                              })
-        self.check_mock_req_headers(self.mock_get, AUTH_HEADERS)
+        self.check_mock_req_args(self.mock_post, [str], {'data': dict,
+                                                         'headers': dict})
+        self.check_mock_req_url(self.mock_post, '{}{}'.format(URL, '/orders'), {})
+        self.check_mock_req_data(self.mock_post, {'side': 'buy', 
+                                                  'product_id': 'BTC-USD',
+                                                  'order_type': 'limit',
+                                                  'price': '100.1',
+                                                  'size': '5',
+                                                  'time_in_force': 'GTC',
+                                                  'post_only': 'True',
+                                                  'stp': 'dc'
+                                                 })
+        self.check_mock_req_headers(self.mock_post, AUTH_HEADERS)
                               
         # GTT order with cancel_after
         resp = await self.auth_client.place_order('buy', 'BTC-USD',
                             price=300, size=88, order_type='limit',
                             time_in_force='GTT', cancel_after='hour')
                             
-        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
-        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/orders'), 
-                              {'side': 'buy', 
-                                'product_id': 'BTC-USD',
-                                'order_type': 'limit',
-                                'price': '300',
-                                'size': '88',
-                                'time_in_force': 'GTT',
-                                'cancel_after': 'hour',
-                                'post_only': 'True',
-                                'stp': 'dc'
-                              })
-        self.check_mock_req_headers(self.mock_get, AUTH_HEADERS)                               
+        self.check_mock_req_args(self.mock_post, [str], {'data': dict,
+                                                         'headers': dict})
+        self.check_mock_req_url(self.mock_post, '{}{}'.format(URL, '/orders'), {})
+        self.check_mock_req_data(self.mock_post, {'side': 'buy', 
+                                                  'product_id': 'BTC-USD',
+                                                  'order_type': 'limit',
+                                                  'price': '300',
+                                                  'size': '88',
+                                                  'time_in_force': 'GTT',
+                                                  'cancel_after': 'hour',
+                                                  'post_only': 'True',
+                                                  'stp': 'dc'
+                                                 })
+        self.check_mock_req_headers(self.mock_post, AUTH_HEADERS)                               
         
         # Market orders #############################################
         
@@ -592,29 +594,31 @@ class TestRest(MockTestCase):
         resp = await self.auth_client.place_order('buy', 'BTC-USD', size=5, 
                                                   order_type='market')
         
-        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
-        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/orders'), 
-                              {'side': 'buy', 
-                                'product_id': 'BTC-USD',
-                                'order_type': 'market',
-                                'size': '5',
-                                'stp': 'dc'
-                              })
-        self.check_mock_req_headers(self.mock_get, AUTH_HEADERS) 
+        self.check_mock_req_args(self.mock_post, [str], {'data': dict,
+                                                         'headers': dict})
+        self.check_mock_req_url(self.mock_post, '{}{}'.format(URL, '/orders'), {})
+        self.check_mock_req_data(self.mock_post, {'side': 'buy', 
+                                                  'product_id': 'BTC-USD',
+                                                  'order_type': 'market',
+                                                  'size': '5',
+                                                  'stp': 'dc'
+                                                 })
+        self.check_mock_req_headers(self.mock_post, AUTH_HEADERS) 
         
         # Funds
         resp = await self.auth_client.place_order('buy', 'BTC-USD', funds=1000, 
                                                   order_type='market')
         
-        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
-        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/orders'), 
-                              {'side': 'buy', 
-                                'product_id': 'BTC-USD',
-                                'order_type': 'market',
-                                'funds': '1000',
-                                'stp': 'dc'
-                              })
-        self.check_mock_req_headers(self.mock_get, AUTH_HEADERS)
+        self.check_mock_req_args(self.mock_post, [str], {'data': dict,
+                                                         'headers': dict})
+        self.check_mock_req_url(self.mock_post, '{}{}'.format(URL, '/orders'), {})
+        self.check_mock_req_data(self.mock_post, {'side': 'buy', 
+                                                  'product_id': 'BTC-USD',
+                                                  'order_type': 'market',
+                                                  'funds': '1000',
+                                                  'stp': 'dc'
+                                                 })
+        self.check_mock_req_headers(self.mock_post, AUTH_HEADERS)
         
         # Stop orders #############################################
         
@@ -633,36 +637,38 @@ class TestRest(MockTestCase):
         resp = await self.auth_client.place_order('buy', 'BTC-USD', price=100.1, 
                         size=5, stop='loss', stop_price=105)
                         
-        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
-        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/orders'), 
-                              {'side': 'buy', 
-                              'product_id': 'BTC-USD',
-                              'order_type': 'limit',
-                              'price': '100.1',
-                              'size': '5',
-                              'time_in_force': 'GTC',
-                              'post_only': 'True',
-                              'stop': 'loss',
-                              'stop_price': '105',
-                              'stp': 'dc'
-                              })
-        self.check_mock_req_headers(self.mock_get, AUTH_HEADERS)
+        self.check_mock_req_args(self.mock_post, [str], {'data': dict,
+                                                         'headers': dict})
+        self.check_mock_req_url(self.mock_post, '{}{}'.format(URL, '/orders'), {})
+        self.check_mock_req_data(self.mock_post, {'side': 'buy', 
+                                                  'product_id': 'BTC-USD',
+                                                  'order_type': 'limit',
+                                                  'price': '100.1',
+                                                  'size': '5',
+                                                  'time_in_force': 'GTC',
+                                                  'post_only': 'True',
+                                                  'stop': 'loss',
+                                                  'stop_price': '105',
+                                                  'stp': 'dc'
+                                                 })
+        self.check_mock_req_headers(self.mock_post, AUTH_HEADERS)
         
         # Valid order with client_oid and stp set
         resp = await self.auth_client.place_order('buy', 'BTC-USD', price=100.1, 
             size=5, client_oid=42, stp='co')
          
-        self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
-        self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, '/orders'), 
-                              {'side': 'buy', 
-                                'product_id': 'BTC-USD',
-                                'order_type': 'limit',
-                                'price': '100.1',
-                                'size': '5',
-                                'time_in_force': 'GTC',
-                                'post_only': 'True',
-                                'client_oid': '42',
-                                'stp': 'co'
-                              })
-        self.check_mock_req_headers(self.mock_get, AUTH_HEADERS)
+        self.check_mock_req_args(self.mock_post, [str], {'data': dict,
+                                                         'headers': dict})
+        self.check_mock_req_url(self.mock_post, '{}{}'.format(URL, '/orders'), {})
+        self.check_mock_req_data(self.mock_post, {'side': 'buy', 
+                                                  'product_id': 'BTC-USD',
+                                                  'order_type': 'limit',
+                                                  'price': '100.1',
+                                                  'size': '5',
+                                                  'time_in_force': 'GTC',
+                                                  'post_only': 'True',
+                                                  'client_oid': '42',
+                                                  'stp': 'co'
+                                                 })
+        self.check_mock_req_headers(self.mock_post, AUTH_HEADERS)
         
