@@ -37,6 +37,11 @@ class MockTestCase(TestCase):
         self.mock_post.return_value.json = CoroutineMock()
         self.addCleanup(mock_post_patcher.stop)
         
+        mock_del_patcher = patch('aiohttp.ClientSession.delete', new_callable=MockRequest)
+        self.mock_del = mock_del_patcher.start()
+        self.mock_del.return_value.json = CoroutineMock()
+        self.addCleanup(mock_del_patcher.stop)
+        
         
     def check_mock_req_args(self, mock_req, expected_args, expected_kwargs):
         self.assertEqual(len(mock_req.args), len(expected_args))

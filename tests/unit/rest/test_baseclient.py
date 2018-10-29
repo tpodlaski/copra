@@ -50,6 +50,42 @@ class TestBaseClient(MockTestCase):
         self.assertTrue(client.closed)
         
 
+    async def test_delete(self):
+        
+        #url is required
+        with self.assertRaises(TypeError):
+            async with BaseClient(self.loop) as client:
+                resp = client.delete()
+
+        url = 'http://httpbin.org/'
+        params = {'key1': 'item1', 'key2': 'item2'}
+        headers = {'USER-AGENT': '007', 'Content-Type': 'shaken'}
+        
+        #No params, default headers
+        resp = await self.client.delete(url)
+        self.check_mock_req_args(self.mock_del, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_del, url, {})
+        self.check_mock_req_headers(self.mock_del, HEADERS)
+        
+        #Params, default headers
+        resp = await self.client.delete(url, params=params)
+        self.check_mock_req_args(self.mock_del, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_del, url, params)
+        self.check_mock_req_headers(self.mock_del, HEADERS)
+
+        #Params, no headers
+        resp = await self.client.delete(url, params=params, headers={})
+        self.check_mock_req_args(self.mock_del, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_del, url, params)
+        self.check_mock_req_headers(self.mock_del, {})
+        
+        #Params, custom headers
+        resp = await self.client.delete(url, params=params, headers=headers)
+        self.check_mock_req_args(self.mock_del, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_del, url, params)
+        self.check_mock_req_headers(self.mock_del, headers)
+
+
     async def test_get(self):
         
         #url is required
@@ -79,7 +115,7 @@ class TestBaseClient(MockTestCase):
         self.check_mock_req_url(self.mock_get, url, params)
         self.check_mock_req_headers(self.mock_get, {})
         
-        #Params, non-default headers
+        #Params, custom headers
         resp = await self.client.get(url, params, headers=headers)
         self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
         self.check_mock_req_url(self.mock_get, url, params)
@@ -122,7 +158,7 @@ class TestBaseClient(MockTestCase):
         self.check_mock_req_headers(self.mock_post,{})
         self.check_mock_req_data(self.mock_post, data)
         
-        #Data, non-default headers
+        #Data, custom headers
         resp = await self.client.post(url, data, headers=headers)
         self.check_mock_req_args(self.mock_post, [str], {'data': dict, 
                                                          'headers': dict})

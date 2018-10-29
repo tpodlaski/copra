@@ -62,6 +62,26 @@ class BaseClient():
     async def __aexit__(self, exc_type, exc_value, traceback):
         await self.session.close()
         
+
+    async def delete(self, url, params=None, headers=HEADERS):
+        """Base method for making DELETE requests.
+        
+        :param str url The url of the resource to be DELETEd.
+
+        :param dict params: (optional) key/value pairs to be sent as parameters 
+            in the query string of the request.
+            
+        :param dict headers: (optional) key/value pairs to be sent as headers
+            for the request. The default is just the USER-AGENT string for the
+            copra client.
+            
+        :returns: aiohttp.ClientResponse object
+        """
+        if params:
+            url += '?{}'.format(urllib.parse.urlencode(params))
+            
+        return await self.session.delete(url, headers=headers)
+        
         
     async def get(self, url, params=None, headers=HEADERS):
         """Base method for making GET requests.
@@ -98,8 +118,8 @@ class BaseClient():
         :returns: aiohttp.ClientResponse object
         """
         return await self.session.post(url, data=data, headers=headers)
-
-
+        
+        
 class Client(BaseClient):
     """Asyncronous REST client for Coinbase Pro.
     """

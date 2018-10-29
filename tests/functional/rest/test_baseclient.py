@@ -59,6 +59,19 @@ class TestBaseClient(TestCase):
         self.assertEqual(args, params)
         
         
+    async def test_delete(self):
+        
+        resp = await self.client.delete(HTTPBIN + '/delete')
+        args = (await resp.json())['args']
+        self.assertEqual(args, {})
+        
+        params = {'key1': 'item1', 'key2': 'item2'}
+        resp = await self.client.delete(HTTPBIN + '/delete',
+                                     params=params)
+        args = (await resp.json())['args']
+        self.assertEqual(args, params)
+        
+        
     async def test_post(self):
         
         resp = await self.client.post(HTTPBIN + '/post')
