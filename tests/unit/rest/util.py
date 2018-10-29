@@ -29,10 +29,12 @@ class MockTestCase(TestCase):
     def setUp(self):
         mock_get_patcher = patch('aiohttp.ClientSession.get', new_callable=MockRequest)
         self.mock_get = mock_get_patcher.start()
+        self.mock_get.return_value.json = CoroutineMock()
         self.addCleanup(mock_get_patcher.stop)
         
         mock_post_patcher = patch('aiohttp.ClientSession.post', new_callable=MockRequest)
         self.mock_post = mock_post_patcher.start()
+        self.mock_post.return_value.json = CoroutineMock()
         self.addCleanup(mock_post_patcher.stop)
         
         
@@ -40,8 +42,12 @@ class MockTestCase(TestCase):
         self.assertEqual(len(mock_req.args), len(expected_args))
         for i, arg_type in enumerate(expected_args):
             self.assertIsInstance(mock_req.args[i], arg_type)
+            
+        self.assertEqual(len(mock_req.kwargs), len(expected_kwargs))
+        for expected_key, expected_val in expected_kwargs.items():
+            self.assertIsInstance(mock_req.kwargs[expected_key], expected_val)
         
-
+        
     def check_mock_req_url(self, mock_req, expected_url, expected_query=None):
         self.assertEqual(mock_req.url, expected_url)
         

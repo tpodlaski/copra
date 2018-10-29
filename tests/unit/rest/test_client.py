@@ -18,7 +18,9 @@ TEST_KEY = 'a035b37f42394a6d343231f7f772b99d'
 TEST_SECRET = 'aVGe54dHHYUSudB3sJdcQx4BfQ6K5oVdcYv4eRtDN6fBHEQf5Go6BACew4G0iFjfLKJHmWY5ZEwlqxdslop4CC=='
 TEST_PASSPHRASE = 'a2f9ee4dx2b'
 
-AUTH_HEADERS = UNAUTH_HEADERS = HEADERS
+UNAUTH_HEADERS = HEADERS
+
+AUTH_HEADERS = HEADERS.copy()
 
 AUTH_HEADERS.update({
                       'Content-Type': 'Application/JSON',
@@ -34,7 +36,6 @@ class TestRest(MockTestCase):
 
     def setUp(self):
         super().setUp()
-        self.mock_get.return_value.json = CoroutineMock()
         self.client = Client(self.loop)
         self.auth_client = Client(self.loop, auth=True, key=TEST_KEY, 
                                   secret=TEST_SECRET, passphrase=TEST_PASSPHRASE)       
@@ -124,6 +125,39 @@ class TestRest(MockTestCase):
         self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, path), query)
         self.check_mock_req_headers(self.mock_get, AUTH_HEADERS)
 
+
+    async def test_post(self):
+        path = '/mypath'
+        data = {'key1': 'item1', 'key2': 'item2'}
+        
+        #Unauthorized call by unauthorized client
+        resp = await self.client.post(path, data)
+        self.check_mock_req_args(self.mock_post, [str], {'data': dict,
+                                                         'headers': dict})
+        self.check_mock_req_url(self.mock_post, '{}{}'.format(URL, path), {})
+        self.check_mock_req_headers(self.mock_post, UNAUTH_HEADERS)
+        self.check_mock_req_data(self.mock_post, data)
+                                                         
+        #Authorized call by unauthorized client
+        with self.assertRaises(ValueError):
+            resp = await self.client.post(path, data, auth=True)
+            
+        #Unauthorized call by authorized client
+        resp = await self.auth_client.post(path, data)
+        self.check_mock_req_args(self.mock_post, [str], {'data': dict,
+                                                         'headers': dict})
+        self.check_mock_req_url(self.mock_post, '{}{}'.format(URL, path), {})
+        self.check_mock_req_headers(self.mock_post, UNAUTH_HEADERS)
+        self.check_mock_req_data(self.mock_post, data)
+        
+        #Authorized call by authorized client
+        resp = await self.auth_client.post(path, data, auth=True)
+        self.check_mock_req_args(self.mock_post, [str], {'data': dict,
+                                                         'headers': dict})
+        self.check_mock_req_url(self.mock_post, '{}{}'.format(URL, path), {})
+        self.check_mock_req_headers(self.mock_post, AUTH_HEADERS)
+        self.check_mock_req_data(self.mock_post, data)
+        
 
     async def test_get_products(self):
         

@@ -216,14 +216,12 @@ class Client(BaseClient):
             with the HTTP headers of the respone. The response body is a 
             JSON-formatted, UTF-8 encoded dict.
         """
-        headers = {'USER-AGENT': USER_AGENT}
-        if auth:
-            headers.update(self.get_auth_headers(path))
+        req_headers = self.get_auth_headers(path) if auth else HEADERS
             
-        async with self.session.post(self.url + path, data, headers=headers) as resp:
-            body = await resp.json()
-            headers = dict(resp.headers)
-            return (headers, body)
+        resp = await super().post(self.url + path, data, headers=req_headers)
+        body = await resp.json()
+        headers = dict(resp.headers)
+        return (headers, body)
             
             
     async def get_products(self):
