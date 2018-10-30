@@ -99,6 +99,33 @@ class TestRest(MockTestCase):
         self.assertEqual(headers['CB-ACCESS-PASSPHRASE'], TEST_PASSPHRASE)
 
 
+    async def test_delete(self):
+        path = '/mypath'
+        query = {'key1': 'item1', 'key2': 'item2'}
+
+        #Unauthorized call by unauthorized client
+        resp = await self.client.delete(path, query)
+        self.check_mock_req_args(self.mock_del, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_del, '{}{}'.format(URL, path), query)
+        self.check_mock_req_headers(self.mock_del, UNAUTH_HEADERS)        
+        
+        #Authorized call by unauthorized client
+        with self.assertRaises(ValueError):
+            resp = await self.client.delete(path, query, auth=True)
+            
+        #Unauthorized call by authorized client
+        resp = await self.auth_client.delete(path, query)
+        self.check_mock_req_args(self.mock_del, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_del, '{}{}'.format(URL, path), query)
+        self.check_mock_req_headers(self.mock_del, UNAUTH_HEADERS)
+        
+        #Authorized call by authorized client
+        resp = await self.auth_client.delete(path, query, auth=True)
+        self.check_mock_req_args(self.mock_del, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_del, '{}{}'.format(URL, path), query)
+        self.check_mock_req_headers(self.mock_del, AUTH_HEADERS)        
+        
+    
     async def test_get(self):
         path = '/mypath'
         query = {'key1': 'item1', 'key2': 'item2'}

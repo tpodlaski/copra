@@ -195,6 +195,29 @@ class Client(BaseClient):
             'CB-ACCESS-KEY': self.key,
             'CB-ACCESS-PASSPHRASE': self.passphrase
         }
+ 
+ 
+    async def delete(self, path='/', params=None, auth=False):
+        """Method for making DELETE requests.
+        
+        :param str path: (optional) The path not including the base URL of the
+            resource to be deleted. The default is '/'.
+            
+        :param dict params: (optional) Dictionary of key/value str pairs
+            to be appended to the request. The default is None.
+            
+        :param boolean auth: (optional) Indicates whether or not this request 
+            needs to be authenticated. The default is False.
+            
+        :returns: A 2-tuple: (response header, response body). Headers is a dict 
+            with the HTTP headers of the respone. The response body is a 
+            JSON-formatted, UTF-8 encoded dict.
+        """
+        req_headers = self.get_auth_headers(path) if auth else HEADERS
+        resp = await super().delete(self.url + path, params, headers=req_headers)
+        body = await resp.json()
+        headers = dict(resp.headers)
+        return (headers, body)
         
 
     async def get(self, path='/', params=None, auth=False):

@@ -39,6 +39,20 @@ class TestRest(TestCase):
         self.loop.run_until_complete(asyncio.sleep(0.5))
 
 
+    async def test_delete(self):
+        async with Client(self.loop, HTTPBIN) as client:
+            headers, body = await client.delete('/delete')
+            self.assertEqual(body['args'], {})
+            self.assertEqual(body['headers']['User-Agent'], USER_AGENT)
+            self.assertIsInstance(headers, dict)
+            self.assertIn('Content-Type', headers)
+            self.assertIn('Content-Length', headers)
+            
+            params = {'key1': 'item1', 'key2': 'item2'}
+            headers, body = await client.delete('/delete', params=params)
+            self.assertEqual(body['args'], params)
+            
+
     async def test_get(self):
         async with Client(self.loop, HTTPBIN) as client:
             headers, body = await client.get('/get')
