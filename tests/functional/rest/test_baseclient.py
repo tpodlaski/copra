@@ -4,6 +4,7 @@
 """
 
 import asyncio
+import json
 
 from asynctest import TestCase
 
@@ -81,7 +82,7 @@ class TestBaseClient(TestCase):
         data = {'key1': 'item1', 'key2': 'item2'}
         resp = await self.client.post(HTTPBIN + '/post',
                                      data=data)
-        form = (await resp.json())['form']
+        form = json.loads((await resp.json())['data'])
         self.assertEqual(form, data)
     
     

@@ -3,6 +3,7 @@
 """Utilitiy functions to be assigned as methods of asynctest.TestCase.
 """
 
+import json
 from unittest import mock
 from urllib.parse import parse_qs, urlparse
 
@@ -71,6 +72,7 @@ class MockTestCase(TestCase):
                 
                 
     def check_mock_req_data(self, mock_req, expected_data):
-        self.assertEqual(len(mock_req.kwargs['data']), len(expected_data))
-        for expected_key, expected_val in expected_data.items():
-            self.assertIn(expected_key, mock_req.kwargs['data'])
+        if mock_req.kwargs['data']:
+            self.assertEqual(json.loads(mock_req.kwargs['data']), expected_data)
+        else:
+            self.assertEqual(expected_data, '')

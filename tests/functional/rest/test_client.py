@@ -9,6 +9,7 @@ load_dotenv()
 import asyncio
 from datetime import datetime, timedelta
 import os
+import json
 import time
 
 from asynctest import TestCase, skipUnless, expectedFailure
@@ -76,9 +77,9 @@ class TestRest(TestCase):
             self.assertIn('Content-Type', headers)
             self.assertIn('Content-Length', headers)
             
-            data = {'key1': 'item1', 'key2': 'item2'}
+            data = {"key1": "item1", "key2": "item2"}
             headers, body = await client.post('/post', data=data)
-            self.assertEqual(body['form'], data)
+            self.assertEqual(json.loads(body['data']), data)
         
     async def test_get_products(self):
         

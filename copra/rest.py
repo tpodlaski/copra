@@ -9,6 +9,7 @@ import base64
 from datetime import datetime, timedelta
 import hashlib
 import hmac
+import json
 import sys
 import time
 import urllib.parse
@@ -108,8 +109,8 @@ class BaseClient():
         
         :param str url The url of the resource to be POST'ed to.
             
-        :param dict data: (optional) Dictionary of key/value str pairs
-            to be sent in the body of the request. The default is None.
+        :param dict data: (optional) Key/value str pairs to be sent in the 
+            body of the request. The default is {}.
             
         :param dict headers: (optional) key/value pairs to be sent as headers
             for the request. The default is just the USER-AGENT string for the
@@ -117,6 +118,7 @@ class BaseClient():
             
         :returns: aiohttp.ClientResponse object
         """
+        data = json.dumps(data) if data else ''
         return await self.session.post(url, data=data, headers=headers)
         
         
@@ -159,11 +161,17 @@ class Client(BaseClient):
         super().__init__(loop)
 
 
-    def get_auth_headers(self, path, timestamp=None):
+    def get_auth_headers(self, path, method='GET', body={}, timestamp=None):
         """Get the headers necessary to authenticate a client request.
         
         :param str path: The path portion of the REST request. For example,
             '/products/BTC-USD/candles'
+            
+        :param str method: (optional) The method of the request. The default is
+            GET.
+            
+        :param dict body: (optional) Dictionary of key/value str pairs
+            to be sent in the body of the request. The default is {}.
             
         :param float timestamp: (optional) A UNIX timestamp. This parameter 
             exists for testing purposes and generally should not be used. If a 
@@ -177,11 +185,13 @@ class Client(BaseClient):
         """
         if not self.auth:
             raise ValueError('client is not properly configured for authorization')
+            
+        body = json.dumps(body) if body else ''
         
         if not timestamp:
             timestamp = time.time()
         timestamp = str(timestamp)
-        message = timestamp + 'GET' + path
+        message = timestamp + method + path + body
         message = message.encode('ascii')
         hmac_key = base64.b64decode(self.secret)
         signature = hmac.new(hmac_key, message, hashlib.sha256)
@@ -259,7 +269,7 @@ class Client(BaseClient):
             with the HTTP headers of the respone. The response body is a 
             JSON-formatted, UTF-8 encoded dict.
         """
-        req_headers = self.get_auth_headers(path) if auth else HEADERS
+        req_headers = self.get_auth_headers(path, 'POST', data) if auth else HEADERS
             
         resp = await super().post(self.url + path, data, headers=req_headers)
         body = await resp.json()
@@ -1092,14 +1102,20 @@ class Client(BaseClient):
             if funds:
                 data['funds'] = funds
         
-        resp = await self.post('/orders', data=data, auth=True)
+        headers, body = await self.post('/orders', data=data, auth=True)
         
-        return resp
+        return body
         
     
     async def cancel_order(self):
+        """Cancel a previously placed order.
+
+        If the order had no matches during its lifetime its record may be 
+        purged. This means the order details will not be available with 
+        :meth:`rest.Client.get_order`.
+        """
         pass
-        
+    
         
 if __name__ == '__main__':
     import os
@@ -1115,8 +1131,8 @@ if __name__ == '__main__':
     client = Client(loop, auth=True, key=KEY, secret=SECRET, passphrase=PASSPHRASE)
     
     async def go():
-        holds, before, after = await client.get_holds(os.getenv("TEST_ACCOUNT"))
-        print(holds)
+        resp = await client.place_order('sell', 'LTC-USD', price=1000, size=0.1)
+        print(resp)
 
     loop.run_until_complete(go())
     loop.run_until_complete(client.close())

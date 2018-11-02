@@ -4,6 +4,7 @@
 """
 
 import asyncio
+import json
 
 import aiohttp
 
@@ -136,15 +137,15 @@ class TestBaseClient(MockTestCase):
         
         #No data, default headers
         resp = await self.client.post(url)
-        self.check_mock_req_args(self.mock_post, [str], {'data': dict, 
+        self.check_mock_req_args(self.mock_post, [str], {'data': str, 
                                                          'headers': dict})
         self.check_mock_req_url(self.mock_post, url, {})
         self.check_mock_req_headers(self.mock_post, HEADERS)
-        self.check_mock_req_data(self.mock_post, {})
+        self.check_mock_req_data(self.mock_post, '')
                                                          
         #Data, default headers
         resp = await self.client.post(url, data)
-        self.check_mock_req_args(self.mock_post, [str], {'data': dict, 
+        self.check_mock_req_args(self.mock_post, [str], {'data': str, 
                                                          'headers': dict})
         self.check_mock_req_url(self.mock_post, url, {})
         self.check_mock_req_headers(self.mock_post, HEADERS)
@@ -152,7 +153,7 @@ class TestBaseClient(MockTestCase):
         
         #Data, no headers
         resp = await self.client.post(url, data, headers={})
-        self.check_mock_req_args(self.mock_post, [str], {'data': dict, 
+        self.check_mock_req_args(self.mock_post, [str], {'data': str, 
                                                          'headers': dict})
         self.check_mock_req_url(self.mock_post, url, {})
         self.check_mock_req_headers(self.mock_post,{})
@@ -160,7 +161,7 @@ class TestBaseClient(MockTestCase):
         
         #Data, custom headers
         resp = await self.client.post(url, data, headers=headers)
-        self.check_mock_req_args(self.mock_post, [str], {'data': dict, 
+        self.check_mock_req_args(self.mock_post, [str], {'data': str, 
                                                          'headers': dict})
         self.check_mock_req_url(self.mock_post, url, {})
         self.check_mock_req_headers(self.mock_post,headers)

@@ -90,15 +90,46 @@ class TestRest(MockTestCase):
             with self.assertRaises(ValueError):
                 client.get_auth_headers('/mypath')
                     
-        headers = self.auth_client.get_auth_headers('/mypath', 1539968909.917318)
+        path = '/mypath'
+        timestamp = 1539968909.917318
+        
+        # Default GET
+        headers = self.auth_client.get_auth_headers(path, timestamp=timestamp)
         self.assertIsInstance(headers, dict)
         self.assertEqual(headers['Content-Type'], 'Application/JSON')
         self.assertEqual(headers['CB-ACCESS-SIGN'], 'haapGobLuJMel4ku5s7ptzyNkQdYtLPMXgQJq5f1/cg=')
-        self.assertEqual(headers['CB-ACCESS-TIMESTAMP'], str(1539968909.917318))
+        self.assertEqual(headers['CB-ACCESS-TIMESTAMP'], str(timestamp))
+        self.assertEqual(headers['CB-ACCESS-KEY'], TEST_KEY)
+        self.assertEqual(headers['CB-ACCESS-PASSPHRASE'], TEST_PASSPHRASE)
+        
+        # Explicit GET
+        headers = self.auth_client.get_auth_headers(path, method='GET', timestamp=timestamp)
+        self.assertIsInstance(headers, dict)
+        self.assertEqual(headers['Content-Type'], 'Application/JSON')
+        self.assertEqual(headers['CB-ACCESS-SIGN'], 'haapGobLuJMel4ku5s7ptzyNkQdYtLPMXgQJq5f1/cg=')
+        self.assertEqual(headers['CB-ACCESS-TIMESTAMP'], str(timestamp))
+        self.assertEqual(headers['CB-ACCESS-KEY'], TEST_KEY)
+        self.assertEqual(headers['CB-ACCESS-PASSPHRASE'], TEST_PASSPHRASE)
+        
+        # POST
+        headers = self.auth_client.get_auth_headers(path, method='POST', timestamp=timestamp)
+        self.assertIsInstance(headers, dict)
+        self.assertEqual(headers['Content-Type'], 'Application/JSON')
+        self.assertEqual(headers['CB-ACCESS-SIGN'], 'Geo8uJefQp5CG42SYsmKW1lvR7t+28ujcgt3yRM1mpA=')
+        self.assertEqual(headers['CB-ACCESS-TIMESTAMP'], str(timestamp))
         self.assertEqual(headers['CB-ACCESS-KEY'], TEST_KEY)
         self.assertEqual(headers['CB-ACCESS-PASSPHRASE'], TEST_PASSPHRASE)
 
-
+        # DELETE
+        headers = self.auth_client.get_auth_headers(path, method='DELETE', timestamp=timestamp)
+        self.assertIsInstance(headers, dict)
+        self.assertEqual(headers['Content-Type'], 'Application/JSON')
+        self.assertEqual(headers['CB-ACCESS-SIGN'], 'NRdGfZaOAkFK2ENVDJQ43Rg+fLm+6vg4PML/yzmtuiY=')
+        self.assertEqual(headers['CB-ACCESS-TIMESTAMP'], str(timestamp))
+        self.assertEqual(headers['CB-ACCESS-KEY'], TEST_KEY)
+        self.assertEqual(headers['CB-ACCESS-PASSPHRASE'], TEST_PASSPHRASE)
+        
+        
     async def test_delete(self):
         path = '/mypath'
         query = {'key1': 'item1', 'key2': 'item2'}
@@ -159,7 +190,7 @@ class TestRest(MockTestCase):
         
         #Unauthorized call by unauthorized client
         resp = await self.client.post(path, data)
-        self.check_mock_req_args(self.mock_post, [str], {'data': dict,
+        self.check_mock_req_args(self.mock_post, [str], {'data': str,
                                                          'headers': dict})
         self.check_mock_req_url(self.mock_post, '{}{}'.format(URL, path), {})
         self.check_mock_req_headers(self.mock_post, UNAUTH_HEADERS)
@@ -171,7 +202,7 @@ class TestRest(MockTestCase):
             
         #Unauthorized call by authorized client
         resp = await self.auth_client.post(path, data)
-        self.check_mock_req_args(self.mock_post, [str], {'data': dict,
+        self.check_mock_req_args(self.mock_post, [str], {'data': str,
                                                          'headers': dict})
         self.check_mock_req_url(self.mock_post, '{}{}'.format(URL, path), {})
         self.check_mock_req_headers(self.mock_post, UNAUTH_HEADERS)
@@ -179,7 +210,7 @@ class TestRest(MockTestCase):
         
         #Authorized call by authorized client
         resp = await self.auth_client.post(path, data, auth=True)
-        self.check_mock_req_args(self.mock_post, [str], {'data': dict,
+        self.check_mock_req_args(self.mock_post, [str], {'data': str,
                                                          'headers': dict})
         self.check_mock_req_url(self.mock_post, '{}{}'.format(URL, path), {})
         self.check_mock_req_headers(self.mock_post, AUTH_HEADERS)
@@ -571,16 +602,16 @@ class TestRest(MockTestCase):
         resp = await self.auth_client.place_order('buy', 'BTC-USD',
                                                   price=100.1, size=5)
         
-        self.check_mock_req_args(self.mock_post, [str], {'data': dict,
+        self.check_mock_req_args(self.mock_post, [str], {'data': str,
                                                          'headers': dict})
         self.check_mock_req_url(self.mock_post, '{}{}'.format(URL, '/orders'), {})
         self.check_mock_req_data(self.mock_post, {'side': 'buy', 
                                                   'product_id': 'BTC-USD',
                                                   'order_type': 'limit',
-                                                  'price': '100.1',
-                                                  'size': '5',
+                                                  'price': 100.1,
+                                                  'size': 5,
                                                   'time_in_force': 'GTC',
-                                                  'post_only': 'True',
+                                                  'post_only': True,
                                                   'stp': 'dc'
                                                  })
         self.check_mock_req_headers(self.mock_post, AUTH_HEADERS)
@@ -590,17 +621,17 @@ class TestRest(MockTestCase):
                             price=300, size=88, order_type='limit',
                             time_in_force='GTT', cancel_after='hour')
                             
-        self.check_mock_req_args(self.mock_post, [str], {'data': dict,
+        self.check_mock_req_args(self.mock_post, [str], {'data': str,
                                                          'headers': dict})
         self.check_mock_req_url(self.mock_post, '{}{}'.format(URL, '/orders'), {})
         self.check_mock_req_data(self.mock_post, {'side': 'buy', 
                                                   'product_id': 'BTC-USD',
                                                   'order_type': 'limit',
-                                                  'price': '300',
-                                                  'size': '88',
+                                                  'price': 300,
+                                                  'size': 88,
                                                   'time_in_force': 'GTT',
                                                   'cancel_after': 'hour',
-                                                  'post_only': 'True',
+                                                  'post_only': True,
                                                   'stp': 'dc'
                                                  })
         self.check_mock_req_headers(self.mock_post, AUTH_HEADERS)                               
@@ -621,13 +652,13 @@ class TestRest(MockTestCase):
         resp = await self.auth_client.place_order('buy', 'BTC-USD', size=5, 
                                                   order_type='market')
         
-        self.check_mock_req_args(self.mock_post, [str], {'data': dict,
+        self.check_mock_req_args(self.mock_post, [str], {'data': str,
                                                          'headers': dict})
         self.check_mock_req_url(self.mock_post, '{}{}'.format(URL, '/orders'), {})
         self.check_mock_req_data(self.mock_post, {'side': 'buy', 
                                                   'product_id': 'BTC-USD',
                                                   'order_type': 'market',
-                                                  'size': '5',
+                                                  'size': 5,
                                                   'stp': 'dc'
                                                  })
         self.check_mock_req_headers(self.mock_post, AUTH_HEADERS) 
@@ -636,13 +667,13 @@ class TestRest(MockTestCase):
         resp = await self.auth_client.place_order('buy', 'BTC-USD', funds=1000, 
                                                   order_type='market')
         
-        self.check_mock_req_args(self.mock_post, [str], {'data': dict,
+        self.check_mock_req_args(self.mock_post, [str], {'data': str,
                                                          'headers': dict})
         self.check_mock_req_url(self.mock_post, '{}{}'.format(URL, '/orders'), {})
         self.check_mock_req_data(self.mock_post, {'side': 'buy', 
                                                   'product_id': 'BTC-USD',
                                                   'order_type': 'market',
-                                                  'funds': '1000',
+                                                  'funds': 1000,
                                                   'stp': 'dc'
                                                  })
         self.check_mock_req_headers(self.mock_post, AUTH_HEADERS)
@@ -664,18 +695,18 @@ class TestRest(MockTestCase):
         resp = await self.auth_client.place_order('buy', 'BTC-USD', price=100.1, 
                         size=5, stop='loss', stop_price=105)
                         
-        self.check_mock_req_args(self.mock_post, [str], {'data': dict,
+        self.check_mock_req_args(self.mock_post, [str], {'data': str,
                                                          'headers': dict})
         self.check_mock_req_url(self.mock_post, '{}{}'.format(URL, '/orders'), {})
         self.check_mock_req_data(self.mock_post, {'side': 'buy', 
                                                   'product_id': 'BTC-USD',
                                                   'order_type': 'limit',
-                                                  'price': '100.1',
-                                                  'size': '5',
+                                                  'price': 100.1,
+                                                  'size': 5,
                                                   'time_in_force': 'GTC',
-                                                  'post_only': 'True',
+                                                  'post_only': True,
                                                   'stop': 'loss',
-                                                  'stop_price': '105',
+                                                  'stop_price': 105,
                                                   'stp': 'dc'
                                                  })
         self.check_mock_req_headers(self.mock_post, AUTH_HEADERS)
@@ -684,17 +715,17 @@ class TestRest(MockTestCase):
         resp = await self.auth_client.place_order('buy', 'BTC-USD', price=100.1, 
             size=5, client_oid=42, stp='co')
          
-        self.check_mock_req_args(self.mock_post, [str], {'data': dict,
+        self.check_mock_req_args(self.mock_post, [str], {'data': str,
                                                          'headers': dict})
         self.check_mock_req_url(self.mock_post, '{}{}'.format(URL, '/orders'), {})
         self.check_mock_req_data(self.mock_post, {'side': 'buy', 
                                                   'product_id': 'BTC-USD',
                                                   'order_type': 'limit',
-                                                  'price': '100.1',
-                                                  'size': '5',
+                                                  'price': 100.1,
+                                                  'size': 5,
                                                   'time_in_force': 'GTC',
-                                                  'post_only': 'True',
-                                                  'client_oid': '42',
+                                                  'post_only': True,
+                                                  'client_oid': 42,
                                                   'stp': 'co'
                                                  })
         self.check_mock_req_headers(self.mock_post, AUTH_HEADERS)
