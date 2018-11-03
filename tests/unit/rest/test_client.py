@@ -754,3 +754,29 @@ class TestRest(MockTestCase):
         self.check_mock_req_args(self.mock_del, [str], {'headers': dict})
         self.check_mock_req_url(self.mock_del, '{}/orders/42'.format(URL), {})
         self.check_mock_req_headers(self.mock_del, AUTH_HEADERS)
+        
+        
+    async def test_cancel_all(self):
+        
+        # Unauthorized client
+        with self.assertRaises(ValueError):
+            resp = await self.client.cancel_all()
+            
+        # No product_id
+        resp = await self.auth_client.cancel_all()
+        
+        self.check_mock_req_args(self.mock_del, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_del, '{}/orders'.format(URL), {})
+        self.check_mock_req_headers(self.mock_del, AUTH_HEADERS)
+        
+        # product_id
+        resp = await self.auth_client.cancel_all('BTC-USD')
+        
+        self.check_mock_req_args(self.mock_del, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_del, '{}/orders'.format(URL), 
+                               {'product_id': 'BTC-USD'})
+        self.check_mock_req_headers(self.mock_del, AUTH_HEADERS)
+        
+        
+        
+        

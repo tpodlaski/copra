@@ -1145,9 +1145,40 @@ class Client(BaseClient):
         :returns: A list which successful contains a single string entry, the
             id of the cancelled order.
             
-        :return:
+        :Example:
+        
+        ["144c6f8e-713f-4682-8435-5280fbe8b2b4"]
         """
         headers, body = await self.delete('/orders/{}'.format(order_id), auth=True)
+        
+        return body
+        
+        
+    async def cancel_all(self, product_id=None):
+        """Cancel all open orders.
+        
+         ..note:: This method requires authorization. The API key must have 
+            the “trade” permission.
+            
+        :param str product_id: (optional) Only cancel orders for the specified
+            product. The default is None.
+            
+        :returns: A list of the ids of the orders that were successfully 
+            cancelled.
+            
+        :Example:
+        
+        [
+          "144c6f8e-713f-4682-8435-5280fbe8b2b4",
+          "debe4907-95dc-442f-af3b-cec12f42ebda",
+          "cf7aceee-7b08-4227-a76c-3858144323ab",
+          "dfc5ae27-cadb-4c0c-beef-8994936fde8a",
+          "34fecfbf-de33-4273-b2c6-baf8e8948be4"
+        ]
+        """
+        params = {'product_id': product_id} if product_id else {}
+        
+        headers, body = await self.delete('/orders', params=params, auth=True)
         
         return body
     
