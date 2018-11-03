@@ -223,7 +223,7 @@ class Client(BaseClient):
             with the HTTP headers of the respone. The response body is a 
             JSON-formatted, UTF-8 encoded dict.
         """
-        req_headers = self.get_auth_headers(path) if auth else HEADERS
+        req_headers = self.get_auth_headers(path, 'DELETE') if auth else HEADERS
         resp = await super().delete(self.url + path, params, headers=req_headers)
         body = await resp.json()
         headers = dict(resp.headers)
@@ -1019,6 +1019,28 @@ class Client(BaseClient):
             learn more about the order life cycle, please see the official 
             Coinbase Pro API documentation at: https://docs.gdax.com/#channels.
         
+        :returns: A dict of order information.
+        
+        :Example:
+        
+        {
+          'id': '5f25cced-f487-41bc-a771-e71fabf0b5ad', 
+          'price': '7000.00000000', 
+          'size': '0.10000000', 
+          'product_id': 'BTC-USD', 
+          'side': 'sell', 
+          'stp': 'dc', 
+          'type': 'limit', 
+          'time_in_force': 'GTC', 
+          'post_only': True, 
+          'created_at': '2018-11-02T12:53:00.724371Z', 
+          'fill_fees': '0.0000000000000000', '
+          'filled_size': '0.00000000', 
+          'executed_value': '0.0000000000000000', 
+          'status': 'pending', 
+          'settled': False
+        }
+        
         :raises ValueError: If... 
         
             * The client is not configured for authorization.
@@ -1107,14 +1129,27 @@ class Client(BaseClient):
         return body
         
     
-    async def cancel_order(self):
+    async def cancel_order(self, order_id):
         """Cancel a previously placed order.
 
         If the order had no matches during its lifetime its record may be 
         purged. This means the order details will not be available with 
         :meth:`rest.Client.get_order`.
+        
+        ..note:: This method requires authorization. The API key must have 
+            the “trade” permission.
+            
+        :param str order_id: The id of the order to be cancelled. The order id 
+            is the server-assigned order id and not the optional client_oid.
+            
+        :returns: A list which successful contains a single string entry, the
+            id of the cancelled order.
+            
+        :return:
         """
-        pass
+        headers, body = await self.delete('/orders/{}'.format(order_id), auth=True)
+        
+        return body
     
         
 if __name__ == '__main__':
@@ -1132,6 +1167,14 @@ if __name__ == '__main__':
     
     async def go():
         resp = await client.place_order('sell', 'LTC-USD', price=1000, size=0.1)
+        print(resp)
+        
+        order_id = resp['id']
+        
+        await asyncio.sleep(5)
+        
+        resp = await client.cancel_order(order_id)
+        
         print(resp)
 
     loop.run_until_complete(go())

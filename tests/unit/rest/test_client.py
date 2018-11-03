@@ -154,7 +154,10 @@ class TestRest(MockTestCase):
         resp = await self.auth_client.delete(path, query, auth=True)
         self.check_mock_req_args(self.mock_del, [str], {'headers': dict})
         self.check_mock_req_url(self.mock_del, '{}{}'.format(URL, path), query)
-        self.check_mock_req_headers(self.mock_del, AUTH_HEADERS)        
+        self.check_mock_req_headers(self.mock_del, AUTH_HEADERS)
+        
+        expected_headers = self.auth_client.get_auth_headers(path, 'DELETE', timestamp=self.mock_del.kwargs['headers']['CB-ACCESS-TIMESTAMP'])
+        self.assertEqual(self.mock_del.kwargs['headers']['CB-ACCESS-SIGN'], expected_headers['CB-ACCESS-SIGN'])
         
     
     async def test_get(self):
@@ -182,6 +185,9 @@ class TestRest(MockTestCase):
         self.check_mock_req_args(self.mock_get, [str], {'headers': dict})
         self.check_mock_req_url(self.mock_get, '{}{}'.format(URL, path), query)
         self.check_mock_req_headers(self.mock_get, AUTH_HEADERS)
+        
+        expected_headers = self.auth_client.get_auth_headers(path, 'GET', timestamp=self.mock_get.kwargs['headers']['CB-ACCESS-TIMESTAMP'])
+        self.assertEqual(self.mock_get.kwargs['headers']['CB-ACCESS-SIGN'], expected_headers['CB-ACCESS-SIGN'])
 
 
     async def test_post(self):
@@ -215,6 +221,9 @@ class TestRest(MockTestCase):
         self.check_mock_req_url(self.mock_post, '{}{}'.format(URL, path), {})
         self.check_mock_req_headers(self.mock_post, AUTH_HEADERS)
         self.check_mock_req_data(self.mock_post, data)
+        
+        expected_headers = self.auth_client.get_auth_headers(path, 'POST', body=data, timestamp=self.mock_post.kwargs['headers']['CB-ACCESS-TIMESTAMP'])
+        self.assertEqual(self.mock_post.kwargs['headers']['CB-ACCESS-SIGN'], expected_headers['CB-ACCESS-SIGN'])
         
 
     async def test_get_products(self):
@@ -730,3 +739,18 @@ class TestRest(MockTestCase):
                                                  })
         self.check_mock_req_headers(self.mock_post, AUTH_HEADERS)
         
+        
+    async def test_cancel_order(self):
+        
+        with self.assertRaises(TypeError):
+            resp = await self.auth_client.cancel_order()
+            
+        # Unauthorized client
+        with self.assertRaises(ValueError):
+            resp = await self.client.cancel_order(42)
+            
+        resp = await self.auth_client.cancel_order(42)
+        
+        self.check_mock_req_args(self.mock_del, [str], {'headers': dict})
+        self.check_mock_req_url(self.mock_del, '{}/orders/42'.format(URL), {})
+        self.check_mock_req_headers(self.mock_del, AUTH_HEADERS)

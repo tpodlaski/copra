@@ -277,7 +277,13 @@ class TestRest(TestCase):
         
     # TO DO   
     @expectedFailure
-    @skipUnless(TEST_AUTH and TEST_ACCOUNT, "Auth credentials and test account ID required")
+    @skipUnless(TEST_AUTH, "Auth credentials required")
     async def test_place_order(self):
+        assert False
+        
+    # TO DO   
+    @expectedFailure 
+    @skipUnless(TEST_AUTH, "Auth credentials required")
+    async def test_cancel_order(self):
         assert False
         
