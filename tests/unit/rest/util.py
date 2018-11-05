@@ -5,7 +5,9 @@
 
 import json
 from unittest import mock
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qsl, urlparse
+
+from multidict import MultiDict
 
 from asynctest import CoroutineMock, TestCase, patch
 
@@ -14,14 +16,20 @@ class MockRequest(CoroutineMock):
     def __init__(self, name):
         super().__init__(name)
         self.side_effect = self.update
+ 
         
     def update(self, *args, **kwargs):
         self.args = args
         self.kwargs = kwargs
+        self.headers = self.kwargs['headers']
         (self.scheme, self.netloc, self.path, self.params,  self.query_str, 
          self.fragment) = urlparse(args[0])
         self.url = '{}://{}{}'.format(self.scheme, self.netloc, self.path)
-        self.query = parse_qs(self.query_str)
+        self.query = MultiDict(parse_qsl(self.query_str))
+        if 'data' in self.kwargs:
+            self.data = json.loads(self.kwargs['data']) if self.kwargs['data'] else {}
+        else:
+            self.data = {}
         return mock.DEFAULT
 
 
@@ -42,37 +50,16 @@ class MockTestCase(TestCase):
         self.mock_del = mock_del_patcher.start()
         self.mock_del.return_value.json = CoroutineMock()
         self.addCleanup(mock_del_patcher.stop)
-        
-        
-    def check_mock_req_args(self, mock_req, expected_args, expected_kwargs):
-        self.assertEqual(len(mock_req.args), len(expected_args))
-        for i, arg_type in enumerate(expected_args):
-            self.assertIsInstance(mock_req.args[i], arg_type)
-            
-        self.assertEqual(len(mock_req.kwargs), len(expected_kwargs))
-        for expected_key, expected_val in expected_kwargs.items():
-            self.assertIsInstance(mock_req.kwargs[expected_key], expected_val)
-        
-        
-    def check_mock_req_url(self, mock_req, expected_url, expected_query=None):
-        self.assertEqual(mock_req.url, expected_url)
-        
-        self.assertEqual(len(mock_req.query), len(expected_query))
-        for expected_key, expected_val in expected_query.items():
-            self.assertIn(expected_key, mock_req.query)
-            self.assertEqual(mock_req.query[expected_key][0], expected_val)
-       
+
     
-    def check_mock_req_headers(self, mock_req, expected_headers):
-        self.assertEqual(len(mock_req.kwargs['headers']), len(expected_headers))
-        for expected_key, expected_val in expected_headers.items():
-            self.assertIn(expected_key, mock_req.kwargs['headers'])
-            if not expected_val == '*':
-                self.assertEqual(mock_req.kwargs['headers'][expected_key], expected_val)
+    def check_req(self, mock_req, url='', query={}, data={}, headers={}):
+        self.assertEqual(mock_req.url, url)
+        self.assertEqual(mock_req.query, MultiDict(query))
+        
+        self.assertEqual(len(mock_req.headers), len(headers))
+        for key, val in headers.items():
+            self.assertIn(key, mock_req.headers)
+            if not val == '*':
+                self.assertEqual(mock_req.headers[key], val)
                 
-                
-    def check_mock_req_data(self, mock_req, expected_data):
-        if mock_req.kwargs['data']:
-            self.assertEqual(json.loads(mock_req.kwargs['data']), expected_data)
-        else:
-            self.assertEqual(expected_data, '')
+        self.assertEqual(mock_req.data, data)

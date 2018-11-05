@@ -16,6 +16,7 @@ import urllib.parse
 
 import aiohttp
 import dateutil.parser
+from multidict import CIMultiDict
 
 from copra import __version__
 
@@ -94,7 +95,7 @@ class BaseClient():
             
         :param dict headers: (optional) key/value pairs to be sent as headers
             for the request. The default is just the USER-AGENT string for the
-            copra client.
+            copra client. This can also be any MultiDict variant.
             
         :returns: aiohttp.ClientResponse object 
         """
@@ -1169,7 +1170,7 @@ class Client(BaseClient):
         :Example:
         
         [
-          "144c6f8e-713f-4682-8435-5280fbe8b2b4",
+          "144c6f8e-713f-4682-8435-5lia280fbe8b2b4",
           "debe4907-95dc-442f-af3b-cec12f42ebda",
           "cf7aceee-7b08-4227-a76c-3858144323ab",
           "dfc5ae27-cadb-4c0c-beef-8994936fde8a",
@@ -1181,6 +1182,87 @@ class Client(BaseClient):
         headers, body = await self.delete('/orders', params=params, auth=True)
         
         return body
+        
+    
+    async def list_orders(self, status=None, product_id=None):
+        """List your current open orders. 
+        
+        Only open or un-settled orders are returned. As soon as an order is no 
+        longer open and settled, it will no longer appear in the default 
+        request.
+        
+        ..note:: This method requires authorization. The API key must have 
+            either the “view” or “trade” permission.
+            
+        :param str status: Limit list of orders to these statuses: open,
+            pending, active or all. The parameter maybe a single string or a 
+            list of strings to return more than one status. i.e, ['open', 'active'].
+            Passing 'all' returns orders of all statuses.
+        
+        :param str product_id: Filter orders listed by product_id
+        
+        :returns: A list of dicts where each dict is information about an order.
+        
+        :Example:
+        
+        [
+          {
+            "id": "d0c5340b-6d6c-49d9-b567-48c4bfca13d2",
+            "price": "0.10000000",
+            "size": "0.01000000",
+            "product_id": "BTC-USD",
+            "side": "buy",
+            "stp": "dc",
+            "type": "limit",
+            "time_in_force": "GTC",
+            "post_only": false,
+            "created_at": "2016-12-08T20:02:28.53864Z",
+            "fill_fees": "0.0000000000000000",
+            "filled_size": "0.00000000",
+            "executed_value": "0.0000000000000000",
+            "status": "open",
+            "settled": false
+          },
+          {
+            "id": "8b99b139-58f2-4ab2-8e7a-c11c846e3022",
+            "price": "1.00000000",
+            "size": "1.00000000",
+            "product_id": "BTC-USD",
+            "side": "buy",
+            "stp": "dc",
+            "type": "limit",
+            "time_in_force": "GTC",
+            "post_only": false,
+            "created_at": "2016-12-08T20:01:19.038644Z",
+            "fill_fees": "0.0000000000000000",
+            "filled_size": "0.00000000",
+            "executed_value": "0.0000000000000000",
+            "status": "open",
+            "settled": false
+          }
+        ]
+        
+        :raises ValueError: If an invalid status string is provided.
+        """
+        
+        params = CIMultiDict()
+        
+        if status:
+            if isinstance(status, str):
+                status = [status]
+                
+            for value in status:
+                if value not in ('active', 'all', 'open', 'pending'):
+                    raise ValueError("Invalid status: {}".format(value))
+               
+            params.update([('status', value) for value in status])
+            
+        if product_id:
+            params['product_id'] = product_id
+                    
+        headers, body = await self.get('/orders', params=params, auth=True)
+        
+        
     
         
 if __name__ == '__main__':
