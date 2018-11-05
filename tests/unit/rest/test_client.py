@@ -674,3 +674,16 @@ class TestRest(MockTestCase):
         self.check_req(self.mock_get, '{}/orders'.format(URL), 
                        query={'status': 'open', 'product_id': 'BTC-USD', 'limit': '100', 'after': after},
                        headers=AUTH_HEADERS)
+                       
+                       
+    async def test_get_order(self):
+        
+        # Unauthorizerd client
+        with self.assertRaises(ValueError):
+            order = await self.client.get_order(42)
+            
+        # No order_id
+        with self.assertRaises(ValueError):
+            order = await self.auth_client.get_order()
+            
+        

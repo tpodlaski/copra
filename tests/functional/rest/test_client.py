@@ -293,3 +293,11 @@ class TestRest(TestCase):
     async def test_cancel_all(self):
         assert False
         
+    # TO DO
+    @expectedFailure 
+    @skipUnless(TEST_AUTH, "Auth credentials required")
+    async def test_list_orders(self):
+        assert False
+        
+    
+        

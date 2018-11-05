@@ -1300,6 +1300,46 @@ class Client(BaseClient):
         headers, body = await self.get('/orders', params=params, auth=True)
         
         return (body, headers.get('cb-before', None), headers.get('cb-after', None))
+        
+        
+    async def get_order(self, order_id):
+        """Get a single order by order id.
+
+        ..note:: This method requires authorization. The API key must have 
+            either the “view” or “trade” permission.
+            
+        :param str order_id: The id of the order to be retrieved.
+        
+        :returns: A dict of information about the order.
+        
+        :Example:
+        
+        {
+          "id": "68e6a28f-ae28-4788-8d4f-5ab4e5e5ae08",
+          "size": "1.00000000",
+          "product_id": "BTC-USD",
+          "side": "buy",
+          "stp": "dc",
+          "funds": "9.9750623400000000",
+          "specified_funds": "10.0000000000000000",
+          "type": "market",
+          "post_only": false,
+          "created_at": "2016-12-08T20:09:05.508883Z",
+          "done_at": "2016-12-08T20:09:05.527Z",
+          "done_reason": "filled",
+          "fill_fees": "0.0249376391550000",
+          "filled_size": "0.01291771",
+          "executed_value": "9.9750556620000000",
+          "status": "done",
+          "settled": true
+        }
+        
+        ..note:: Open orders may change state between the request and the 
+            response depending on market conditions.
+        """
+        headers, body = self.get('/orders/{}'.format(order_id), auth=True)
+        
+        return body
     
         
 if __name__ == '__main__':
