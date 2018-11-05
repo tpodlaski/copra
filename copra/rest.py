@@ -1337,7 +1337,7 @@ class Client(BaseClient):
         ..note:: Open orders may change state between the request and the 
             response depending on market conditions.
         """
-        headers, body = self.get('/orders/{}'.format(order_id), auth=True)
+        headers, body = await self.get('/orders/{}'.format(order_id), auth=True)
         
         return body
     
