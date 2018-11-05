@@ -1126,7 +1126,6 @@ class Client(BaseClient):
                 data['funds'] = funds
         
         headers, body = await self.post('/orders', data=data, auth=True)
-        
         return body
         
     
@@ -1184,7 +1183,8 @@ class Client(BaseClient):
         return body
         
     
-    async def list_orders(self, status=None, product_id=None):
+    async def list_orders(self, status=None, product_id=None, limit=100,
+                          before=None, after=None):
         """List your current open orders. 
         
         Only open or un-settled orders are returned. As soon as an order is no 
@@ -1194,18 +1194,48 @@ class Client(BaseClient):
         ..note:: This method requires authorization. The API key must have 
             either the “view” or “trade” permission.
             
-        :param str status: Limit list of orders to these statuses: open,
-            pending, active or all. The parameter maybe a single string or a 
+        .. note:: This method is paginated. Methods that can return multiple 
+            pages of results return a 3-tuple instead of a dict or list like most
+            other methods. The first item in the tuple is the page of results -
+            a list or dict similar to other methods. The 2nd and 3rd items are
+            cursors for making requests for newer/earlier pages, the before cursor 
+            which the second item, and for making requests for older/later pages,
+            the after cursor which is the 3rd item.
+            
+        :param str status: (optional) Limit list of orders to these statuses: 
+            open, pending, active or all. The parameter maybe a single string or a 
             list of strings to return more than one status. i.e, ['open', 'active'].
-            Passing 'all' returns orders of all statuses.
+            Passing 'all' returns orders of all statuses. Note: Open orders may 
+            change state between the request and the response depending on 
+            market conditions.
         
-        :param str product_id: Filter orders listed by product_id
+        :param str product_id: (optional) Filter orders listed by product_id
         
+        :param int limit: (optional) The number of results to be returned per 
+            request. The default (and maximum) value is 100.
+        
+        :param int before: (optional) The before cursor value. Used to reuest a 
+            page of results newer than a previous request. This would be the 
+            before cursor returned in that earlier call to this method.
+        
+        :param int after: (optional) The after cursor value. Used to reuest a 
+            page of results older than a previous request. This would be the 
+            older cursor returned in that earlier call to this method.
+            
         :returns: A list of dicts where each dict is information about an order.
+        
+        :returns: A 3-tuple: (orders, before cursor, after cursor)
+            The first item is a list of dicts representing the orders. 
+            The second item is the before cursor which can be used in squbsequent 
+            calls to retrieve a page of results newer than the current one. The 
+            third item is the after cursor which can be used in subsequent calls 
+            to retrieve the page of results that is older than the current one. 
+            NOTE: the before cursor and after cursor may be None if there is not 
+            an earlier page or later page respectively.
         
         :Example:
         
-        [
+        ([
           {
             "id": "d0c5340b-6d6c-49d9-b567-48c4bfca13d2",
             "price": "0.10000000",
@@ -1240,12 +1270,19 @@ class Client(BaseClient):
             "status": "open",
             "settled": false
           }
-        ]
+         ],
+         '1071064024',
+         '1008063508'
+        )
         
         :raises ValueError: If an invalid status string is provided.
         """
         
-        params = CIMultiDict()
+        params = CIMultiDict({'limit': limit})
+        if before:
+            params.update({'before': before})
+        if after:
+            params.update({'after': after})
         
         if status:
             if isinstance(status, str):
@@ -1262,7 +1299,7 @@ class Client(BaseClient):
                     
         headers, body = await self.get('/orders', params=params, auth=True)
         
-        
+        return (body, headers.get('cb-before', None), headers.get('cb-after', None))
     
         
 if __name__ == '__main__':

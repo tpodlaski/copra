@@ -54,7 +54,7 @@ class MockTestCase(TestCase):
     
     def check_req(self, mock_req, url='', query={}, data={}, headers={}):
         self.assertEqual(mock_req.url, url)
-        self.assertEqual(mock_req.query, MultiDict(query))
+        self.assertEqual(mock_req.query.items(), MultiDict(query).items())
         
         self.assertEqual(len(mock_req.headers), len(headers))
         for key, val in headers.items():
