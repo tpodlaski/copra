@@ -1340,7 +1340,83 @@ class Client(BaseClient):
         headers, body = await self.get('/orders/{}'.format(order_id), auth=True)
         
         return body
+        
+        
+    async def list_fills(self, order_id='', product_id='', limit=100, 
+                         before=None, after=None):
+        """Get a list of recent fills.
+        
+        ..note:: This method requires authorization. The API key must have 
+            either the “view” or “trade” permission.
+            
+        .. note:: This method is paginated. Methods that can return multiple 
+            pages of results return a 3-tuple instead of a dict or list like most
+            other methods. The first item in the tuple is the page of results -
+            a list or dict similar to other methods. The 2nd and 3rd items are
+            cursors for making requests for newer/earlier pages, the before cursor 
+            which the second item, and for making requests for older/later pages,
+            the after cursor which is the 3rd item.
+            
+        :param str order_id: (optional) Limit list of fills to this order_id
+        
+        :param str product_id: (optional) Limit list of fills to this product_id
+        
+        .. note:: Either order_id or product_id must be defined but not both.
+        
+        :param int limit: (optional) The number of results to be returned per 
+            request. The default (and maximum) value is 100.
+        
+        :param int before: (optional) The before cursor value. Used to reuest a 
+            page of results newer than a previous request. This would be the 
+            before cursor returned in that earlier call to this method.
+        
+        :param int after: (optional) The after cursor value. Used to reuest a 
+            page of results older than a previous request. This would be the 
+            older cursor returned in that earlier call to this method.
+        
+        :returns: A list of dicts representing the fills.
+        
+        :Example:
+        
+        [
+          {
+            "trade_id": 74,
+            "product_id": "BTC-USD",
+            "price": "10.00",
+            "size": "0.01",
+            "order_id": "d50ec984-77a8-460a-b958-66f114b0de9b",
+            "created_at": "2014-11-07T22:19:28.578544Z",
+            "liquidity": "T",
+            "fee": "0.00025",
+            "settled": true,
+            "side": "buy"
+          },
+          ...,
+        ]
+        
+        :raises ValueError: If neither order_id nor product_id are defined or
+            if both are defined.
+        
+        """
+        if not order_id and not product_id:
+            raise ValueError("Either order_id or product_id must be defined.")
+            
+        if order_id and product_id:
+            raise ValueError("order_id or product_id cannot both be sent.")
+            
+        params = CIMultiDict({'limit': limit})
+        if before:
+            params['before'] = before
+        if after:
+            params['after'] = after
+        if order_id:
+            params['order_id'] = order_id
+        if product_id:
+            params['product_id'] = product_id
+            
+        headers, body = await self.get('/fills', params=params, auth=True)
     
+        return (body, headers.get('cb-before', None), headers.get('cb-after', None))
         
 if __name__ == '__main__':
     import os
