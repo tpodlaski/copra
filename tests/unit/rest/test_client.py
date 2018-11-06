@@ -743,5 +743,15 @@ class TestRest(MockTestCase):
             
         methods = await self.auth_client.list_payment_methods()
         self.check_req(self.mock_get, '{}/payment-methods'.format(URL), headers=AUTH_HEADERS)
+        
+        
+    async def test_list_coinbase_accounts(self):
+        
+        # Unauthorized client
+        with self.assertRaises(ValueError):
+            accounts = await self.client.list_coinbase_accounts()
+            
+        accounts = await self.auth_client.list_coinbase_accounts()
+        self.check_req(self.mock_get, '{}/coinbase-accounts'.format(URL), headers=AUTH_HEADERS)
             
         
