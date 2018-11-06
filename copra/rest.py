@@ -1418,6 +1418,91 @@ class Client(BaseClient):
     
         return (body, headers.get('cb-before', None), headers.get('cb-after', None))
         
+        
+    async def list_payment_methods(self):
+        """Get a list of your payment methods.
+
+        ..note:: This method requires authorization. The API key must have 
+            the “transfer” permission.
+            
+        :returns: A list of dicts where each dict contains detailed information
+            about a payment method the account has available.
+            
+        :Example:
+        
+        [
+          {
+            "id": "bc6d7162-d984-5ffa-963c-a493b1c1370b",
+            "type": "ach_bank_account",
+            "name": "Bank of America - eBan... ********7134",
+            "currency": "USD",
+            "primary_buy": true,
+            "primary_sell": true,
+            "allow_buy": true,
+            "allow_sell": true,
+            "allow_deposit": true,
+            "allow_withdraw": true,
+            "limits": {
+                        "buy": [
+                                 {
+                                    "period_in_days": 1,
+                                    "total": {
+                                        "amount": "10000.00",
+                                        "currency": "USD"
+                                    },
+                                    "remaining": {
+                                        "amount": "10000.00",
+                                        "currency": "USD"
+                                    }
+                                 }
+                               ],
+                        "instant_buy": [
+                                 {
+                                    "period_in_days": 7,
+                                    "total": {
+                                        "amount": "0.00",
+                                        "currency": "USD"
+                                    },
+                                    "remaining": {
+                                        "amount": "0.00",
+                                        "currency": "USD"
+                                    }
+                                 }
+                               ],
+                        "sell": [
+                                  {
+                                    "period_in_days": 1,
+                                    "total": {
+                                        "amount": "10000.00",
+                                        "currency": "USD"
+                                    },
+                                    "remaining": {
+                                        "amount": "10000.00",
+                                        "currency": "USD"
+                                    }
+                                  }
+                                ],
+                        "deposit": [
+                                     {
+                                        "period_in_days": 1,
+                                        "total": {
+                                            "amount": "10000.00",
+                                            "currency": "USD"
+                                        },
+                                        "remaining": {
+                                            "amount": "10000.00",
+                                            "currency": "USD"
+                                        }
+                                     }
+                                   ]
+                       }
+             },
+           ]
+        """
+        headers, body = await self.get('/payment-methods', auth=True)
+        return body
+        
+        
 if __name__ == '__main__':
     import os
     from dotenv import load_dotenv
@@ -1432,17 +1517,9 @@ if __name__ == '__main__':
     client = Client(loop, auth=True, key=KEY, secret=SECRET, passphrase=PASSPHRASE)
     
     async def go():
-        resp = await client.place_order('sell', 'LTC-USD', price=1000, size=0.1)
+        resp = await client.list_payment_methods()
         print(resp)
         
-        order_id = resp['id']
-        
-        await asyncio.sleep(5)
-        
-        resp = await client.cancel_order(order_id)
-        
-        print(resp)
-
     loop.run_until_complete(go())
     loop.run_until_complete(client.close())
     

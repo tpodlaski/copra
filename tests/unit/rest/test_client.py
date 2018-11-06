@@ -734,5 +734,14 @@ class TestRest(MockTestCase):
                        query={'order_id': '42', 'limit': '100', 'after': after}, 
                        headers=AUTH_HEADERS)
                        
-                       
+
+    async def test_list_payment_methods(self):
+        
+        # Unauthorized client
+        with self.assertRaises(ValueError):
+            methods = await self.client.list_payment_methods()
+            
+        methods = await self.auth_client.list_payment_methods()
+        self.check_req(self.mock_get, '{}/payment-methods'.format(URL), headers=AUTH_HEADERS)
+            
         
