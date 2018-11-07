@@ -1597,15 +1597,60 @@ class Client(BaseClient):
             'EUR', etc.
         
         :param str payment_method_id: The id of the payment method on file to
-            use. To get a list of available payment method, use:
+            use. To get a list of available payment methods, use:
             :meth:`rest.Client.list_payment_methods`.
+            
+        :returns: A dict with a deposit id, timestamp and other deposit information.
         
+        :Example:
+        
+        {
+            "id": "593533d2-ff31-46e0-b22e-ca754147a96a",
+            "amount": "10.00",
+            "currency": "USD",
+            "payout_at": "2016-08-20T00:31:09Z"
+        }
         """
         headers, body = await self.post('/deposits/payment-method', 
                                         data={'amount': amount,
                                               'currency': currency,
                                               'payment_method_id': payment_method_id},
                                         auth=True)
+        return body
+        
+        
+    async def deposit_coinbase(self, amount, currency, coinbase_account_id):
+        """Deposit funds from a coinbase account.
+        
+        ..note:: This method requires authorization. The API key must have 
+            the "transfer" permission.
+            
+        :param float amount: The amount of the currency to deposit. This 
+            paramater may also be a string to avoid floating point issues.
+        
+        :param str currency:  The type of currency to deposit. i.e., 'BTC',
+            'LTC', 'USD', etc.
+            
+        :param str coinbase_account_id:  The id of the Coinbase account to
+            deposit from. To get a list of Coinbase accounts, use:
+            :meth:`rest.Client.list_coinbase_accounts`.
+        
+        :returns: A dict with a deposit id, and confirmation of the deposit 
+            amount and currency.
+        
+        :Example:
+        
+        {
+            "id": "593533d2-ff31-46e0-b22e-ca754147a96a",
+            "amount": "10.00",
+            "currency": "BTC",
+        }
+        """
+        headers, body = await self.post('/deposits/coinbase-account', 
+                                data={'amount': amount,
+                                      'currency': currency,
+                                      'coinbase_account_id': coinbase_account_id},
+                                auth=True)
         return body
         
         

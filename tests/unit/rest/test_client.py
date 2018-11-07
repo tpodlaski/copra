@@ -761,8 +761,21 @@ class TestRest(MockTestCase):
         with self.assertRaises(ValueError):
             resp = await self.client.deposit_payment_method(3.14, 'EUR', '10')
             
-        resp =await self.auth_client.deposit_payment_method(1000, 'USD', 42)
+        resp =await self.auth_client.deposit_payment_method(1000, 'USD', '42')
         self.check_req(self.mock_post, '{}/deposits/payment-method'.format(URL),
                        data={'amount': 1000, 'currency': 'USD', 
-                             'payment_method_id': 42}, 
+                             'payment_method_id': '42'}, 
+                        headers=AUTH_HEADERS)
+                        
+                        
+    async def test_deposit_coinbase(self):
+        
+        # Unauthorized client
+        with self.assertRaises(ValueError):
+            resp = await self.client.deposit_coinbase(1000, 'BTC', '7')
+            
+        resp =await self.auth_client.deposit_coinbase(95, 'LTC', 'A1')
+        self.check_req(self.mock_post, '{}/deposits/coinbase-account'.format(URL),
+                       data={'amount': 95, 'currency': 'LTC', 
+                             'coinbase_account_id': 'A1'}, 
                         headers=AUTH_HEADERS)
