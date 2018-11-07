@@ -696,7 +696,7 @@ class Client(BaseClient):
         """Get a list of trading accounts.
         
         ..note:: This method requires authorization. The API key must have 
-            either the “view” or “trade” permission.
+            either the "view" or "trade" permission.
         
         :returns: A list of dicts where each dict contains information about
             a trading a account. The fields of the dict are:
@@ -731,7 +731,7 @@ class Client(BaseClient):
         """Information for a single account. 
         
         ..note:: This method requires authorization. The API key must have 
-            either the “view” or “trade” permission.
+            either the "view" or "trade" permission.
             
         :param str account_id: The ID of the account to be retrieved.
             
@@ -767,7 +767,7 @@ class Client(BaseClient):
         Items are paginated and sorted latest first.
         
         ..note:: This method requires authorization. The API key must have 
-            either the “view” or “trade” permission.
+            either the "view" or "trade" permission.
             
         .. note:: This method is paginated. Methods that can return multiple 
             pages of results return a 3-tuple instead of a dict or list like most
@@ -868,7 +868,7 @@ class Client(BaseClient):
         completed, the hold is removed.
         
         ..note:: This method requires authorization. The API key must have 
-            either the “view” or “trade” permission.
+            either the "view" or "trade" permission.
             
         .. note:: This method is paginated. Methods that can return multiple 
             pages of results return a 3-tuple instead of a dict or list like most
@@ -958,7 +958,7 @@ class Client(BaseClient):
         parameters specified. 
         
         ..note:: This method requires authorization. The API key must have 
-            the “trade” permission.
+            the "trade" permission.
             
         :param str side: Either buy or sell
         
@@ -1137,7 +1137,7 @@ class Client(BaseClient):
         :meth:`rest.Client.get_order`.
         
         ..note:: This method requires authorization. The API key must have 
-            the “trade” permission.
+            the "trade" permission.
             
         :param str order_id: The id of the order to be cancelled. The order id 
             is the server-assigned order id and not the optional client_oid.
@@ -1158,7 +1158,7 @@ class Client(BaseClient):
         """Cancel all open orders.
         
          ..note:: This method requires authorization. The API key must have 
-            the “trade” permission.
+            the "trade" permission.
             
         :param str product_id: (optional) Only cancel orders for the specified
             product. The default is None.
@@ -1192,7 +1192,7 @@ class Client(BaseClient):
         request.
         
         ..note:: This method requires authorization. The API key must have 
-            either the “view” or “trade” permission.
+            either the "view" or "trade" permission.
             
         .. note:: This method is paginated. Methods that can return multiple 
             pages of results return a 3-tuple instead of a dict or list like most
@@ -1306,7 +1306,7 @@ class Client(BaseClient):
         """Get a single order by order id.
 
         ..note:: This method requires authorization. The API key must have 
-            either the “view” or “trade” permission.
+            either the "view" or "trade" permission.
             
         :param str order_id: The id of the order to be retrieved.
         
@@ -1347,7 +1347,7 @@ class Client(BaseClient):
         """Get a list of recent fills.
         
         ..note:: This method requires authorization. The API key must have 
-            either the “view” or “trade” permission.
+            either the "view" or "trade" permission.
             
         .. note:: This method is paginated. Methods that can return multiple 
             pages of results return a 3-tuple instead of a dict or list like most
@@ -1423,7 +1423,7 @@ class Client(BaseClient):
         """Get a list of your payment methods.
 
         ..note:: This method requires authorization. The API key must have 
-            the “transfer” permission.
+            the "transfer" permission.
             
         :returns: A list of dicts where each dict contains detailed information
             about a payment method the account has available.
@@ -1507,7 +1507,7 @@ class Client(BaseClient):
         """Get a list of your coinbase accounts.
 
         ..note:: This method requires authorization. The API key must have 
-            the “transfer” permission.
+            the "transfer" permission.
             
         :returns: A list of dicts where each dict contains information about a
             Coinbase account.
@@ -1578,6 +1578,34 @@ class Client(BaseClient):
         """
         headers, body = await self.get('/coinbase-accounts', auth=True)
         
+        return body
+        
+    
+    async def deposit_payment_method(self, amount, currency, payment_method_id):
+        """Deposit funds from a payment method.
+        
+        To get a list of available payment methods, use 
+        :meth:`rest.Client.list_payment_methods`.
+        
+        ..note:: This method requires authorization. The API key must have 
+            the "transfer" permission.
+            
+        :param float amount: The amount of the currency to deposit. This 
+            paramater may also be a string to avoid floating point issues.
+        
+        :param str currency: The type of currency to deposit. i.e., 'USD',
+            'EUR', etc.
+        
+        :param str payment_method_id: The id of the payment method on file to
+            use. To get a list of available payment method, use:
+            :meth:`rest.Client.list_payment_methods`.
+        
+        """
+        headers, body = await self.post('/deposits/payment-method', 
+                                        params={'amount': amount,
+                                                'currency': currency,
+                                                'payment_method_id': payment_method_id},
+                                        auth=True)
         return body
         
         
