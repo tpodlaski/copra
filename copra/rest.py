@@ -1602,9 +1602,9 @@ class Client(BaseClient):
         
         """
         headers, body = await self.post('/deposits/payment-method', 
-                                        params={'amount': amount,
-                                                'currency': currency,
-                                                'payment_method_id': payment_method_id},
+                                        data={'amount': amount,
+                                              'currency': currency,
+                                              'payment_method_id': payment_method_id},
                                         auth=True)
         return body
         
