@@ -792,3 +792,31 @@ class TestRest(MockTestCase):
                        data={'amount': 95, 'currency': 'LTC', 
                              'coinbase_account_id': 'A1'}, 
                         headers=AUTH_HEADERS)
+                        
+                        
+    async def test_withdrawl_coinbase(self):
+        
+        # Unauthorized client
+        with self.assertRaises(ValueError):
+            resp = await self.client.withdrawal_crypto(83, 'YES', '90125')
+            
+        resp =await self.auth_client.withdrawal_crypto(88, 'VH', 'OU812')
+        self.check_req(self.mock_post, '{}/withdrawals/crypto'.format(URL),
+                       data={'amount': 88, 'currency': 'VH', 
+                             'crypto_address': 'OU812'}, 
+                        headers=AUTH_HEADERS)
+                        
+    
+    async def test_stablecoin_conversion(self):
+        
+        # Unauthorized client
+        with self.assertRaises(ValueError):
+            resp = await self.client.stablecoin_conversion('frown', 'smile', 100.1)
+            
+        resp =await self.auth_client.stablecoin_conversion('USD', 'USDC', 19.72)
+        self.check_req(self.mock_post, '{}/conversions'.format(URL),
+                       data={'from_currency_id': 'USD', 
+                             'to_currency_id': 'USDC', 
+                             'amount': 19.72}, 
+                        headers=AUTH_HEADERS)                       
+    

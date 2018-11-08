@@ -1670,7 +1670,7 @@ class Client(BaseClient):
             withdrawal to. To get a list of Coinbase accounts, use:
             :meth:`rest.Client.list_coinbase_accounts`.
         
-        :returns: A dict with a deposit id, and confirmation of the withdrawl 
+        :returns: A dict with the withdrawal id, and confirmation of the withdrawl 
             amount and currency.
         
         :Example:
@@ -1685,6 +1685,76 @@ class Client(BaseClient):
                                 data={'amount': amount,
                                       'currency': currency,
                                       'coinbase_account_id': coinbase_account_id},
+                                auth=True)
+        return body
+        
+        
+    async def withdrawal_crypto(self, amount, currency, crypto_address):
+        """Withdraws funds to a crypto address.
+        
+        ..note:: This method requires authorization. The API key must have 
+            the "transfer" permission.
+            
+        :param float amount: The amount of the currency to withdrawal. This 
+            paramater may also be a string to avoid floating point issues.
+        
+        :param str currency:  The type of currency to withdrawal. i.e., 'BTC',
+            'LTC', 'USD', etc.
+            
+        :param str crypto_address: The crypto address of the recipient.
+        
+        :returns: A dict with the withrawal id, and confirmation of the withdrawl 
+            amount and currency.
+        
+        :Example:
+        
+            {
+                "id":"593533d2-ff31-46e0-b22e-ca754147a96a",
+                "amount":"10.00",
+                "currency": "BTC",
+            }         
+        """
+        headers, body = await self.post('/withdrawals/crypto', 
+                                data={'amount': amount,
+                                      'currency': currency,
+                                      'crypto_address': crypto_address},
+                                auth=True)
+        return body        
+
+        
+    async def stablecoin_conversion(self, from_currency_id, to_currency_id, amount):
+        """Convert to and from a stablecoin.
+        
+        ..note:: This method requires authorization. The API key must have 
+            the "trade" permission.
+        
+        ..note:: As oF November 8th, 1018, Coinbase Pro only supports
+            USD-USDC conversions
+        
+        :param str from_currency_id: The id of the currency to convert from.
+        
+        :param str to_currency_id: The id of the currency to convert to.
+        
+        :param float amount: The amount of currency to convert. This 
+            paramater may also be a string to avoid floating point issues.
+        
+        :returns: A dict summarizing the conversion.
+        
+        :Example:
+        
+        {
+            "id": "8942caee-f9d5-4600-a894-4811268545db",
+            "amount": "10000.00",
+            "from_account_id": "7849cc79-8b01-4793-9345-bc6b5f08acce",
+            "to_account_id": "105c3e58-0898-4106-8283-dc5781cda07b",
+            "from": "USD",
+            "to": "USDC"
+        }            
+        """
+        headers, body = await self.post('/conversions', 
+                                data={'from_currency_id': from_currency_id,
+                                      'to_currency_id': to_currency_id,
+                                      'amount': amount},
                                 auth=True)
         return body
         
