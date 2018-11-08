@@ -1654,6 +1654,41 @@ class Client(BaseClient):
         return body
         
         
+    async def withdrawal_coinbase(self, amount, currency, coinbase_account_id):
+        """Withdrawal funds to a coinbase account.
+        
+        ..note:: This method requires authorization. The API key must have 
+            the "transfer" permission.
+            
+        :param float amount: The amount of the currency to withdrawal. This 
+            paramater may also be a string to avoid floating point issues.
+        
+        :param str currency:  The type of currency to withdrawal. i.e., 'BTC',
+            'LTC', 'USD', etc.
+            
+        :param str coinbase_account_id:  The id of the Coinbase account to
+            withdrawal to. To get a list of Coinbase accounts, use:
+            :meth:`rest.Client.list_coinbase_accounts`.
+        
+        :returns: A dict with a deposit id, and confirmation of the withdrawl 
+            amount and currency.
+        
+        :Example:
+        
+        {
+            "id":"593533d2-ff31-46e0-b22e-ca754147a96a",
+            "amount":"10.00",
+            "currency": "BTC",
+        }         
+        """
+        headers, body = await self.post('/withdrawals/coinbase-account', 
+                                data={'amount': amount,
+                                      'currency': currency,
+                                      'coinbase_account_id': coinbase_account_id},
+                                auth=True)
+        return body
+        
+        
 if __name__ == '__main__':
     import os
     from dotenv import load_dotenv

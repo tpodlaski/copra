@@ -779,3 +779,16 @@ class TestRest(MockTestCase):
                        data={'amount': 95, 'currency': 'LTC', 
                              'coinbase_account_id': 'A1'}, 
                         headers=AUTH_HEADERS)
+                        
+                        
+    async def test_withdrawl_coinbase(self):
+        
+        # Unauthorized client
+        with self.assertRaises(ValueError):
+            resp = await self.client.withdrawal_coinbase(1000, 'BTC', '7')
+            
+        resp =await self.auth_client.withdrawal_coinbase(95, 'LTC', 'A1')
+        self.check_req(self.mock_post, '{}/withdrawals/coinbase-account'.format(URL),
+                       data={'amount': 95, 'currency': 'LTC', 
+                             'coinbase_account_id': 'A1'}, 
+                        headers=AUTH_HEADERS)
