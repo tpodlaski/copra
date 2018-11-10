@@ -567,7 +567,7 @@ class Client(BaseClient):
             set, start will default to the time relative to now() that would 
             return 300 results based on the granularity.
         
-        :param datetime stop: (optional) The end time of the requested historic 
+        :param str stop: (optional) The end time of the requested historic 
             rates as a str in ISO 8601 format. This field is optional. If it is 
             set then start must be set as well. If it is not set, stop will 
             default to now().
@@ -1759,6 +1759,109 @@ class Client(BaseClient):
         return body
         
         
+    async def create_report(self, report_type, start_date, end_date, 
+                            product_id='', account_id='', report_format='pdf',
+                            email=''):
+        """Create a report about your account history.
+        
+        Reports provide batches of historic information about your account in 
+        various human and machine readable forms.
+        
+        The report will be generated when resources are available. Report status 
+        can be queried via :meth:`rest.Client.get_report_status`. The a url for
+        the report file will be available once the report has successfully been 
+        created and is available for download.
+        
+        ..note:: Reports are only available for download for a few days after 
+            being created. Once a report expires, the report is no longer 
+            available for download and is deleted.
+        
+        ..note:: This method requires authorization. The API key must have 
+            either the "view" or "trade" permission.
+            
+        :param str report_type: The type of report to generate. This must be
+            either "fills" or "account".
+            
+        :param str start_date: The starting date of the requested report as a 
+            str in ISO 8601 format.
+            
+        :param str end_date: The ending date of the requested report as a 
+            str in ISO 8601 format.
+            
+        :param str product_id: (optional) ID of the product to generate a fills 
+            report for. E.g. BTC-USD. Required if type is fills.
+            
+        :param str account_id: (optional) ID of the account to generate an 
+            account report for. Required if type is account.
+            
+        :param str report_format: (optional) Format of the report to be 
+            generated. Can be either pdf or csv. The default is pdf.
+            
+        :param str email: (optional) Email address to send the report to. The 
+            default is None.
+            
+        :returns: A dict of information about the report including its id which
+            will be needed to check its status.
+            
+        :Example:
+        
+        {
+            "id": "0428b97b-bec1-429e-a94c-59232926778d",
+            "type": "fills",
+            "status": "pending",
+            "created_at": "2015-01-06T10:34:47.000Z",
+            "completed_at": undefined,
+            "expires_at": "2015-01-13T10:35:47.000Z",
+            "file_url": undefined,
+            "params": {
+                "start_date": "2014-11-01T00:00:00.000Z",
+                "end_date": "2014-11-30T23:59:59.000Z"
+            }
+        }    
+            
+        :raises ValueError: If ... 
+        
+            *invalid report_type provided.
+            *report_type is fills and product_id is not provided.
+            *report_type is account and account_id is not provided.
+            *invalid report_format provided.
+        """
+        if report_type not in ("account", "fills"):
+            raise ValueError(
+                "Invalid report_type: {}. Must be 'fills' or 'account'.".format(
+                    report_type))
+        
+        if report_type == 'fills' and not product_id:
+            raise ValueError("product_id must be defined for report_type fills.")
+            
+        if report_type == 'account' and not account_id:
+            raise ValueError("account_id must be defined for report_type account.")
+            
+        if report_format not in ('csv', 'pdf'):
+            raise ValueError(
+                "Invalid format {}. Must be either 'csv' or 'pdf'.".format(report_format))
+            
+        data = {
+                'report_type': report_type,
+                'start_date': start_date,
+                'end_date': end_date,
+                'report_format': report_format
+               }
+               
+        if product_id:
+            data['product_id'] = product_id
+            
+        if account_id:
+            data['account_id'] = account_id
+            
+        if email:
+            data['email'] = email
+        
+        headers, body = await self.post('/reports', data=data, auth=True)
+        
+        return body
+    
+    
 if __name__ == '__main__':
     import os
     from dotenv import load_dotenv

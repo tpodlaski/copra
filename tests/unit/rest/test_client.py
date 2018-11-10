@@ -794,7 +794,7 @@ class TestRest(MockTestCase):
                         headers=AUTH_HEADERS)
                         
                         
-    async def test_withdrawl_coinbase(self):
+    async def test_withdrawl_crypto(self):
         
         # Unauthorized client
         with self.assertRaises(ValueError):
@@ -819,4 +819,55 @@ class TestRest(MockTestCase):
                              'to_currency_id': 'USDC', 
                              'amount': 19.72}, 
                         headers=AUTH_HEADERS)                       
+    
+
+    async def test_create_report(self):
+        
+        end = datetime.utcnow()
+        start = end - timedelta(days=1)
+        end = end.isoformat()
+        start = start.isoformat()
+        
+        # Unauthorized client
+        with self.assertRaises(ValueError):
+            resp = await self.client.create_report('account', start, end)
+            
+        # Invalid report type
+        with self.assertRaises(ValueError):
+            resp = await self.auth_client.create_report('TPS', start, end)
+            
+        # report_type fills, no product_id
+        with self.assertRaises(ValueError):
+            resp = await self.auth_client.create_report('fills', start, end)
+            
+        # report_type accounts, no account_id
+        with self.assertRaises(ValueError):
+            resp = await self.auth_client.create_report('account', start, end)
+            
+        # invalid format
+        with self.assertRaises(ValueError):
+            resp = await self.auth_client.create_report('fills', start, end,
+                                                'BTC-USD', report_format='mp3')
+                                                
+        # report type fills, default format
+        resp = await self.auth_client.create_report('fills', start, end, 'BTC_USD')
+        self.check_req(self.mock_post, '{}/reports'.format(URL),
+                       data={'report_type': 'fills', 'product_id': 'BTC_USD',
+                             'start_date': start, 'end_date': end, 
+                             'report_format': 'pdf'},
+                       headers=AUTH_HEADERS)
+                       
+        # report type account, non-default format, email
+        resp = await self.auth_client.create_report('account', start, end, 
+                             account_id='R2D2', report_format='csv',
+                             email='me@example.com')
+        self.check_req(self.mock_post, '{}/reports'.format(URL),
+                       data={'report_type': 'account', 'account_id': 'R2D2',
+                             'start_date': start, 'end_date': end,
+                             'report_format': 'csv', 'email': 'me@example.com'},
+                       headers=AUTH_HEADERS)
+                
+            
+        
+            
     

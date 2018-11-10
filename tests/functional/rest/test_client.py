@@ -352,3 +352,9 @@ class TestRest(TestCase):
     @skipUnless(TEST_AUTH, "Auth credentials required")
     async def test_stablecoin_conversion(self):
         assert False
+        
+    # TO DO
+    @expectedFailure 
+    @skipUnless(TEST_AUTH, "Auth credentials required")
+    async def test_create_report(self):
+        assert False
