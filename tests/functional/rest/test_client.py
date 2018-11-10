@@ -358,3 +358,9 @@ class TestRest(TestCase):
     @skipUnless(TEST_AUTH, "Auth credentials required")
     async def test_create_report(self):
         assert False
+        
+    # TO DO
+    @expectedFailure 
+    @skipUnless(TEST_AUTH, "Auth credentials required")
+    async def test_get_report_status(self):
+        assert False

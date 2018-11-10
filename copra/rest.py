@@ -1860,6 +1860,72 @@ class Client(BaseClient):
         headers, body = await self.post('/reports', data=data, auth=True)
         
         return body
+        
+        
+    async def get_report_status(self, report_id):
+        """Get the status of a report.
+        
+        Once a report request has been accepted for processing, the status is 
+        available by polling the report resource endpoint.
+        
+        The possible status values are:
+        
+            * **pending** - The report request has been accepted and is awaiting 
+                processing.
+            * **creating** - The report is being created.
+            * **ready** - The report is ready for download from file_url.
+            
+        The final report will be uploaded and available at file_url once the 
+        status indicates ready.
+        
+        ..note:: This method requires authorization. The API key must have 
+            either the "view" or "trade" permission.
+            
+        :param str report_id: The id of the report. This is obtained from
+            :meth:`rest.Client.create_report`.
+            
+        :returns: A dic summarizing the current status of the report.
+        
+        :Example:
+        
+        **Creating report**
+        
+        {
+            "id": "0428b97b-bec1-429e-a94c-59232926778d",
+            "type": "fills",
+            "status": "creating",
+            "created_at": "2015-01-06T10:34:47.000Z",
+            "completed_at": undefined,
+            "expires_at": "2015-01-13T10:35:47.000Z",
+            "file_url": undefined,
+            "params": {
+                "start_date": "2014-11-01T00:00:00.000Z",
+                "end_date": "2014-11-30T23:59:59.000Z"
+            }
+        }
+        
+        
+        **Finished report**
+        
+        {
+            "id": "0428b97b-bec1-429e-a94c-59232926778d",
+            "type": "fills",
+            "status": "ready",
+            "created_at": "2015-01-06T10:34:47.000Z",
+            "completed_at": "2015-01-06T10:35:47.000Z",
+            "expires_at": "2015-01-13T10:35:47.000Z",
+            "file_url": "https://example.com/0428b97b.../fills.pdf",
+            "params": {
+                "start_date": "2014-11-01T00:00:00.000Z",
+                "end_date": "2014-11-30T23:59:59.000Z"
+            }
+        }
+        
+        
+        """
+        headers, body = await self.get('/reports/{}'.format(report_id), auth=True)
+        
+        return body
     
     
 if __name__ == '__main__':
