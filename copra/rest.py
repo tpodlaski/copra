@@ -1926,6 +1926,39 @@ class Client(BaseClient):
         headers, body = await self.get('/reports/{}'.format(report_id), auth=True)
         
         return body
+        
+        
+    async def get_trailing_volume(self):
+        """Return your 30-day trailing volume for all products.
+        
+         This is a cached value that’s calculated every day at midnight UTC.
+         
+        ..note:: This method requires authorization. The API key must have 
+            either the "view" or "trade" permission.
+            
+        :returns: A list of dicts where each dict contains information about
+            a specific product that was traded.
+            
+        :Example:
+        
+        [
+            {
+                "product_id": "BTC-USD",
+                "exchange_volume": "11800.00000000",
+                "volume": "100.00000000",
+                "recorded_at": "1973-11-29T00:05:01.123456Z"
+            },
+            {
+                "product_id": "LTC-USD",
+                "exchange_volume": "51010.04100000",
+                "volume": "2010.04100000",
+                "recorded_at": "1973-11-29T00:05:02.123456Z"
+            }
+        ]
+        """
+        headers, body = await self.get('/users/self/trailing-volume', auth=True)
+        
+        return body
     
     
 if __name__ == '__main__':
