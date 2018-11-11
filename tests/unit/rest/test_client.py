@@ -676,18 +676,18 @@ class TestRest(MockTestCase):
                        headers=AUTH_HEADERS)
                        
                        
-    async def test_get_order(self):
+    async def test_order(self):
         
         # Unauthorizerd client
         with self.assertRaises(ValueError):
-            order = await self.client.get_order(42)
+            order = await self.client.order(42)
             
         # No order_id
         with self.assertRaises(TypeError):
-            order = await self.auth_client.get_order()
+            order = await self.auth_client.order()
             
         # order_id
-        order = await self.auth_client.get_order(42)
+        order = await self.auth_client.order(42)
         self.check_req(self.mock_get, '{}/orders/42'.format(URL), headers=AUTH_HEADERS)
         
         

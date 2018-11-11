@@ -1134,7 +1134,7 @@ class Client(BaseClient):
 
         If the order had no matches during its lifetime its record may be 
         purged. This means the order details will not be available with 
-        :meth:`rest.Client.get_order`.
+        :meth:`rest.Client.order`.
         
         ..note:: This method requires authorization. The API key must have 
             the "trade" permission.
@@ -1302,7 +1302,7 @@ class Client(BaseClient):
         return (body, headers.get('cb-before', None), headers.get('cb-after', None))
         
         
-    async def get_order(self, order_id):
+    async def order(self, order_id):
         """Get a single order by order id.
 
         ..note:: This method requires authorization. The API key must have 
