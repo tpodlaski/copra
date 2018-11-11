@@ -320,7 +320,7 @@ class TestRest(TestCase):
     # TO DO
     @expectedFailure 
     @skipUnless(TEST_AUTH, "Auth credentials required")
-    async def test_list_coinbase_accounts(self):
+    async def test_coinbase_accounts(self):
         assert False 
         
     # TO DO

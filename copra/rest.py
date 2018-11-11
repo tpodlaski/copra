@@ -1503,7 +1503,7 @@ class Client(BaseClient):
         return body
         
     
-    async def list_coinbase_accounts(self):
+    async def coinbase_accounts(self):
         """Get a list of your coinbase accounts.
 
         ..note:: This method requires authorization. The API key must have 
@@ -1633,7 +1633,7 @@ class Client(BaseClient):
             
         :param str coinbase_account_id:  The id of the Coinbase account to
             deposit from. To get a list of Coinbase accounts, use:
-            :meth:`rest.Client.list_coinbase_accounts`.
+            :meth:`rest.Client.coinbase_accounts`.
         
         :returns: A dict with a deposit id, and confirmation of the deposit 
             amount and currency.
@@ -1707,7 +1707,7 @@ class Client(BaseClient):
             
         :param str coinbase_account_id:  The id of the Coinbase account to
             withdraw to. To get a list of Coinbase accounts, use:
-            :meth:`rest.Client.list_coinbase_accounts`.
+            :meth:`rest.Client.coinbase_accounts`.
         
         :returns: A dict with the withdrawal id, and confirmation of the withdrawl 
             amount and currency.
