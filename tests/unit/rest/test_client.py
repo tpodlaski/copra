@@ -896,13 +896,13 @@ class TestRest(MockTestCase):
                        headers=AUTH_HEADERS)
                        
                        
-    async def test_get_trailing_volume(self):
+    async def test_trailing_volume(self):
         
         # Unauthorized client
         with self.assertRaises(ValueError):
-            resp = await self.client.get_trailing_volume()
+            resp = await self.client.trailing_volume()
             
-        resp = await self.auth_client.get_trailing_volume()
+        resp = await self.auth_client.trailing_volume()
         self.check_req(self.mock_get, 
                        '{}/users/self/trailing-volume'.format(URL),
                        headers=AUTH_HEADERS)

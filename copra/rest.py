@@ -1967,7 +1967,7 @@ class Client(BaseClient):
         return body
         
         
-    async def get_trailing_volume(self):
+    async def trailing_volume(self):
         """Return your 30-day trailing volume for all products.
         
          This is a cached value that’s calculated every day at midnight UTC.
