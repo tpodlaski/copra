@@ -343,13 +343,13 @@ class TestRest(MockTestCase):
         self.check_req(self.mock_get, '{}/time'.format(URL), headers=UNAUTH_HEADERS)
 
 
-    async def test_get_accounts(self):
+    async def test_accounts(self):
         
         # Unauthorized client
         with self.assertRaises(ValueError):
-            accounts = await self.client.get_accounts()        
+            accounts = await self.client.accounts()        
         
-        accounts = await self.auth_client.get_accounts()
+        accounts = await self.auth_client.accounts()
         self.check_req(self.mock_get, '{}/accounts'.format(URL), headers=AUTH_HEADERS)
   
 

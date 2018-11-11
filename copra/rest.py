@@ -692,7 +692,7 @@ class Client(BaseClient):
         return body
 
         
-    async def get_accounts(self):
+    async def accounts(self):
         """Get a list of trading accounts.
         
         ..note:: This method requires authorization. The API key must have 
