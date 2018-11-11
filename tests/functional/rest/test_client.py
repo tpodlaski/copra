@@ -240,11 +240,11 @@ class TestRest(TestCase):
         
         
     @skipUnless(TEST_AUTH, "Authentication credentials not provided.")
-    async def test_list_accounts(self):
+    async def test_get_accounts(self):
         
         keys = ('id', 'currency', 'balance', 'available', 'hold', 'profile_id')
         
-        accounts = await self.auth_client.list_accounts()
+        accounts = await self.auth_client.get_accounts()
         self.assertIsInstance(accounts, list)
         self.assertIsInstance(accounts[0], dict)
         for key in keys:
