@@ -421,7 +421,7 @@ class Client(BaseClient):
         return body
  
         
-    async def get_ticker(self, product_id):
+    async def ticker(self, product_id):
         """Get information about the last trade for a specific product.
         
         :param str product_id: The product id of the tick to be retrieved.

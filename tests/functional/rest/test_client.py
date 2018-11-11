@@ -142,11 +142,11 @@ class TestRest(TestCase):
         self.assertGreaterEqual(len(ob3['asks'][0]), 3)            
 
     
-    async def test_get_ticker(self):
+    async def test_ticker(self):
         
         keys = ('trade_id', 'price', 'size', 'bid', 'ask', 'volume', 'time')
         
-        tick = await self.client.get_ticker('BTC-USD')
+        tick = await self.client.ticker('BTC-USD')
         self.assertIsInstance(tick, dict)
         self.assertEqual(len(tick), len(keys))
         for key in keys:

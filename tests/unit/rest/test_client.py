@@ -250,12 +250,12 @@ class TestRest(MockTestCase):
                        query={'level': '3'}, headers=UNAUTH_HEADERS)
 
 
-    async def test_get_ticker(self):
+    async def test_ticker(self):
         
         with self.assertRaises(TypeError):
-            tick = await self.client.get_ticker()
+            tick = await self.client.ticker()
             
-        tick = await self.client.get_ticker('BTC-USD')
+        tick = await self.client.ticker('BTC-USD')
         self.check_req(self.mock_get, '{}/products/BTC-USD/ticker'.format(URL), 
                        headers=UNAUTH_HEADERS)
 
