@@ -518,7 +518,7 @@ class Client(BaseClient):
           '51590010'
         )
         
-        :raises ValueError: If before and after paramters are both sent.
+        :raises ValueError: If before and after paramters are both provided.
         """
         if before and after:
             raise ValueError("before and after cannot both be provided.")  
@@ -846,8 +846,14 @@ class Client(BaseClient):
           '1008063508'
         )
         
-        :raises ValueError: If the client is not configured for authorization.
+        :raises ValueError: If ...
+        
+            * the client is not configured for authorization.
+            * before and after are both set.
         """
+        if before and after:
+            raise ValueError("before and after cannot both be provided.") 
+            
         params = {'limit': limit}
         if before:
             params.update({'before': before})
@@ -932,8 +938,14 @@ class Client(BaseClient):
           '1008063508'
         )
             
-        :raises ValueError: If the client is not configured for authorization.
+        :raises ValueError: If ...
+        
+            * the client is not configured for authorization.
+            * before and after are both set.
         """
+        if before and after:
+            raise ValueError("before and after cannot both be provided.") 
+            
         params = {'limit': limit}
         if before:
             params.update({'before': before})
@@ -1148,6 +1160,8 @@ class Client(BaseClient):
         :Example:
         
         ["144c6f8e-713f-4682-8435-5280fbe8b2b4"]
+        
+        :raises ValueError: If the client is not configured for authorization.
         """
         headers, body = await self.delete('/orders/{}'.format(order_id), auth=True)
         
@@ -1175,6 +1189,8 @@ class Client(BaseClient):
           "dfc5ae27-cadb-4c0c-beef-8994936fde8a",
           "34fecfbf-de33-4273-b2c6-baf8e8948be4"
         ]
+        
+        :raises ValueError: If the client is not configured for authorization.
         """
         params = {'product_id': product_id} if product_id else {}
         
@@ -1275,8 +1291,14 @@ class Client(BaseClient):
          '1008063508'
         )
         
-        :raises ValueError: If an invalid status string is provided.
+        :raises ValueError: If ... 
+        
+            * the client is not configured for authorization.
+            * an invalid status string is provided.
+            * before and after are both set.
         """
+        if before and after:
+            raise ValueError("before and after cannot both be provided.") 
         
         params = CIMultiDict({'limit': limit})
         if before:
@@ -1336,6 +1358,8 @@ class Client(BaseClient):
         
         ..note:: Open orders may change state between the request and the 
             response depending on market conditions.
+            
+        :raises ValueError: If the client is not configured for authorization.
         """
         headers, body = await self.get('/orders/{}'.format(order_id), auth=True)
         
@@ -1394,10 +1418,16 @@ class Client(BaseClient):
           ...,
         ]
         
-        :raises ValueError: If neither order_id nor product_id are defined or
-            if both are defined.
+        :raises ValueError: If... 
+            
+            * the client is not configured for authorization.
+            * before and after are both set.
+            * neither order_id nor product_id are defined or if both are defined.
         
         """
+        if before and after:
+            raise ValueError("before and after cannot both be provided.") 
+            
         if not order_id and not product_id:
             raise ValueError("Either order_id or product_id must be defined.")
             
@@ -1498,6 +1528,8 @@ class Client(BaseClient):
                 }
             },
         ]
+        
+        :raises ValueError: If the client is not configured for authorization.
         """
         headers, body = await self.get('/payment-methods', auth=True)
         return body
@@ -1575,6 +1607,8 @@ class Client(BaseClient):
                 }
             },
         ]
+        
+        :raises ValueError: If the client is not configured for authorization.
         """
         headers, body = await self.get('/coinbase-accounts', auth=True)
         
@@ -1610,6 +1644,8 @@ class Client(BaseClient):
             "currency": "USD",
             "payout_at": "2016-08-20T00:31:09Z"
         }
+        
+        :raises ValueError: If the client is not configured for authorization.
         """
         headers, body = await self.post('/deposits/payment-method', 
                                         data={'amount': amount,
@@ -1645,6 +1681,8 @@ class Client(BaseClient):
             "amount": "10.00",
             "currency": "BTC",
         }
+        
+        :raises ValueError: If the client is not configured for authorization.
         """
         headers, body = await self.post('/deposits/coinbase-account', 
                                 data={'amount': amount,
@@ -1684,6 +1722,8 @@ class Client(BaseClient):
             "currency": "USD",
             "payout_at": "2016-08-20T00:31:09Z"
         }
+        
+        :raises ValueError: If the client is not configured for authorization.
         """
         headers, body = await self.post('/withdrawals/payment-method', 
                         data={'amount': amount,
@@ -1718,7 +1758,9 @@ class Client(BaseClient):
             "id":"593533d2-ff31-46e0-b22e-ca754147a96a",
             "amount":"10.00",
             "currency": "BTC",
-        }         
+        }
+        
+        :raises ValueError: If the client is not configured for authorization.
         """
         headers, body = await self.post('/withdrawals/coinbase-account', 
                                 data={'amount': amount,
@@ -1751,7 +1793,9 @@ class Client(BaseClient):
                 "id":"593533d2-ff31-46e0-b22e-ca754147a96a",
                 "amount":"10.00",
                 "currency": "BTC",
-            }         
+            }
+            
+        :raises ValueError: If the client is not configured for authorization.
         """
         headers, body = await self.post('/withdrawals/crypto', 
                                 data={'amount': amount,
@@ -1788,7 +1832,9 @@ class Client(BaseClient):
             "to_account_id": "105c3e58-0898-4106-8283-dc5781cda07b",
             "from": "USD",
             "to": "USDC"
-        }            
+        }
+        
+        :raises ValueError: If the client is not configured for authorization.
         """
         headers, body = await self.post('/conversions', 
                                 data={'from_currency_id': from_currency_id,
@@ -1859,14 +1905,14 @@ class Client(BaseClient):
         }    
             
         :raises ValueError: If ... 
-        
-            *invalid report_type provided.
-            *report_type is fills and product_id is not provided.
-            *report_type is account and account_id is not provided.
-            *invalid report_format provided.
+            * the client is not configured for authorization.
+            * invalid report_type provided.
+            * report_type is fills and product_id is not provided.
+            * report_type is account and account_id is not provided.
+            * invalid report_format provided.
         """
         if report_type not in ("account", "fills"):
-            raise ValueError(
+            raise Value Error(
                 "Invalid report_type: {}. Must be 'fills' or 'account'.".format(
                     report_type))
         
@@ -1960,7 +2006,7 @@ class Client(BaseClient):
             }
         }
         
-        
+        :raises ValueError: If the client is not configured for authorization.
         """
         headers, body = await self.get('/reports/{}'.format(report_id), auth=True)
         
@@ -1994,6 +2040,8 @@ class Client(BaseClient):
                 "recorded_at": "1973-11-29T00:05:02.123456Z"
             }
         ]
+        
+        :raises ValueError: If the client is not configured for authorization.
         """
         headers, body = await self.get('/users/self/trailing-volume', auth=True)
         

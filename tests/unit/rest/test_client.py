@@ -252,6 +252,7 @@ class TestRest(MockTestCase):
 
     async def test_ticker(self):
         
+        # No product_id
         with self.assertRaises(TypeError):
             tick = await self.client.ticker()
             
@@ -262,9 +263,11 @@ class TestRest(MockTestCase):
 
     async def test_trades(self):
         
+        # No product_id
         with self.assertRaises(TypeError):
             trades, before, after = await self.client.trades()
             
+        # before and after
         with self.assertRaises(ValueError):
             trades, before, after = await self.client.trades('BTC-USD', before=1, after=100)
             
@@ -376,6 +379,11 @@ class TestRest(MockTestCase):
         # Unauthorized client        
         with self.assertRaises(ValueError):
             trades, before, after = await self.client.account_history(42)
+        
+        # before and after both set
+        with self.assertRaises(ValueError):
+            trades, before, after = await self.auth_client.account_history(42, 
+                                                before='earlier', after='later')
             
         ret_headers = {'cb-before': '1071064024', 'cb-after': '1008063508'}
         body = [{'id': '1'}, {'id': '2'}]
@@ -405,10 +413,15 @@ class TestRest(MockTestCase):
         # No account_id
         with self.assertRaises(TypeError):
             holds, before, after = await self.auth_client.holds()
-            
+        
         # Unauthorized client
         with self.assertRaises(ValueError):
             holds, before, after = await self.client.holds(42)
+            
+        # before and after both set
+        with self.assertRaises(ValueError):
+            holds, before, after = await self.auth_client.holds(42, 
+                                               before='earlier', after='later')
             
         ret_headers = {'cb-before': '1071064024', 'cb-after': '1008063508'}
         body = [{'id': '1'}, {'id': '2'}]
@@ -606,6 +619,11 @@ class TestRest(MockTestCase):
         # Unauthorizerd client
         with self.assertRaises(ValueError):
             orders, before, after = await self.client.orders()
+            
+        # before and after both set
+        with self.assertRaises(ValueError):
+            orders, before, after = await self.auth_client.orders(
+                                       before='nighttime', after='morning')
         
         # Invalid status string
         with self.assertRaises(ValueError):
@@ -696,6 +714,11 @@ class TestRest(MockTestCase):
         # Unauthorized client
         with self.assertRaises(ValueError):
             fills, before, after = await self.client.fills()
+            
+        # before and after both set
+        with self.assertRaises(ValueError):
+            fills, before, after = await self.auth_client.fills('33', 
+                                                      before='BC', after='AD')
             
         # order_id and product_id not defined
         with self.assertRaises(ValueError):
