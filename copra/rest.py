@@ -1342,7 +1342,7 @@ class Client(BaseClient):
         return body
         
         
-    async def list_fills(self, order_id='', product_id='', limit=100, 
+    async def fills(self, order_id='', product_id='', limit=100, 
                          before=None, after=None):
         """Get a list of recent fills.
         

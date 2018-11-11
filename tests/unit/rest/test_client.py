@@ -691,22 +691,22 @@ class TestRest(MockTestCase):
         self.check_req(self.mock_get, '{}/orders/42'.format(URL), headers=AUTH_HEADERS)
         
         
-    async def test_get_fills(self):
+    async def test_fills(self):
         
         # Unauthorized client
         with self.assertRaises(ValueError):
-            fills, before, after = await self.client.list_fills()
+            fills, before, after = await self.client.fills()
             
         # order_id and product_id not defined
         with self.assertRaises(ValueError):
-            fills, before, after = await self.auth_client.list_fills()
+            fills, before, after = await self.auth_client.fills()
             
         # order_id and product_id both defined
         with self.assertRaises(ValueError):
-            fills, before, after = await self.auth_client.list_fills('42', 'BTC-USD')
+            fills, before, after = await self.auth_client.fills('42', 'BTC-USD')
         
         # order_id
-        fills, before, after = await self.auth_client.list_fills('42')
+        fills, before, after = await self.auth_client.fills('42')
         self.check_req(self.mock_get, '{}/fills'.format(URL),
                        query={'order_id': '42', 'limit': '100'}, headers=AUTH_HEADERS)
                        
@@ -718,18 +718,18 @@ class TestRest(MockTestCase):
         self.mock_get.return_value.json.return_value = body
         
         # product_id
-        fills, before, after = await self.auth_client.list_fills(product_id='BTC-USD')
+        fills, before, after = await self.auth_client.fills(product_id='BTC-USD')
         self.check_req(self.mock_get, '{}/fills'.format(URL),
                        query={'product_id': 'BTC-USD', 'limit': '100'}, headers=AUTH_HEADERS)  
         
         # limit, before cursor
-        fills, before, after = await self.auth_client.list_fills('42', limit=5, before=before)
+        fills, before, after = await self.auth_client.fills('42', limit=5, before=before)
         self.check_req(self.mock_get, '{}/fills'.format(URL),
                        query={'order_id': '42', 'limit': '5', 'before': before}, 
                        headers=AUTH_HEADERS)
                        
         # after cursor
-        fills, before, after = await self.auth_client.list_fills('42', after=after)
+        fills, before, after = await self.auth_client.fills('42', after=after)
         self.check_req(self.mock_get, '{}/fills'.format(URL),
                        query={'order_id': '42', 'limit': '100', 'after': after}, 
                        headers=AUTH_HEADERS)

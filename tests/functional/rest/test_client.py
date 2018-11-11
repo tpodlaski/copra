@@ -308,7 +308,7 @@ class TestRest(TestCase):
     # TO DO
     @expectedFailure 
     @skipUnless(TEST_AUTH, "Auth credentials required")
-    async def test_list_fills(self):
+    async def test_fills(self):
         assert False
         
     # TO DO
