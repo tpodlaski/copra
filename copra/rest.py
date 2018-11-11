@@ -1807,7 +1807,7 @@ class Client(BaseClient):
         various human and machine readable forms.
         
         The report will be generated when resources are available. Report status 
-        can be queried via :meth:`rest.Client.get_report_status`. The a url for
+        can be queried via :meth:`rest.Client.report_status`. The a url for
         the report file will be available once the report has successfully been 
         created and is available for download.
         
@@ -1901,7 +1901,7 @@ class Client(BaseClient):
         return body
         
         
-    async def get_report_status(self, report_id):
+    async def report_status(self, report_id):
         """Get the status of a report.
         
         Once a report request has been accepted for processing, the status is 

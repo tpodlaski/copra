@@ -881,17 +881,17 @@ class TestRest(MockTestCase):
                        headers=AUTH_HEADERS)
                 
             
-    async def test_get_report_status(self):
+    async def test_report_status(self):
         
         # Unathorized client
         with self.assertRaises(ValueError):
-            resp = await self.client.get_report_status('mnopuppies')
+            resp = await self.client.report_status('mnopuppies')
             
         # No report_id
         with self.assertRaises(TypeError):
-            resp = await self.auth_client.get_report_status()
+            resp = await self.auth_client.report_status()
             
-        resp = await self.auth_client.get_report_status('icmpn')
+        resp = await self.auth_client.report_status('icmpn')
         self.check_req(self.mock_get, '{}/reports/icmpn'.format(URL), 
                        headers=AUTH_HEADERS)
                        
