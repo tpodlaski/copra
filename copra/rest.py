@@ -1183,8 +1183,8 @@ class Client(BaseClient):
         return body
         
     
-    async def list_orders(self, status=None, product_id=None, limit=100,
-                          before=None, after=None):
+    async def orders(self, status=None, product_id=None, limit=100, before=None, 
+                     after=None):
         """List your current open orders. 
         
         Only open or un-settled orders are returned. As soon as an order is no 

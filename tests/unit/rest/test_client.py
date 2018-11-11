@@ -601,50 +601,50 @@ class TestRest(MockTestCase):
                        query={'product_id': 'BTC-USD'}, headers=AUTH_HEADERS)
 
 
-    async def test_list_orders(self):
+    async def test_orders(self):
         
         # Unauthorizerd client
         with self.assertRaises(ValueError):
-            orders, before, after = await self.client.list_orders()
+            orders, before, after = await self.client.orders()
         
         # Invalid status string
         with self.assertRaises(ValueError):
-            orders, before, after = await self.auth_client.list_orders('fresh')
+            orders, before, after = await self.auth_client.orders('fresh')
             
         # Invalid status string in list
         with self.assertRaises(ValueError):
-            orders, before, after = await self.auth_client.list_orders(['open', 'stale', 'pending'])
+            orders, before, after = await self.auth_client.orders(['open', 'stale', 'pending'])
             
         # Default status, default product_id, default limit
-        orders, before, after = await self.auth_client.list_orders()
+        orders, before, after = await self.auth_client.orders()
         self.check_req(self.mock_get, '{}/orders'.format(URL), 
                        query={'limit': '100'}, headers=AUTH_HEADERS)
         
         # String status, default product_id, default limit
-        orders, before, after = await self.auth_client.list_orders('open')
+        orders, before, after = await self.auth_client.orders('open')
         self.check_req(self.mock_get, '{}/orders'.format(URL), 
                        query={'limit': '100', 'status': 'open'}, headers=AUTH_HEADERS)
         
         # List status, default product_id, default limit
-        orders, before, after = await self.auth_client.list_orders(['pending', 'open'])
+        orders, before, after = await self.auth_client.orders(['pending', 'open'])
         self.check_req(self.mock_get, '{}/orders'.format(URL), 
                       query=MultiDict([('limit', '100'), ('status', 'pending'), ('status', 'open')]),
                       headers=AUTH_HEADERS)        
         
         # product_id, default status, default limit
-        orders, before, after = await self.auth_client.list_orders(product_id='BTC-USD')
+        orders, before, after = await self.auth_client.orders(product_id='BTC-USD')
         self.check_req(self.mock_get, '{}/orders'.format(URL), 
                       query={'product_id': 'BTC-USD', 'limit': '100'},
                       headers=AUTH_HEADERS)
                        
         # product_id, string status, default limit
-        orders, before, after = await self.auth_client.list_orders('open', 'BTC-USD')
+        orders, before, after = await self.auth_client.orders('open', 'BTC-USD')
         self.check_req(self.mock_get, '{}/orders'.format(URL), 
                        query={'status': 'open', 'product_id': 'BTC-USD', 'limit': '100'},
                        headers=AUTH_HEADERS)
                        
         # product_id, list status, default limit
-        orders, before, after = await self.auth_client.list_orders(['pending', 'active'], 'BTC-USD')
+        orders, before, after = await self.auth_client.orders(['pending', 'active'], 'BTC-USD')
         self.check_req(self.mock_get, '{}/orders'.format(URL), 
                       query=MultiDict([('status', 'pending'), ('status', 'active'), ('product_id','BTC-USD'), ('limit', '100')]),
                       headers=AUTH_HEADERS)
@@ -657,7 +657,7 @@ class TestRest(MockTestCase):
         self.mock_get.return_value.json.return_value = body
         
         # product_id, list_status, custom limit
-        orders, before, after = await self.auth_client.list_orders('open', 'BTC-USD', limit=5)
+        orders, before, after = await self.auth_client.orders('open', 'BTC-USD', limit=5)
         self.assertEqual(before, '1071064024')
         self.assertEqual(after, '1008063508')
         self.assertEqual(orders, body)
@@ -665,12 +665,12 @@ class TestRest(MockTestCase):
                        query={'status': 'open', 'product_id': 'BTC-USD', 'limit': '5'},
                        headers=AUTH_HEADERS)
                        
-        orders, before, after = await self.auth_client.list_orders('open', 'BTC-USD', before=before)
+        orders, before, after = await self.auth_client.orders('open', 'BTC-USD', before=before)
         self.check_req(self.mock_get, '{}/orders'.format(URL), 
                        query={'status': 'open', 'product_id': 'BTC-USD', 'limit': '100', 'before': before},
                        headers=AUTH_HEADERS)
                        
-        orders, before, after = await self.auth_client.list_orders('open', 'BTC-USD', after=after)
+        orders, before, after = await self.auth_client.orders('open', 'BTC-USD', after=after)
         self.check_req(self.mock_get, '{}/orders'.format(URL), 
                        query={'status': 'open', 'product_id': 'BTC-USD', 'limit': '100', 'after': after},
                        headers=AUTH_HEADERS)
