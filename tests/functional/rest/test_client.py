@@ -344,13 +344,13 @@ class TestRest(TestCase):
     # TO DO
     @expectedFailure 
     @skipUnless(TEST_AUTH, "Auth credentials required")
-    async def test_withdrawal_cointbase(self):
+    async def test_withdraw_cointbase(self):
         assert False
         
     # TO DO
     @expectedFailure 
     @skipUnless(TEST_AUTH, "Auth credentials required")
-    async def test_withdrawal_crypto(self):
+    async def test_withdraw_crypto(self):
         assert False
         
     # TO DO

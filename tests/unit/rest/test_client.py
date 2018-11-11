@@ -798,9 +798,9 @@ class TestRest(MockTestCase):
         
         # Unauthorized client
         with self.assertRaises(ValueError):
-            resp = await self.client.withdrawal_coinbase(1000, 'BTC', '7')
+            resp = await self.client.withdraw_coinbase(1000, 'BTC', '7')
             
-        resp =await self.auth_client.withdrawal_coinbase(95, 'LTC', 'A1')
+        resp =await self.auth_client.withdraw_coinbase(95, 'LTC', 'A1')
         self.check_req(self.mock_post, '{}/withdrawals/coinbase-account'.format(URL),
                        data={'amount': 95, 'currency': 'LTC', 
                              'coinbase_account_id': 'A1'}, 
@@ -811,9 +811,9 @@ class TestRest(MockTestCase):
         
         # Unauthorized client
         with self.assertRaises(ValueError):
-            resp = await self.client.withdrawal_crypto(83, 'YES', '90125')
+            resp = await self.client.withdraw_crypto(83, 'YES', '90125')
             
-        resp =await self.auth_client.withdrawal_crypto(88, 'VH', 'OU812')
+        resp =await self.auth_client.withdraw_crypto(88, 'VH', 'OU812')
         self.check_req(self.mock_post, '{}/withdrawals/crypto'.format(URL),
                        data={'amount': 88, 'currency': 'VH', 
                              'crypto_address': 'OU812'}, 

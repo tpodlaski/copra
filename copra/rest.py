@@ -1672,6 +1672,18 @@ class Client(BaseClient):
         :param str payment_method_id: The id of the payment method on file to
             use. To get a list of available payment methods, use:
             :meth:`rest.Client.list_payment_methods`.
+            
+        :returns: A dict with a withdrawal id, timestamp and other deposit 
+            information.
+            
+        :Example:
+        
+        {
+            "id":"593533d2-ff31-46e0-b22e-ca754147a96a",
+            "amount": "10.00",
+            "currency": "USD",
+            "payout_at": "2016-08-20T00:31:09Z"
+        }
         """
         headers, body = await self.post('/withdrawals/payment-method', 
                         data={'amount': amount,
@@ -1681,20 +1693,20 @@ class Client(BaseClient):
         return body
 
         
-    async def withdrawal_coinbase(self, amount, currency, coinbase_account_id):
-        """Withdrawal funds to a coinbase account.
+    async def withdraw_coinbase(self, amount, currency, coinbase_account_id):
+        """Withdraw funds to a coinbase account.
         
         ..note:: This method requires authorization. The API key must have 
             the "transfer" permission.
             
-        :param float amount: The amount of the currency to withdrawal. This 
+        :param float amount: The amount of the currency to withdraw. This 
             paramater may also be a string to avoid floating point issues.
         
         :param str currency:  The type of currency to withdrawal. i.e., 'BTC',
             'LTC', 'USD', etc.
             
         :param str coinbase_account_id:  The id of the Coinbase account to
-            withdrawal to. To get a list of Coinbase accounts, use:
+            withdraw to. To get a list of Coinbase accounts, use:
             :meth:`rest.Client.list_coinbase_accounts`.
         
         :returns: A dict with the withdrawal id, and confirmation of the withdrawl 
@@ -1716,13 +1728,13 @@ class Client(BaseClient):
         return body
         
         
-    async def withdrawal_crypto(self, amount, currency, crypto_address):
-        """Withdraws funds to a crypto address.
+    async def withdraw_crypto(self, amount, currency, crypto_address):
+        """Withdraw funds to a crypto address.
         
         ..note:: This method requires authorization. The API key must have 
             the "transfer" permission.
             
-        :param float amount: The amount of the currency to withdrawal. This 
+        :param float amount: The amount of the currency to withdraw. This 
             paramater may also be a string to avoid floating point issues.
         
         :param str currency:  The type of currency to withdrawal. i.e., 'BTC',
