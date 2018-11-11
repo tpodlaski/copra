@@ -178,7 +178,7 @@ class Client(BaseClient):
             exists for testing purposes and generally should not be used. If a 
             timestamp is provided it must be within 30 seconds of the API 
             server's time. This can be found using: 
-            :meth:`rest.Client.get_server_time`.
+            :meth:`rest.Client.server_time`.
             
         :returns: A dict of headers to be added to the request.
         
@@ -674,7 +674,7 @@ class Client(BaseClient):
         return body
 
         
-    async def get_server_time(self):
+    async def server_time(self):
         """Get the API server time.
         
         :returns: A dict with two fields: iso and epoch. iso is an ISO 8601 str,

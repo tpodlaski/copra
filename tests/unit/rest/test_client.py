@@ -337,9 +337,9 @@ class TestRest(MockTestCase):
         self.check_req(self.mock_get, '{}/currencies'.format(URL), headers=UNAUTH_HEADERS)
 
         
-    async def test_get_server_time(self):
+    async def test_server_time(self):
         
-        time = await self.client.get_server_time()
+        time = await self.client.server_time()
         self.check_req(self.mock_get, '{}/time'.format(URL), headers=UNAUTH_HEADERS)
 
 

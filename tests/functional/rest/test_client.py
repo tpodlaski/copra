@@ -229,9 +229,9 @@ class TestRest(TestCase):
             self.assertIn(key, currencies[0])
     
     
-    async def test_get_server_time(self):
+    async def test_server_time(self):
         
-        time = await self.client.get_server_time()
+        time = await self.client.server_time()
         self.assertIsInstance(time, dict)
         self.assertIn('iso', time)
         self.assertIn('epoch', time)
