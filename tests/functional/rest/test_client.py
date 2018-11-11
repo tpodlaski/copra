@@ -252,11 +252,11 @@ class TestRest(TestCase):
         
 
     @skipUnless(TEST_AUTH and TEST_ACCOUNT, "Auth credentials and test account ID required")
-    async def test_get_account(self):
+    async def test_account(self):
         
         keys = ('id', 'currency', 'balance', 'available', 'hold', 'profile_id')
         
-        account = await self.auth_client.get_account(TEST_ACCOUNT)
+        account = await self.auth_client.account(TEST_ACCOUNT)
         self.assertIsInstance(account, dict)
         for key in keys:
             self.assertIn(key, account)

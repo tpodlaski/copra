@@ -353,17 +353,17 @@ class TestRest(MockTestCase):
         self.check_req(self.mock_get, '{}/accounts'.format(URL), headers=AUTH_HEADERS)
   
 
-    async def test_get_account(self):
+    async def test_account(self):
 
         # No account_id
         with self.assertRaises(TypeError):
-            trades, before, after = await self.auth_client.get_account()        
+            trades, before, after = await self.auth_client.account()        
 
         # Unauthorized client
         with self.assertRaises(ValueError):
-            acount = await self.client.get_account(42)
+            acount = await self.client.account(42)
             
-        account = await self.auth_client.get_account(42)
+        account = await self.auth_client.account(42)
         self.check_req(self.mock_get, '{}/accounts/42'.format(URL), headers=AUTH_HEADERS)
 
 

@@ -727,7 +727,7 @@ class Client(BaseClient):
         headers, body = await self.get('/accounts', auth=True)
         return body
         
-    async def get_account(self, account_id):
+    async def account(self, account_id):
         """Information for a single account. 
         
         ..note:: This method requires authorization. The API key must have 
