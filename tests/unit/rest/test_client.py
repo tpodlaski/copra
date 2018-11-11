@@ -221,31 +221,31 @@ class TestRest(MockTestCase):
         self.check_req(self.mock_get, '{}{}'.format(URL, '/products'), headers=UNAUTH_HEADERS)
             
 
-    async def test_get_order_book(self):            
+    async def test_order_book(self):            
 
         with self.assertRaises(TypeError):
-            ob = await self.client.get_order_book()
+            ob = await self.client.order_book()
             
         with self.assertRaises(ValueError):
-            ob = await self.client.get_order_book('BTC-USD', 99)
+            ob = await self.client.order_book('BTC-USD', 99)
             
         # Default level 1
-        ob = await self.client.get_order_book('BTC-USD')
+        ob = await self.client.order_book('BTC-USD')
         self.check_req(self.mock_get, '{}/products/BTC-USD/book'.format(URL), 
                        query={'level': '1'}, headers=UNAUTH_HEADERS)
         
         # Level 1
-        ob = await self.client.get_order_book('BTC-USD', level=1)
+        ob = await self.client.order_book('BTC-USD', level=1)
         self.check_req(self.mock_get, '{}/products/BTC-USD/book'.format(URL), 
                        query={'level': '1'}, headers=UNAUTH_HEADERS)
         
         # Level 2
-        ob = await self.client.get_order_book('BTC-USD', level=2)
+        ob = await self.client.order_book('BTC-USD', level=2)
         self.check_req(self.mock_get, '{}/products/BTC-USD/book'.format(URL), 
                        query={'level': '2'}, headers=UNAUTH_HEADERS)
 
         # Level 3
-        ob = await self.client.get_order_book('BTC-USD', level=3)
+        ob = await self.client.order_book('BTC-USD', level=3)
         self.check_req(self.mock_get, '{}/products/BTC-USD/book'.format(URL), 
                        query={'level': '3'}, headers=UNAUTH_HEADERS)
 

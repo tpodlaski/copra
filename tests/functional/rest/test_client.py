@@ -104,7 +104,7 @@ class TestRest(TestCase):
         
         keys = ('sequence', 'bids', 'asks')
         
-        ob1 = await self.client.get_order_book('BTC-USD', level=1)
+        ob1 = await self.client.order_book('BTC-USD', level=1)
         self.assertIsInstance(ob1, dict)
         self.assertEqual(len(ob1), len(keys))
         for key in keys:
@@ -116,7 +116,7 @@ class TestRest(TestCase):
         self.assertEqual(len(ob1['asks']), 1)
         self.assertEqual(len(ob1['asks'][0]), 3)
         
-        ob2 = await self.client.get_order_book('BTC-USD', level=2)
+        ob2 = await self.client.order_book('BTC-USD', level=2)
         self.assertIsInstance(ob2, dict)
         self.assertEqual(len(ob2), len(keys))
         for key in keys:
@@ -129,7 +129,7 @@ class TestRest(TestCase):
         self.assertEqual(len(ob2['asks'][0]), 3)
                 
         
-        ob3 = await self.client.get_order_book('BTC-USD', level=2)
+        ob3 = await self.client.order_book('BTC-USD', level=2)
         self.assertIsInstance(ob3, dict)
         self.assertEqual(len(ob3), len(keys))
         for key in keys:

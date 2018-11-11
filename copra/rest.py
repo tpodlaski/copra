@@ -322,7 +322,7 @@ class Client(BaseClient):
         return body
 
         
-    async def get_order_book(self, product_id, level=1):
+    async def order_book(self, product_id, level=1):
         """Get a list of open orders for a product. 
         
         By default, only the inside (i.e. best) bid and ask are returned. This 
