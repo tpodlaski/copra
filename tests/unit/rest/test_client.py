@@ -331,9 +331,9 @@ class TestRest(MockTestCase):
         self.check_req(self.mock_get, '{}/products/BTC-USD/stats'.format(URL), headers=UNAUTH_HEADERS)
 
 
-    async def test_get_currencies(self):
+    async def test_currencies(self):
 
-        currencies = await self.client.get_currencies()
+        currencies = await self.client.currencies()
         self.check_req(self.mock_get, '{}/currencies'.format(URL), headers=UNAUTH_HEADERS)
 
         

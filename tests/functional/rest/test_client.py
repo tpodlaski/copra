@@ -216,11 +216,11 @@ class TestRest(TestCase):
             self.assertIn(key, stats)
        
        
-    async def test_get_currencies(self):
+    async def test_currencies(self):
         
         keys = ('id', 'name', 'min_size', 'status', 'message')
         
-        currencies = await self.client.get_currencies()
+        currencies = await self.client.currencies()
         self.assertIsInstance(currencies, list)
         self.assertGreater(len(currencies), 1)
         self.assertIsInstance(currencies[0], dict)

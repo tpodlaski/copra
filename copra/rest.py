@@ -644,7 +644,7 @@ class Client(BaseClient):
         return body
 
         
-    async def get_currencies(self):
+    async def currencies(self):
         """List known currencies.
         
         Currency codes will conform to the ISO 4217 standard where possible. 
