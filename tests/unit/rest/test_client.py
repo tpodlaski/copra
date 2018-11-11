@@ -572,16 +572,16 @@ class TestRest(MockTestCase):
                         headers=AUTH_HEADERS)
 
 
-    async def test_cancel_order(self):
+    async def test_cancel(self):
         
         with self.assertRaises(TypeError):
-            resp = await self.auth_client.cancel_order()
+            resp = await self.auth_client.cancel()
             
         # Unauthorized client
         with self.assertRaises(ValueError):
-            resp = await self.client.cancel_order(42)
+            resp = await self.client.cancel(42)
             
-        resp = await self.auth_client.cancel_order(42)
+        resp = await self.auth_client.cancel(42)
         self.check_req(self.mock_del, '{}/orders/42'.format(URL), headers=AUTH_HEADERS)
 
         

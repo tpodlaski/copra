@@ -1129,7 +1129,7 @@ class Client(BaseClient):
         return body
         
     
-    async def cancel_order(self, order_id):
+    async def cancel(self, order_id):
         """Cancel a previously placed order.
 
         If the order had no matches during its lifetime its record may be 
