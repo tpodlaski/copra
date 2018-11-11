@@ -278,7 +278,7 @@ class Client(BaseClient):
         return (headers, body)
             
             
-    async def get_products(self):
+    async def products(self):
         """Get a list of available currency pairs for trading.
         
         Returns a list of dicts where each dict represents a currency pair. 
@@ -332,7 +332,7 @@ class Client(BaseClient):
         :param str product_id: The product id whose order book you wish to 
             view. The product id is a string consisting of a base currency
             and a quote currency. eg., BTC-USD, ETH-EUR, etc. To see all of 
-            the product ids, use :meth:`rest.Client.get_products`.
+            the product ids, use :meth:`rest.Client.products`.
             
         :param int level: (optional) The level customizes the amount of detail 
             shown. See below for more detail. The default is 1.
@@ -427,7 +427,7 @@ class Client(BaseClient):
         :param str product_id: The product id of the tick to be retrieved.
             The product id is a string consisting of a base currency and a 
             quote currency. eg., BTC-USD, ETH-EUR, etc. To see all of the 
-            product ids, use :meth:`rest.Client.get_products`.
+            product ids, use :meth:`rest.Client.products`.
             
         :returns: A dict containing information about the last trade (tick) for
            the product.
@@ -471,7 +471,7 @@ class Client(BaseClient):
         :param str product_id: The product id whose trades are to be retrieved.
             The product id is a string consisting of a base currency and a 
             quote currency. eg., BTC-USD, ETH-EUR, etc. To see all of the 
-            product ids, use :meth:`rest.Client.get_products`.
+            product ids, use :meth:`rest.Client.products`.
             
         :param int limit: (optional) The number of results to be returned per 
             request. The default (and maximum) value is 100.
@@ -552,7 +552,7 @@ class Client(BaseClient):
         :param str product_id: The product id whose rates are to be retrieved.
             The product id is a string consisting of a base currency and a 
             quote currency. eg., BTC-USD, ETH-EUR, etc. To see all of the 
-            product ids, use :meth:`rest.Client.get_products`.
+            product ids, use :meth:`rest.Client.products`.
         
         :param int granularity: (optional) Desired timeslice in seconds. The 
             granularity field must be one of the following values: {60, 300, 
@@ -624,7 +624,7 @@ class Client(BaseClient):
         :param str product_id: The product id whose stats are to be retrieved.
             The product id is a string consisting of a base currency and a 
             quote currency. eg., BTC-USD, ETH-EUR, etc. To see all of the 
-            product ids, use :meth:`rest.Client.get_products`.
+            product ids, use :meth:`rest.Client.products`.
             
         :returns: A dict of stats for the product including: open, high, low,
             volume, last price, and 30 day volume.
@@ -965,7 +965,7 @@ class Client(BaseClient):
         :param str product_id: The product id to be bought or sold.
             The product id is a string consisting of a base currency and a 
             quote currency. eg., BTC-USD, ETH-EUR, etc. To see all of the 
-            product ids, use :meth:`rest.Client.get_products`.
+            product ids, use :meth:`rest.Client.products`.
             
         :param str order_type: The type of the order. This must be either limit
             or market. The order type you specify will influence which other 

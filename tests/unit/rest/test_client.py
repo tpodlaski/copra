@@ -215,9 +215,9 @@ class TestRest(MockTestCase):
         self.assertEqual(self.mock_post.headers['CB-ACCESS-SIGN'], expected_headers['CB-ACCESS-SIGN'])
         
 
-    async def test_get_products(self):
+    async def test_products(self):
         
-        products = await self.client.get_products()
+        products = await self.client.products()
         self.check_req(self.mock_get, '{}{}'.format(URL, '/products'), headers=UNAUTH_HEADERS)
             
 

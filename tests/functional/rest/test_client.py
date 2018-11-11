@@ -81,7 +81,7 @@ class TestRest(TestCase):
             headers, body = await client.post('/post', data=data)
             self.assertEqual(json.loads(body['data']), data)
         
-    async def test_get_products(self):
+    async def test_products(self):
         
         keys = ('id', 'base_currency', 'quote_currency', 'base_min_size', 
                 'base_max_size', 'quote_increment', 'display_name', 'status',
@@ -90,7 +90,7 @@ class TestRest(TestCase):
         
         # Sometimes returns 'accesible' as a key. ?? 
         
-        products = await self.client.get_products()
+        products = await self.client.products()
 
         self.assertIsInstance(products, list)
         self.assertGreater(len(products), 1)
