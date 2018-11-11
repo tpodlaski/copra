@@ -760,7 +760,7 @@ class Client(BaseClient):
         return body
 
       
-    async def get_account_history(self, account_id, limit=100, before=None, after=None):
+    async def account_history(self, account_id, limit=100, before=None, after=None):
         """List activity for an account.account
         
         Account activity either increases or decreases your account balance. 

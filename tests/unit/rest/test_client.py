@@ -367,15 +367,15 @@ class TestRest(MockTestCase):
         self.check_req(self.mock_get, '{}/accounts/42'.format(URL), headers=AUTH_HEADERS)
 
 
-    async def test_get_account_history(self):
+    async def test_account_history(self):
 
         # No account_id
         with self.assertRaises(TypeError):
-            trades, before, after = await self.auth_client.get_account_history()
+            trades, before, after = await self.auth_client.account_history()
         
         # Unauthorized client        
         with self.assertRaises(ValueError):
-            trades, before, after = await self.client.get_account_history(42)
+            trades, before, after = await self.client.account_history(42)
             
         ret_headers = {'cb-before': '1071064024', 'cb-after': '1008063508'}
         body = [{'id': '1'}, {'id': '2'}]
@@ -383,7 +383,7 @@ class TestRest(MockTestCase):
         self.mock_get.return_value.headers = ret_headers
         self.mock_get.return_value.json.return_value = body
 
-        trades, before, after = await self.auth_client.get_account_history(42, limit=5)
+        trades, before, after = await self.auth_client.account_history(42, limit=5)
         self.assertEqual(before, '1071064024')
         self.assertEqual(after, '1008063508')
         self.assertEqual(trades, body)
@@ -391,11 +391,11 @@ class TestRest(MockTestCase):
                        query={'limit': '5'}, headers=AUTH_HEADERS)
         
         
-        trades, before, after = await self.auth_client.get_account_history(42, before=before)
+        trades, before, after = await self.auth_client.account_history(42, before=before)
         self.check_req(self.mock_get, '{}/accounts/42/ledger'.format(URL), 
                        query={'limit': '100', 'before': before}, headers=AUTH_HEADERS)
         
-        trades, before, after = await self.auth_client.get_account_history(42, after=after)
+        trades, before, after = await self.auth_client.account_history(42, after=after)
         self.check_req(self.mock_get, '{}/accounts/42/ledger'.format(URL), 
                        query={'limit': '100', 'after': after}, headers=AUTH_HEADERS)
  
