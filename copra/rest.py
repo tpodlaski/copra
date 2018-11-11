@@ -534,7 +534,7 @@ class Client(BaseClient):
         return (body, headers.get('cb-before', None), headers.get('cb-after', None))
 
         
-    async def get_historic_rates(self, product_id, granularity=3600, start=None, stop=None):
+    async def historic_rates(self, product_id, granularity=3600, start=None, stop=None):
         """Historic rates for a product. 
         
         Rates are returned in grouped buckets based on requested granularity.

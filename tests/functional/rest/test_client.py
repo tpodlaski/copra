@@ -189,16 +189,16 @@ class TestRest(TestCase):
                 self.assertIsInstance(after_after, str)
 
              
-    async def test_get_historic_rates(self):
+    async def test_historic_rates(self):
         
-        rates = await self.client.get_historic_rates('BTC-USD', 900)
+        rates = await self.client.historic_rates('BTC-USD', 900)
         self.assertIsInstance(rates, list)
         self.assertEqual(len(rates[0]), 6)
         self.assertEqual(rates[0][0] - rates[1][0], 900)
                 
         stop = datetime.utcnow()
         start = stop - timedelta(days=1)
-        rates = await self.client.get_historic_rates('LTC-USD', 3600, start.isoformat(), stop.isoformat())
+        rates = await self.client.historic_rates('LTC-USD', 3600, start.isoformat(), stop.isoformat())
         self.assertIsInstance(rates, list)
         self.assertEqual(len(rates), 24)
         self.assertEqual(len(rates[0]), 6)

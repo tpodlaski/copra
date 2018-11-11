@@ -294,18 +294,18 @@ class TestRest(MockTestCase):
                        query={'limit': '100', 'after': after}, headers=UNAUTH_HEADERS) 
 
 
-    async def test_get_historic_rates(self):
+    async def test_historic_rates(self):
         
         # No product_id
         with self.assertRaises(TypeError):
-            rates = await self.client.get_historic_rates()
+            rates = await self.client.historic_rates()
             
         # Invalid granularity
         with self.assertRaises(ValueError):
-            rates = await self.client.get_historic_rates('BTC-USD', granularity=100)
+            rates = await self.client.historic_rates('BTC-USD', granularity=100)
             
         # Default granularity
-        rates = await self.client.get_historic_rates('BTC-USD')
+        rates = await self.client.historic_rates('BTC-USD')
         self.check_req(self.mock_get, '{}/products/BTC-USD/candles'.format(URL),
                        query={'granularity': '3600'}, headers=UNAUTH_HEADERS)
 
@@ -313,9 +313,9 @@ class TestRest(MockTestCase):
         start = stop - timedelta(days=1)
             
         # Custom granularity, start, stop
-        rates = await self.client.get_historic_rates('BTC-USD', 900, 
-                                                     start.isoformat(), 
-                                                     stop.isoformat())
+        rates = await self.client.historic_rates('BTC-USD', 900, 
+                                                 start.isoformat(), 
+                                                 stop.isoformat())
         self.check_req(self.mock_get, '{}/products/BTC-USD/candles'.format(URL),
                        query={'granularity': '900', 'start': start.isoformat(),
                               'stop': stop.isoformat()},
