@@ -1342,8 +1342,8 @@ class Client(BaseClient):
         return body
         
         
-    async def fills(self, order_id='', product_id='', limit=100, 
-                         before=None, after=None):
+    async def fills(self, order_id='', product_id='', limit=100, before=None, 
+                    after=None):
         """Get a list of recent fills.
         
         ..note:: This method requires authorization. The API key must have 
@@ -1419,7 +1419,7 @@ class Client(BaseClient):
         return (body, headers.get('cb-before', None), headers.get('cb-after', None))
         
         
-    async def list_payment_methods(self):
+    async def payment_methods(self):
         """Get a list of your payment methods.
 
         ..note:: This method requires authorization. The API key must have 
@@ -1585,7 +1585,7 @@ class Client(BaseClient):
         """Deposit funds from a payment method.
         
         To get a list of available payment methods, use 
-        :meth:`rest.Client.list_payment_methods`.
+        :meth:`rest.Client.payment_methods`.
         
         ..note:: This method requires authorization. The API key must have 
             the "transfer" permission.
@@ -1598,7 +1598,7 @@ class Client(BaseClient):
         
         :param str payment_method_id: The id of the payment method on file to
             use. To get a list of available payment methods, use:
-            :meth:`rest.Client.list_payment_methods`.
+            :meth:`rest.Client.payment_methods`.
             
         :returns: A dict with a deposit id, timestamp and other deposit information.
         
@@ -1658,7 +1658,7 @@ class Client(BaseClient):
         """Withdraw funds to a payment method.
         
         To get a list of available payment methods, use 
-        :meth:`rest.Client.list_payment_methods`.
+        :meth:`rest.Client.payment_methods`.
         
         ..note:: This method requires authorization. The API key must have 
             the "transfer" permission.
@@ -1671,7 +1671,7 @@ class Client(BaseClient):
         
         :param str payment_method_id: The id of the payment method on file to
             use. To get a list of available payment methods, use:
-            :meth:`rest.Client.list_payment_methods`.
+            :meth:`rest.Client.payment_methods`.
             
         :returns: A dict with a withdrawal id, timestamp and other deposit 
             information.
@@ -2014,7 +2014,7 @@ if __name__ == '__main__':
     client = Client(loop, auth=True, key=KEY, secret=SECRET, passphrase=PASSPHRASE)
     
     async def go():
-        resp = await client.list_payment_methods()
+        resp = await client.payment_methods()
         print(resp)
         
     loop.run_until_complete(go())
