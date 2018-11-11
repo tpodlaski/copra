@@ -260,15 +260,15 @@ class TestRest(MockTestCase):
                        headers=UNAUTH_HEADERS)
 
 
-    async def test_get_trades(self):
+    async def test_trades(self):
         
         with self.assertRaises(TypeError):
-            trades, before, after = await self.client.get_trades()
+            trades, before, after = await self.client.trades()
             
         with self.assertRaises(ValueError):
-            trades, before, after = await self.client.get_trades('BTC-USD', before=1, after=100)
+            trades, before, after = await self.client.trades('BTC-USD', before=1, after=100)
             
-        trades, before, after = await self.client.get_trades('BTC-USD')
+        trades, before, after = await self.client.trades('BTC-USD')
         self.check_req(self.mock_get, '{}/products/BTC-USD/trades'.format(URL),
                        query={'limit': '100'}, headers=UNAUTH_HEADERS)
         
@@ -278,18 +278,18 @@ class TestRest(MockTestCase):
         self.mock_get.return_value.headers = ret_headers
         self.mock_get.return_value.json.return_value = body
             
-        trades, before, after = await self.client.get_trades('BTC-USD', limit=5)
+        trades, before, after = await self.client.trades('BTC-USD', limit=5)
         self.check_req(self.mock_get, '{}/products/BTC-USD/trades'.format(URL),
                        query={'limit': '5'}, headers=UNAUTH_HEADERS)        
         self.assertEqual(trades, body)
         self.assertEqual(before, ret_headers['cb-before'])
         self.assertEqual(after, ret_headers['cb-after'])
             
-        prev_trades, prev_before, prev_after = await self.client.get_trades('BTC-USD', before=before)
+        prev_trades, prev_before, prev_after = await self.client.trades('BTC-USD', before=before)
         self.check_req(self.mock_get, '{}/products/BTC-USD/trades'.format(URL),
                        query={'limit': '100', 'before': before}, headers=UNAUTH_HEADERS) 
         
-        next_trades, next_before, next_after = await self.client.get_trades('BTC-USD', after=after)
+        next_trades, next_before, next_after = await self.client.trades('BTC-USD', after=after)
         self.check_req(self.mock_get, '{}/products/BTC-USD/trades'.format(URL),
                        query={'limit': '100', 'after': after}, headers=UNAUTH_HEADERS) 
 

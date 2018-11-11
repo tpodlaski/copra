@@ -153,11 +153,11 @@ class TestRest(TestCase):
             self.assertIn(key, tick)
         
     
-    async def test_get_trades(self):
+    async def test_trades(self):
         
         keys = ('time', 'trade_id', 'price', 'size', 'side')
         
-        trades, before, after = await self.client.get_trades('BTC-USD')
+        trades, before, after = await self.client.trades('BTC-USD')
         self.assertIsInstance(trades, list)
         self.assertIsInstance(trades[0], dict)
         self.assertIsInstance(before, str)
@@ -166,13 +166,13 @@ class TestRest(TestCase):
         for key in keys:
             self.assertIn(key, trades[0])
             
-        trades, before, after = await self.client.get_trades('BTC-USD', 5)
+        trades, before, after = await self.client.trades('BTC-USD', 5)
         self.assertEqual(len(trades), 5)
 
-        trades_after, after_after, before_after = await self.client.get_trades('BTC-USD', 5, after=after)
+        trades_after, after_after, before_after = await self.client.trades('BTC-USD', 5, after=after)
         self.assertLess(trades_after[0]['trade_id'], trades[-1]['trade_id'])
                 
-        trades_before, after_before, before_before = await self.client.get_trades('BTC-USD', 5, before=before)
+        trades_before, after_before, before_before = await self.client.trades('BTC-USD', 5, before=before)
         if trades_before:
             self.assertGreater(trades_before[-1]['trade_id'], trades[0]['trade_id'])
         else:
@@ -181,7 +181,7 @@ class TestRest(TestCase):
             
             await asyncio.sleep(20)
     
-            trades_before, after_before, before_before = await self.client.get_trades('BTC-USD', 5, before=before)
+            trades_before, after_before, before_before = await self.client.trades('BTC-USD', 5, before=before)
             if (trades_before):
                 self.assertGreater(trades_before[-1]['trade_id'], trades[0]['trade_id'])
             else:

@@ -452,7 +452,7 @@ class Client(BaseClient):
         return body
 
         
-    async def get_trades(self, product_id, limit=100, before=None, after=None):
+    async def trades(self, product_id, limit=100, before=None, after=None):
         """List the latest trades for a product.
         
         The trade side indicates the maker order side. The maker order is the 
