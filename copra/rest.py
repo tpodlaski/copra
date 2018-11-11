@@ -859,7 +859,7 @@ class Client(BaseClient):
         return (body, headers.get('cb-before', None), headers.get('cb-after', None))
 
         
-    async def get_holds(self, account_id, limit=100, before=None, after=None):
+    async def holds(self, account_id, limit=100, before=None, after=None):
         """Get any existing holds on an account.
         
         Holds are placed on an account for any active orders or pending withdraw 

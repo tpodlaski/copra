@@ -400,15 +400,15 @@ class TestRest(MockTestCase):
                        query={'limit': '100', 'after': after}, headers=AUTH_HEADERS)
  
 
-    async def test_get_holds(self):
+    async def test_holds(self):
         
         # No account_id
         with self.assertRaises(TypeError):
-            holds, before, after = await self.auth_client.get_holds()
+            holds, before, after = await self.auth_client.holds()
             
         # Unauthorized client
         with self.assertRaises(ValueError):
-            holds, before, after = await self.client.get_holds(42)
+            holds, before, after = await self.client.holds(42)
             
         ret_headers = {'cb-before': '1071064024', 'cb-after': '1008063508'}
         body = [{'id': '1'}, {'id': '2'}]
@@ -416,18 +416,18 @@ class TestRest(MockTestCase):
         self.mock_get.return_value.headers = ret_headers
         self.mock_get.return_value.json.return_value = body
                 
-        holds, before, after = await self.auth_client.get_holds(42, limit=5)
+        holds, before, after = await self.auth_client.holds(42, limit=5)
         self.assertEqual(before, '1071064024')
         self.assertEqual(after, '1008063508')
         self.assertEqual(holds, body)
         self.check_req(self.mock_get, '{}/accounts/42/holds'.format(URL), 
                        query={'limit': '5'}, headers=AUTH_HEADERS)
         
-        holds, before, after = await self.auth_client.get_holds(42, before=before)
+        holds, before, after = await self.auth_client.holds(42, before=before)
         self.check_req(self.mock_get, '{}/accounts/42/holds'.format(URL), 
                        query={'limit': '100', 'before': before}, headers=AUTH_HEADERS)                                                    
         
-        holds, before, after = await self.auth_client.get_holds(42, after=after)
+        holds, before, after = await self.auth_client.holds(42, after=after)
         self.check_req(self.mock_get, '{}/accounts/42/holds'.format(URL), 
                        query={'limit': '100', 'after': after}, headers=AUTH_HEADERS)
 
