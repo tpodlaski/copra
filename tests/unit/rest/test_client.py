@@ -780,6 +780,19 @@ class TestRest(MockTestCase):
                              'coinbase_account_id': 'A1'}, 
                         headers=AUTH_HEADERS)
                         
+    
+    async def test_withdraw_payment_method(self):
+        
+        # Unauthorized client
+        with self.assertRaises(ValueError):
+            resp = await self.client.withdraw_payment_method(104.1, 'USD', 'WNNK')
+            
+        resp = await self.auth_client.withdraw_payment_method(93.5, 'USD', 'WTPA')
+        self.check_req(self.mock_post, '{}/withdrawals/payment-method'.format(URL),
+                       data={'amount': 93.5, 'currency': 'USD',
+                             'payment_method_id': 'WTPA'},
+                       headers=AUTH_HEADERS)
+        
                         
     async def test_withdrawl_coinbase(self):
         
@@ -791,7 +804,7 @@ class TestRest(MockTestCase):
         self.check_req(self.mock_post, '{}/withdrawals/coinbase-account'.format(URL),
                        data={'amount': 95, 'currency': 'LTC', 
                              'coinbase_account_id': 'A1'}, 
-                        headers=AUTH_HEADERS)
+                       headers=AUTH_HEADERS)
                         
                         
     async def test_withdrawl_crypto(self):

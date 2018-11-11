@@ -334,6 +334,12 @@ class TestRest(TestCase):
     @skipUnless(TEST_AUTH, "Auth credentials required")
     async def test_deposit_cointbase(self):
         assert False 
+
+    # TO DO
+    @expectedFailure 
+    @skipUnless(TEST_AUTH, "Auth credentials required")
+    async def test_withdraw_payment_method(self):
+        assert False
         
     # TO DO
     @expectedFailure 
@@ -368,5 +374,5 @@ class TestRest(TestCase):
     # TO DO
     @expectedFailure 
     @skipUnless(TEST_AUTH, "Auth credentials required")
-    async def test_get_trailing_volume(self):
+    async def test_get_trailing_volume (self):
         assert False

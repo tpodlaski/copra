@@ -1654,6 +1654,33 @@ class Client(BaseClient):
         return body
         
         
+    async def withdraw_payment_method(self, amount, currency, payment_method_id):
+        """Withdraw funds to a payment method.
+        
+        To get a list of available payment methods, use 
+        :meth:`rest.Client.list_payment_methods`.
+        
+        ..note:: This method requires authorization. The API key must have 
+            the "transfer" permission.
+            
+        :param float amount: The amount of the currency to withdrawal. This 
+            paramater may also be a string to avoid floating point issues.
+        
+        :param str currency: The type of currency to withdrawal. i.e., 'USD',
+            'EUR', etc.
+        
+        :param str payment_method_id: The id of the payment method on file to
+            use. To get a list of available payment methods, use:
+            :meth:`rest.Client.list_payment_methods`.
+        """
+        headers, body = await self.post('/withdrawals/payment-method', 
+                        data={'amount': amount,
+                              'currency': currency,
+                              'payment_method_id': payment_method_id},
+                        auth=True)
+        return body
+
+        
     async def withdrawal_coinbase(self, amount, currency, coinbase_account_id):
         """Withdrawal funds to a coinbase account.
         
@@ -1884,7 +1911,7 @@ class Client(BaseClient):
         :param str report_id: The id of the report. This is obtained from
             :meth:`rest.Client.create_report`.
             
-        :returns: A dic summarizing the current status of the report.
+        :returns: A dict summarizing the current status of the report.
         
         :Example:
         
