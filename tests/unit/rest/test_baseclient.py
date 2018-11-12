@@ -51,6 +51,12 @@ class TestBaseClient(MockTestCase):
         self.assertTrue(client.closed)
         
 
+    async def test__request(self):
+        # invalid method
+        with self.assertRaises(ValueError):
+            resp = await self.client._request('punch', 'http://www.example.com')
+
+
     async def test_delete(self):
         
         # url is required

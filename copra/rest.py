@@ -64,6 +64,37 @@ class BaseClient():
     async def __aexit__(self, exc_type, exc_value, traceback):
         await self.session.close()
         
+    
+    async def handle_error(self, response):
+        """Handle HTTP client and server request errors.
+        
+        This method is called when the HTTP status code of the server's
+        response is >= 400. Override this method to log errors, raise errors,
+        etc. The default is to do nothing.
+        
+        :param aiohttp.ClientResponse response: the response returned by the
+            aiohttp request call.
+        """
+        pass
+ 
+  
+    async def _request(self, method, *args, **kwargs):
+        """Base method for all requests. 
+        
+        The actual aiohttp call is made in this method, and status code 
+        inspection is done here as well. All arguments except for method are
+        passed "as is" to aiohttp.
+        
+        :param str method: The HTTP method of the request.
+        
+        :raises ValueError: If method is not delete, get, or post
+        """
+        if method not in ('delete', 'get', 'post'):
+            raise ValueError(
+               'Inavlid method {}. Must be delete, get, or post'.format(method))
+               
+        return await getattr(self.session, method)(*args, **kwargs)
+        
 
     async def delete(self, url, params=None, headers=HEADERS):
         """Base method for making DELETE requests.
@@ -82,7 +113,7 @@ class BaseClient():
         if params:
             url += '?{}'.format(urllib.parse.urlencode(params))
             
-        return await self.session.delete(url, headers=headers)
+        return await self._request('delete', url, headers=headers)
         
         
     async def get(self, url, params=None, headers=HEADERS):
@@ -102,7 +133,7 @@ class BaseClient():
         if params:
             url += '?{}'.format(urllib.parse.urlencode(params))
             
-        return await self.session.get(url, headers=headers)
+        return await self._request('get', url, headers=headers)
 
         
     async def post(self, url, data={}, headers=HEADERS):
@@ -120,7 +151,7 @@ class BaseClient():
         :returns: aiohttp.ClientResponse object
         """
         data = json.dumps(data) if data else ''
-        return await self.session.post(url, data=data, headers=headers)
+        return await self._request('post', url, data=data, headers=headers)
         
         
 class Client(BaseClient):
@@ -1912,7 +1943,7 @@ class Client(BaseClient):
             * invalid report_format provided.
         """
         if report_type not in ("account", "fills"):
-            raise Value Error(
+            raise ValueError(
                 "Invalid report_type: {}. Must be 'fills' or 'account'.".format(
                     report_type))
         
@@ -2062,8 +2093,9 @@ if __name__ == '__main__':
     client = Client(loop, auth=True, key=KEY, secret=SECRET, passphrase=PASSPHRASE)
     
     async def go():
-        resp = await client.payment_methods()
-        print(resp)
+        headers, body = await client.get('/fail')
+        print(headers)
+        print(body)
         
     loop.run_until_complete(go())
     loop.run_until_complete(client.close())
