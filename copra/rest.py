@@ -271,8 +271,11 @@ class Client(BaseClient):
         :param aiohttp.ClientResponse response: the response returned by the
             aiohttp request call.
         """
-        body = await response.json()
-        msg = body['message'] + ' [{}]'.format(response.status)
+        if response.content_type.lower() == 'text/html':
+            msg = await response.text()
+        else:
+            msg = (await response.json())['message']
+        msg += ' [{}]'.format(response.status)
         raise APIRequestError(msg, response)
  
  

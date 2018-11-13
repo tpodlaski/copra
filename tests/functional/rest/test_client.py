@@ -14,7 +14,7 @@ import time
 
 from asynctest import TestCase, skipUnless, expectedFailure
 
-from copra.rest import Client, SANDBOX_URL, USER_AGENT
+from copra.rest import APIRequestError, Client, SANDBOX_URL, USER_AGENT
 
 KEY = os.getenv('KEY')
 SECRET = os.getenv('SECRET')
@@ -41,11 +41,12 @@ class TestRest(TestCase):
         self.loop.run_until_complete(asyncio.sleep(0.5))
 
     
-    # TO DO
-    @expectedFailure 
     async def test_handle_error(self):
-        assert False
+        async with Client(self.loop, HTTPBIN) as client:
         
+            with self.assertRaises(APIRequestError) as cm:
+                headers, body = await client.get('/status/404')
+                
 
     async def test_delete(self):
         async with Client(self.loop, HTTPBIN) as client:
