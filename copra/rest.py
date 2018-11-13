@@ -95,7 +95,7 @@ class BaseClient():
                
         resp = await getattr(self.session, method)(*args, **kwargs)
         
-        if resp.status >= 400:
+        if int(resp.status) >= 400:
             await self.handle_error(resp)
             
         return resp

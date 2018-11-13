@@ -11,7 +11,7 @@ import aiohttp
 from asynctest import CoroutineMock
 from multidict import MultiDict
 
-from copra.rest import Client, URL, HEADERS
+from copra.rest import APIRequestError, Client, URL, HEADERS
 from tests.unit.rest.util import MockTestCase
 
 
@@ -40,6 +40,7 @@ class TestRest(MockTestCase):
         self.client = Client(self.loop)
         self.auth_client = Client(self.loop, auth=True, key=TEST_KEY, 
                                   secret=TEST_SECRET, passphrase=TEST_PASSPHRASE)       
+    
     
     def tearDown(self):
         self.loop.create_task(self.client.close())
@@ -130,7 +131,19 @@ class TestRest(MockTestCase):
         self.assertEqual(headers['CB-ACCESS-KEY'], TEST_KEY)
         self.assertEqual(headers['CB-ACCESS-PASSPHRASE'], TEST_PASSPHRASE)
         
+    
+    async def test_handle_error(self):
+        self.mock_get.return_value.status = 404
+        self.mock_get.return_value.json.return_value = {'message': 'ERROR MESSAGE'}
         
+        with self.assertRaises(APIRequestError) as cm:
+            headers, body = await self.client.get('http://www.example.com/fail')
+        
+        err = cm.exception  
+        self.assertEqual(err.__str__(), 'ERROR MESSAGE [404]')
+        self.assertEqual(err.response, self.mock_get.return_value)
+    
+    
     async def test_delete(self):
         path = '/mypath'
         query = {'key1': 'item1', 'key2': 'item2'}
@@ -929,9 +942,4 @@ class TestRest(MockTestCase):
         self.check_req(self.mock_get, 
                        '{}/users/self/trailing-volume'.format(URL),
                        headers=AUTH_HEADERS)
-        
-            
-        
-        
-            
     

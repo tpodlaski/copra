@@ -31,6 +31,7 @@ class TestRest(TestCase):
         self.client = Client(self.loop)
         self.auth_client = Client(self.loop, auth=True, key=KEY, secret=SECRET, 
                                   passphrase=PASSPHRASE)
+     
                                   
     def tearDown(self):
         self.loop.create_task(self.client.close())
@@ -39,6 +40,12 @@ class TestRest(TestCase):
         #try to avoid public rate limit
         self.loop.run_until_complete(asyncio.sleep(0.5))
 
+    
+    # TO DO
+    @expectedFailure 
+    async def test_handle_error(self):
+        assert False
+        
 
     async def test_delete(self):
         async with Client(self.loop, HTTPBIN) as client:
