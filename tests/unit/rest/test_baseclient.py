@@ -7,6 +7,7 @@ import asyncio
 import json
 
 import aiohttp
+from asynctest import CoroutineMock
 
 from copra.rest import BaseClient, HEADERS
 from tests.unit.rest.util import MockTestCase
@@ -55,6 +56,13 @@ class TestBaseClient(MockTestCase):
         # invalid method
         with self.assertRaises(ValueError):
             resp = await self.client._request('punch', 'http://www.example.com')
+
+            
+    async def test_handle_error(self):
+        self.mock_get.return_value.status = 401
+        self.client.handle_error = CoroutineMock()
+        resp = await self.client._request('get', 'http://www.exanmple.com', headers={})
+        self.client.handle_error.assert_called_with(resp)
 
 
     async def test_delete(self):

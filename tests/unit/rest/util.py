@@ -39,16 +39,19 @@ class MockTestCase(TestCase):
         mock_get_patcher = patch('aiohttp.ClientSession.get', new_callable=MockRequest)
         self.mock_get = mock_get_patcher.start()
         self.mock_get.return_value.json = CoroutineMock()
+        self.mock_get.return_value.status = 200
         self.addCleanup(mock_get_patcher.stop)
         
         mock_post_patcher = patch('aiohttp.ClientSession.post', new_callable=MockRequest)
         self.mock_post = mock_post_patcher.start()
         self.mock_post.return_value.json = CoroutineMock()
+        self.mock_post.return_value.status = 200
         self.addCleanup(mock_post_patcher.stop)
         
         mock_del_patcher = patch('aiohttp.ClientSession.delete', new_callable=MockRequest)
         self.mock_del = mock_del_patcher.start()
         self.mock_del.return_value.json = CoroutineMock()
+        self.mock_del.return_value.status = 200
         self.addCleanup(mock_del_patcher.stop)
 
     

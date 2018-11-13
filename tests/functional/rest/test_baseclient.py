@@ -6,7 +6,7 @@
 import asyncio
 import json
 
-from asynctest import TestCase
+from asynctest import CoroutineMock, TestCase
 
 from copra.rest import BaseClient, USER_AGENT
 
@@ -45,6 +45,20 @@ class TestBaseClient(TestCase):
         headers = await resp.json()
         self.assertEqual(headers['headers']['User-Agent'], '007')
         self.assertEqual(headers['headers']['Content-Type'], 'shaken')
+        
+    
+    async def test__request(self):
+        
+        params = {'key1': 'item1', 'key2': 'item2'}
+        resp = await self.client._request('get', HTTPBIN + '/get', params=params)
+        args = (await resp.json())['args']
+        self.assertEqual(args, params)
+
+    
+    async def test_handle_error(self):
+        self.client.handle_error = CoroutineMock()
+        resp = await self.client.get(HTTPBIN + '/status/401')
+        self.client.handle_error.assert_called_with(resp)
         
 
     async def test_get(self):

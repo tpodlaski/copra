@@ -93,7 +93,12 @@ class BaseClient():
             raise ValueError(
                'Inavlid method {}. Must be delete, get, or post'.format(method))
                
-        return await getattr(self.session, method)(*args, **kwargs)
+        resp = await getattr(self.session, method)(*args, **kwargs)
+        
+        if resp.status >= 400:
+            await self.handle_error(resp)
+            
+        return resp
         
 
     async def delete(self, url, params=None, headers=HEADERS):
