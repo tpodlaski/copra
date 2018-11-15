@@ -5,7 +5,9 @@
 
 import asyncio
 from datetime import datetime, timedelta
+import json
 import time
+import urllib.parse
 
 import aiohttp
 from asynctest import CoroutineMock
@@ -48,11 +50,19 @@ class TestRest(MockTestCase):
 
 
     async def test__init__(self):
+        # No loop
+        with self.assertRaises(TypeError):
+            client = Client()
+        
+        self.assertEqual(self.client.loop, self.loop)
         self.assertEqual(self.client.url, URL)
-        self. assertFalse(self.client.auth)
+        self.assertFalse(self.client.auth)
+        self.assertIsInstance(self.client.session, aiohttp.ClientSession)
+        self.assertFalse(self.client.session.closed)
 
-        async with Client(self.loop, 'http://www.test.server') as client:
-            self.assertEqual(client.url,'http://www.test.server')
+        client = Client(self.loop, 'http://www.example.com')
+        self.assertEqual(client.url,'http://www.example.com')
+        await client.session.close()
             
         #auth, no key, secret, or passphrase
         with self.assertRaises(ValueError):
@@ -84,6 +94,28 @@ class TestRest(MockTestCase):
         self.assertEqual(self.auth_client.key, TEST_KEY)
         self.assertEqual(self.auth_client.secret, TEST_SECRET)
         self.assertEqual(self.auth_client.passphrase, TEST_PASSPHRASE)
+        
+        
+    async def test_close(self):
+        client = Client(self.loop)
+        self.assertFalse(client.session.closed)
+        self.assertFalse(client.closed)
+        await client.close()
+        self.assertTrue(client.session.closed)
+        self.assertTrue(client.closed)
+        
+        
+    async def test_context_manager(self):
+        async with Client(self.loop) as client:
+            self.assertFalse(client.closed)
+        self.assertTrue(client.closed)
+    
+        try:
+            async with Client(self.loop) as client:
+                raise ValueError()
+        except ValueError:
+            pass
+        self.assertTrue(client.closed)
 
 
     async def test_get_auth_headers(self):
@@ -142,7 +174,7 @@ class TestRest(MockTestCase):
         err = cm.exception  
         self.assertEqual(err.__str__(), 'ERROR MESSAGE [404]')
         self.assertEqual(err.response, self.mock_get.return_value)
-    
+        
     
     async def test_delete(self):
         path = '/mypath'
@@ -168,7 +200,8 @@ class TestRest(MockTestCase):
         resp = await self.auth_client.delete(path, query, auth=True)
         self.check_req(self.mock_del, '{}{}'.format(URL, path), query=query, headers=AUTH_HEADERS)
         
-        expected_headers = self.auth_client.get_auth_headers(path, 'DELETE', timestamp=self.mock_del.headers['CB-ACCESS-TIMESTAMP'])
+        qs = '?{}'.format(urllib.parse.urlencode(query))
+        expected_headers = self.auth_client.get_auth_headers(path + qs, 'DELETE', timestamp=self.mock_del.headers['CB-ACCESS-TIMESTAMP'])
         self.assertEqual(self.mock_del.headers['CB-ACCESS-SIGN'], expected_headers['CB-ACCESS-SIGN'])
         
     
@@ -196,7 +229,8 @@ class TestRest(MockTestCase):
         resp = await self.auth_client.get(path, query, auth=True)
         self.check_req(self.mock_get, '{}{}'.format(URL, path), query=query, headers=AUTH_HEADERS)
         
-        expected_headers = self.auth_client.get_auth_headers(path, 'GET', timestamp=self.mock_get.headers['CB-ACCESS-TIMESTAMP'])
+        qs = '?{}'.format(urllib.parse.urlencode(query))
+        expected_headers = self.auth_client.get_auth_headers(path + qs, 'GET', timestamp=self.mock_get.headers['CB-ACCESS-TIMESTAMP'])
         self.assertEqual(self.mock_get.headers['CB-ACCESS-SIGN'], expected_headers['CB-ACCESS-SIGN'])
 
 
@@ -224,7 +258,8 @@ class TestRest(MockTestCase):
         resp = await self.auth_client.post(path, data, auth=True)
         self.check_req(self.mock_post, '{}{}'.format(URL, path), data=data, headers=AUTH_HEADERS)
         
-        expected_headers = self.auth_client.get_auth_headers(path, 'POST', body=data, timestamp=self.mock_post.headers['CB-ACCESS-TIMESTAMP'])
+        data = json.dumps(data)
+        expected_headers = self.auth_client.get_auth_headers(path, 'POST', data=data, timestamp=self.mock_post.headers['CB-ACCESS-TIMESTAMP'])
         self.assertEqual(self.mock_post.headers['CB-ACCESS-SIGN'], expected_headers['CB-ACCESS-SIGN'])
         
 
@@ -245,22 +280,22 @@ class TestRest(MockTestCase):
         # Default level 1
         ob = await self.client.order_book('BTC-USD')
         self.check_req(self.mock_get, '{}/products/BTC-USD/book'.format(URL), 
-                       query={'level': '1'}, headers=UNAUTH_HEADERS)
+                      query={'level': '1'}, headers=UNAUTH_HEADERS)
         
         # Level 1
         ob = await self.client.order_book('BTC-USD', level=1)
         self.check_req(self.mock_get, '{}/products/BTC-USD/book'.format(URL), 
-                       query={'level': '1'}, headers=UNAUTH_HEADERS)
+                      query={'level': '1'}, headers=UNAUTH_HEADERS)
         
         # Level 2
         ob = await self.client.order_book('BTC-USD', level=2)
         self.check_req(self.mock_get, '{}/products/BTC-USD/book'.format(URL), 
-                       query={'level': '2'}, headers=UNAUTH_HEADERS)
+                      query={'level': '2'}, headers=UNAUTH_HEADERS)
 
         # Level 3
         ob = await self.client.order_book('BTC-USD', level=3)
         self.check_req(self.mock_get, '{}/products/BTC-USD/book'.format(URL), 
-                       query={'level': '3'}, headers=UNAUTH_HEADERS)
+                      query={'level': '3'}, headers=UNAUTH_HEADERS)
 
 
     async def test_ticker(self):
@@ -271,7 +306,7 @@ class TestRest(MockTestCase):
             
         tick = await self.client.ticker('BTC-USD')
         self.check_req(self.mock_get, '{}/products/BTC-USD/ticker'.format(URL), 
-                       headers=UNAUTH_HEADERS)
+                      headers=UNAUTH_HEADERS)
 
 
     async def test_trades(self):
@@ -286,7 +321,7 @@ class TestRest(MockTestCase):
             
         trades, before, after = await self.client.trades('BTC-USD')
         self.check_req(self.mock_get, '{}/products/BTC-USD/trades'.format(URL),
-                       query={'limit': '100'}, headers=UNAUTH_HEADERS)
+                      query={'limit': '100'}, headers=UNAUTH_HEADERS)
         
         ret_headers = {'cb-before': '51590012', 'cb-after': '51590010'}
         body = [{'trade_id': 1}, {'trade_id': 2}]
@@ -296,18 +331,18 @@ class TestRest(MockTestCase):
             
         trades, before, after = await self.client.trades('BTC-USD', limit=5)
         self.check_req(self.mock_get, '{}/products/BTC-USD/trades'.format(URL),
-                       query={'limit': '5'}, headers=UNAUTH_HEADERS)        
+                      query={'limit': '5'}, headers=UNAUTH_HEADERS)        
         self.assertEqual(trades, body)
         self.assertEqual(before, ret_headers['cb-before'])
         self.assertEqual(after, ret_headers['cb-after'])
             
         prev_trades, prev_before, prev_after = await self.client.trades('BTC-USD', before=before)
         self.check_req(self.mock_get, '{}/products/BTC-USD/trades'.format(URL),
-                       query={'limit': '100', 'before': before}, headers=UNAUTH_HEADERS) 
+                      query={'limit': '100', 'before': before}, headers=UNAUTH_HEADERS) 
         
         next_trades, next_before, next_after = await self.client.trades('BTC-USD', after=after)
         self.check_req(self.mock_get, '{}/products/BTC-USD/trades'.format(URL),
-                       query={'limit': '100', 'after': after}, headers=UNAUTH_HEADERS) 
+                      query={'limit': '100', 'after': after}, headers=UNAUTH_HEADERS) 
 
 
     async def test_historic_rates(self):
@@ -323,7 +358,7 @@ class TestRest(MockTestCase):
         # Default granularity
         rates = await self.client.historic_rates('BTC-USD')
         self.check_req(self.mock_get, '{}/products/BTC-USD/candles'.format(URL),
-                       query={'granularity': '3600'}, headers=UNAUTH_HEADERS)
+                      query={'granularity': '3600'}, headers=UNAUTH_HEADERS)
 
         stop = datetime.utcnow()
         start = stop - timedelta(days=1)
@@ -333,9 +368,9 @@ class TestRest(MockTestCase):
                                                  start.isoformat(), 
                                                  stop.isoformat())
         self.check_req(self.mock_get, '{}/products/BTC-USD/candles'.format(URL),
-                       query={'granularity': '900', 'start': start.isoformat(),
+                      query={'granularity': '900', 'start': start.isoformat(),
                               'stop': stop.isoformat()},
-                       headers=UNAUTH_HEADERS)
+                      headers=UNAUTH_HEADERS)
                        
     async def test_get_24hour_stats(self):
         
@@ -409,16 +444,16 @@ class TestRest(MockTestCase):
         self.assertEqual(after, '1008063508')
         self.assertEqual(trades, body)
         self.check_req(self.mock_get, '{}/accounts/42/ledger'.format(URL), 
-                       query={'limit': '5'}, headers=AUTH_HEADERS)
+                      query={'limit': '5'}, headers=AUTH_HEADERS)
         
         
         trades, before, after = await self.auth_client.account_history(42, before=before)
         self.check_req(self.mock_get, '{}/accounts/42/ledger'.format(URL), 
-                       query={'limit': '100', 'before': before}, headers=AUTH_HEADERS)
+                      query={'limit': '100', 'before': before}, headers=AUTH_HEADERS)
         
         trades, before, after = await self.auth_client.account_history(42, after=after)
         self.check_req(self.mock_get, '{}/accounts/42/ledger'.format(URL), 
-                       query={'limit': '100', 'after': after}, headers=AUTH_HEADERS)
+                      query={'limit': '100', 'after': after}, headers=AUTH_HEADERS)
  
 
     async def test_holds(self):
@@ -434,7 +469,7 @@ class TestRest(MockTestCase):
         # before and after both set
         with self.assertRaises(ValueError):
             holds, before, after = await self.auth_client.holds(42, 
-                                               before='earlier', after='later')
+                                              before='earlier', after='later')
             
         ret_headers = {'cb-before': '1071064024', 'cb-after': '1008063508'}
         body = [{'id': '1'}, {'id': '2'}]
@@ -447,15 +482,15 @@ class TestRest(MockTestCase):
         self.assertEqual(after, '1008063508')
         self.assertEqual(holds, body)
         self.check_req(self.mock_get, '{}/accounts/42/holds'.format(URL), 
-                       query={'limit': '5'}, headers=AUTH_HEADERS)
+                      query={'limit': '5'}, headers=AUTH_HEADERS)
         
         holds, before, after = await self.auth_client.holds(42, before=before)
         self.check_req(self.mock_get, '{}/accounts/42/holds'.format(URL), 
-                       query={'limit': '100', 'before': before}, headers=AUTH_HEADERS)                                                    
+                      query={'limit': '100', 'before': before}, headers=AUTH_HEADERS)                                                    
         
         holds, before, after = await self.auth_client.holds(42, after=after)
         self.check_req(self.mock_get, '{}/accounts/42/holds'.format(URL), 
-                       query={'limit': '100', 'after': after}, headers=AUTH_HEADERS)
+                      query={'limit': '100', 'after': after}, headers=AUTH_HEADERS)
 
 
     async def test_place_order(self):
@@ -518,11 +553,11 @@ class TestRest(MockTestCase):
                                                   price=100.1, size=5)
         
         self.check_req(self.mock_post, '{}/orders'.format(URL),
-                       data={'side': 'buy', 'product_id': 'BTC-USD',
-                             'order_type': 'limit', 'price': 100.1,
-                             'size': 5, 'time_in_force': 'GTC', 
-                             'post_only': True, 'stp': 'dc'},
-                       headers=AUTH_HEADERS)
+                      data={'side': 'buy', 'product_id': 'BTC-USD',
+                            'type': 'limit', 'price': 100.1,
+                            'size': 5, 'time_in_force': 'GTC', 
+                            'post_only': True, 'stp': 'dc'},
+                      headers=AUTH_HEADERS)
 
         # GTT order with cancel_after
         resp = await self.auth_client.place_order('buy', 'BTC-USD',
@@ -530,10 +565,10 @@ class TestRest(MockTestCase):
                             time_in_force='GTT', cancel_after='hour')
                             
         self.check_req(self.mock_post, '{}/orders'.format(URL),
-                       data={'side': 'buy', 'product_id': 'BTC-USD',
-                             'order_type': 'limit', 'price': 300, 'size': 88, 
-                             'time_in_force': 'GTT', 'cancel_after': 'hour',
-                             'post_only': True, 'stp': 'dc'},
+                      data={'side': 'buy', 'product_id': 'BTC-USD',
+                            'type': 'limit', 'price': 300, 'size': 88, 
+                            'time_in_force': 'GTT', 'cancel_after': 'hour',
+                            'post_only': True, 'stp': 'dc'},
                         headers=AUTH_HEADERS)
         
         # Market orders #############################################
@@ -552,17 +587,17 @@ class TestRest(MockTestCase):
         resp = await self.auth_client.place_order('buy', 'BTC-USD', size=5, 
                                                   order_type='market')
         self.check_req(self.mock_post, '{}/orders'.format(URL),
-                       data={'side': 'buy', 'product_id': 'BTC-USD',
-                             'order_type': 'market', 'size': 5, 'stp': 'dc'},
-                       headers=AUTH_HEADERS)
+                      data={'side': 'buy', 'product_id': 'BTC-USD',
+                            'type': 'market', 'size': 5, 'stp': 'dc'},
+                      headers=AUTH_HEADERS)
         
         # Funds
         resp = await self.auth_client.place_order('buy', 'BTC-USD', funds=100, 
                                                   order_type='market')
         self.check_req(self.mock_post, '{}/orders'.format(URL),
-                       data={'side': 'buy', 'product_id': 'BTC-USD',
-                             'order_type': 'market', 'funds': 100, 'stp': 'dc'},
-                       headers=AUTH_HEADERS)
+                      data={'side': 'buy', 'product_id': 'BTC-USD',
+                            'type': 'market', 'funds': 100, 'stp': 'dc'},
+                      headers=AUTH_HEADERS)
 
         # Stop orders #############################################
         
@@ -581,20 +616,20 @@ class TestRest(MockTestCase):
         resp = await self.auth_client.place_order('buy', 'BTC-USD', price=100.1, 
                         size=5, stop='loss', stop_price=105)
         self.check_req(self.mock_post, '{}/orders'.format(URL),
-                       data={'side': 'buy', 'product_id': 'BTC-USD',
-                             'order_type': 'limit', 'price': 100.1, 'size': 5,
-                             'time_in_force': 'GTC', 'post_only': True,
-                             'stop': 'loss', 'stop_price': 105, 'stp': 'dc'},
+                      data={'side': 'buy', 'product_id': 'BTC-USD',
+                            'type': 'limit', 'price': 100.1, 'size': 5,
+                            'time_in_force': 'GTC', 'post_only': True,
+                            'stop': 'loss', 'stop_price': 105, 'stp': 'dc'},
                         headers=AUTH_HEADERS)
                         
         # Valid order with client_oid and stp set
         resp = await self.auth_client.place_order('buy', 'BTC-USD', price=100.1, 
                                                 size=5, client_oid=42, stp='co')
         self.check_req(self.mock_post, '{}/orders'.format(URL),
-                       data={'side': 'buy', 'product_id': 'BTC-USD',
-                             'order_type': 'limit', 'price': 100.1, 'size': 5,
-                             'time_in_force': 'GTC', 'post_only': True,
-                             'client_oid': 42, 'stp': 'co'},
+                      data={'side': 'buy', 'product_id': 'BTC-USD',
+                            'type': 'limit', 'price': 100.1, 'size': 5,
+                            'time_in_force': 'GTC', 'post_only': True,
+                            'client_oid': 42, 'stp': 'co'},
                         headers=AUTH_HEADERS)
 
 
@@ -624,7 +659,7 @@ class TestRest(MockTestCase):
         # product_id
         resp = await self.auth_client.cancel_all('BTC-USD')
         self.check_req(self.mock_del, '{}/orders'.format(URL), 
-                       query={'product_id': 'BTC-USD'}, headers=AUTH_HEADERS)
+                      query={'product_id': 'BTC-USD'}, headers=AUTH_HEADERS)
 
 
     async def test_orders(self):
@@ -636,7 +671,7 @@ class TestRest(MockTestCase):
         # before and after both set
         with self.assertRaises(ValueError):
             orders, before, after = await self.auth_client.orders(
-                                       before='nighttime', after='morning')
+                                      before='nighttime', after='morning')
         
         # Invalid status string
         with self.assertRaises(ValueError):
@@ -649,12 +684,12 @@ class TestRest(MockTestCase):
         # Default status, default product_id, default limit
         orders, before, after = await self.auth_client.orders()
         self.check_req(self.mock_get, '{}/orders'.format(URL), 
-                       query={'limit': '100'}, headers=AUTH_HEADERS)
+                      query={'limit': '100'}, headers=AUTH_HEADERS)
         
         # String status, default product_id, default limit
         orders, before, after = await self.auth_client.orders('open')
         self.check_req(self.mock_get, '{}/orders'.format(URL), 
-                       query={'limit': '100', 'status': 'open'}, headers=AUTH_HEADERS)
+                      query={'limit': '100', 'status': 'open'}, headers=AUTH_HEADERS)
         
         # List status, default product_id, default limit
         orders, before, after = await self.auth_client.orders(['pending', 'open'])
@@ -671,8 +706,8 @@ class TestRest(MockTestCase):
         # product_id, string status, default limit
         orders, before, after = await self.auth_client.orders('open', 'BTC-USD')
         self.check_req(self.mock_get, '{}/orders'.format(URL), 
-                       query={'status': 'open', 'product_id': 'BTC-USD', 'limit': '100'},
-                       headers=AUTH_HEADERS)
+                      query={'status': 'open', 'product_id': 'BTC-USD', 'limit': '100'},
+                      headers=AUTH_HEADERS)
                        
         # product_id, list status, default limit
         orders, before, after = await self.auth_client.orders(['pending', 'active'], 'BTC-USD')
@@ -693,18 +728,18 @@ class TestRest(MockTestCase):
         self.assertEqual(after, '1008063508')
         self.assertEqual(orders, body)
         self.check_req(self.mock_get, '{}/orders'.format(URL), 
-                       query={'status': 'open', 'product_id': 'BTC-USD', 'limit': '5'},
-                       headers=AUTH_HEADERS)
+                      query={'status': 'open', 'product_id': 'BTC-USD', 'limit': '5'},
+                      headers=AUTH_HEADERS)
                        
         orders, before, after = await self.auth_client.orders('open', 'BTC-USD', before=before)
         self.check_req(self.mock_get, '{}/orders'.format(URL), 
-                       query={'status': 'open', 'product_id': 'BTC-USD', 'limit': '100', 'before': before},
-                       headers=AUTH_HEADERS)
+                      query={'status': 'open', 'product_id': 'BTC-USD', 'limit': '100', 'before': before},
+                      headers=AUTH_HEADERS)
                        
         orders, before, after = await self.auth_client.orders('open', 'BTC-USD', after=after)
         self.check_req(self.mock_get, '{}/orders'.format(URL), 
-                       query={'status': 'open', 'product_id': 'BTC-USD', 'limit': '100', 'after': after},
-                       headers=AUTH_HEADERS)
+                      query={'status': 'open', 'product_id': 'BTC-USD', 'limit': '100', 'after': after},
+                      headers=AUTH_HEADERS)
                        
                        
     async def test_order(self):
@@ -744,7 +779,7 @@ class TestRest(MockTestCase):
         # order_id
         fills, before, after = await self.auth_client.fills('42')
         self.check_req(self.mock_get, '{}/fills'.format(URL),
-                       query={'order_id': '42', 'limit': '100'}, headers=AUTH_HEADERS)
+                      query={'order_id': '42', 'limit': '100'}, headers=AUTH_HEADERS)
                        
         ret_headers = {'cb-before': '1071064024', 'cb-after': '1008063508'}
 
@@ -756,19 +791,19 @@ class TestRest(MockTestCase):
         # product_id
         fills, before, after = await self.auth_client.fills(product_id='BTC-USD')
         self.check_req(self.mock_get, '{}/fills'.format(URL),
-                       query={'product_id': 'BTC-USD', 'limit': '100'}, headers=AUTH_HEADERS)  
+                      query={'product_id': 'BTC-USD', 'limit': '100'}, headers=AUTH_HEADERS)  
         
         # limit, before cursor
         fills, before, after = await self.auth_client.fills('42', limit=5, before=before)
         self.check_req(self.mock_get, '{}/fills'.format(URL),
-                       query={'order_id': '42', 'limit': '5', 'before': before}, 
-                       headers=AUTH_HEADERS)
+                      query={'order_id': '42', 'limit': '5', 'before': before}, 
+                      headers=AUTH_HEADERS)
                        
         # after cursor
         fills, before, after = await self.auth_client.fills('42', after=after)
         self.check_req(self.mock_get, '{}/fills'.format(URL),
-                       query={'order_id': '42', 'limit': '100', 'after': after}, 
-                       headers=AUTH_HEADERS)
+                      query={'order_id': '42', 'limit': '100', 'after': after}, 
+                      headers=AUTH_HEADERS)
                        
 
     async def test_payment_methods(self):
@@ -799,7 +834,7 @@ class TestRest(MockTestCase):
             
         resp =await self.auth_client.deposit_payment_method(1000, 'USD', '42')
         self.check_req(self.mock_post, '{}/deposits/payment-method'.format(URL),
-                       data={'amount': 1000, 'currency': 'USD', 
+                      data={'amount': 1000, 'currency': 'USD', 
                              'payment_method_id': '42'}, 
                         headers=AUTH_HEADERS)
                         
@@ -812,7 +847,7 @@ class TestRest(MockTestCase):
             
         resp =await self.auth_client.deposit_coinbase(95, 'LTC', 'A1')
         self.check_req(self.mock_post, '{}/deposits/coinbase-account'.format(URL),
-                       data={'amount': 95, 'currency': 'LTC', 
+                      data={'amount': 95, 'currency': 'LTC', 
                              'coinbase_account_id': 'A1'}, 
                         headers=AUTH_HEADERS)
                         
@@ -825,9 +860,9 @@ class TestRest(MockTestCase):
             
         resp = await self.auth_client.withdraw_payment_method(93.5, 'USD', 'WTPA')
         self.check_req(self.mock_post, '{}/withdrawals/payment-method'.format(URL),
-                       data={'amount': 93.5, 'currency': 'USD',
+                      data={'amount': 93.5, 'currency': 'USD',
                              'payment_method_id': 'WTPA'},
-                       headers=AUTH_HEADERS)
+                      headers=AUTH_HEADERS)
         
                         
     async def test_withdrawl_coinbase(self):
@@ -838,9 +873,9 @@ class TestRest(MockTestCase):
             
         resp =await self.auth_client.withdraw_coinbase(95, 'LTC', 'A1')
         self.check_req(self.mock_post, '{}/withdrawals/coinbase-account'.format(URL),
-                       data={'amount': 95, 'currency': 'LTC', 
+                      data={'amount': 95, 'currency': 'LTC', 
                              'coinbase_account_id': 'A1'}, 
-                       headers=AUTH_HEADERS)
+                      headers=AUTH_HEADERS)
                         
                         
     async def test_withdrawl_crypto(self):
@@ -851,7 +886,7 @@ class TestRest(MockTestCase):
             
         resp =await self.auth_client.withdraw_crypto(88, 'VH', 'OU812')
         self.check_req(self.mock_post, '{}/withdrawals/crypto'.format(URL),
-                       data={'amount': 88, 'currency': 'VH', 
+                      data={'amount': 88, 'currency': 'VH', 
                              'crypto_address': 'OU812'}, 
                         headers=AUTH_HEADERS)
                         
@@ -864,7 +899,7 @@ class TestRest(MockTestCase):
             
         resp =await self.auth_client.stablecoin_conversion('USD', 'USDC', 19.72)
         self.check_req(self.mock_post, '{}/conversions'.format(URL),
-                       data={'from_currency_id': 'USD', 
+                      data={'from_currency_id': 'USD', 
                              'to_currency_id': 'USDC', 
                              'amount': 19.72}, 
                         headers=AUTH_HEADERS)                       
@@ -901,20 +936,20 @@ class TestRest(MockTestCase):
         # report type fills, default format
         resp = await self.auth_client.create_report('fills', start, end, 'BTC_USD')
         self.check_req(self.mock_post, '{}/reports'.format(URL),
-                       data={'report_type': 'fills', 'product_id': 'BTC_USD',
+                      data={'report_type': 'fills', 'product_id': 'BTC_USD',
                              'start_date': start, 'end_date': end, 
                              'report_format': 'pdf'},
-                       headers=AUTH_HEADERS)
+                      headers=AUTH_HEADERS)
                        
         # report type account, non-default format, email
         resp = await self.auth_client.create_report('account', start, end, 
                              account_id='R2D2', report_format='csv',
                              email='me@example.com')
         self.check_req(self.mock_post, '{}/reports'.format(URL),
-                       data={'report_type': 'account', 'account_id': 'R2D2',
+                      data={'report_type': 'account', 'account_id': 'R2D2',
                              'start_date': start, 'end_date': end,
                              'report_format': 'csv', 'email': 'me@example.com'},
-                       headers=AUTH_HEADERS)
+                      headers=AUTH_HEADERS)
                 
             
     async def test_report_status(self):
@@ -929,7 +964,7 @@ class TestRest(MockTestCase):
             
         resp = await self.auth_client.report_status('icmpn')
         self.check_req(self.mock_get, '{}/reports/icmpn'.format(URL), 
-                       headers=AUTH_HEADERS)
+                      headers=AUTH_HEADERS)
                        
                        
     async def test_trailing_volume(self):
@@ -940,6 +975,6 @@ class TestRest(MockTestCase):
             
         resp = await self.auth_client.trailing_volume()
         self.check_req(self.mock_get, 
-                       '{}/users/self/trailing-volume'.format(URL),
-                       headers=AUTH_HEADERS)
+                      '{}/users/self/trailing-volume'.format(URL),
+                      headers=AUTH_HEADERS)
     

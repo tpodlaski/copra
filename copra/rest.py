@@ -29,136 +29,6 @@ USER_AGENT = 'Python/{} copra/{}'.format(
 HEADERS = {'USER-AGENT': USER_AGENT}
 
 
-class BaseClient():
-    """Generic asyncronous REST client.
-    
-    This client provides the core GET/POST/DELETE functionality for the 
-    copra.rest.Client class.
-    """
-    
-    def __init__(self, loop):
-        """
-        
-        :param loop: The asyncio loop that the client runs in.
-        :type loop: asyncio loop
-        """
-        self.loop = loop
-        self.session = aiohttp.ClientSession(loop=loop)
-    
-       
-    @property
-    def closed(self):
-        """True if the client has been closed, False otherwise
-        """
-        return self.session.closed
-        
-        
-    async def close(self):
-        """Close the client session and release all aquired resources.
-        """
-        await self.session.close()
-    
-    async def __aenter__(self):
-        return self
-    
-    async def __aexit__(self, exc_type, exc_value, traceback):
-        await self.session.close()
-        
-    
-    async def handle_error(self, response):
-        """Handle HTTP client and server request errors.
-        
-        This method is called when the HTTP status code of the server's
-        response is >= 400. Override this method to log errors, raise an
-        exception, etc. The default is to do nothing.
-        
-        :param aiohttp.ClientResponse response: the response returned by the
-            aiohttp request call.
-        """
-        pass
- 
-  
-    async def _request(self, method, *args, **kwargs):
-        """Base method for all requests. 
-        
-        The actual aiohttp call is made in this method, and status code 
-        inspection is done here as well. All arguments except for method are
-        passed "as is" to aiohttp.
-        
-        :param str method: The HTTP method of the request.
-        
-        :raises ValueError: If method is not delete, get, or post
-        """
-        if method not in ('delete', 'get', 'post'):
-            raise ValueError(
-               'Inavlid method {}. Must be delete, get, or post'.format(method))
-               
-        resp = await getattr(self.session, method)(*args, **kwargs)
-        
-        if int(resp.status) >= 400:
-            await self.handle_error(resp)
-            
-        return resp
-        
-
-    async def delete(self, url, params=None, headers=HEADERS):
-        """Method for making DELETE requests.
-        
-        :param str url The url of the resource to be DELETEd.
-
-        :param dict params: (optional) key/value pairs to be sent as parameters 
-            in the query string of the request.
-            
-        :param dict headers: (optional) key/value pairs to be sent as headers
-            for the request. The default is just the USER-AGENT string for the
-            copra client.
-            
-        :returns: aiohttp.ClientResponse object
-        """
-        if params:
-            url += '?{}'.format(urllib.parse.urlencode(params))
-            
-        return await self._request('delete', url, headers=headers)
-        
-        
-    async def get(self, url, params=None, headers=HEADERS):
-        """Method for making GET requests.
-        
-        :param str url: The url of the resource to be retrieved.
-        
-        :param dict params: (optional) key/value pairs to be sent as parameters 
-            in the query string of the request.
-            
-        :param dict headers: (optional) key/value pairs to be sent as headers
-            for the request. The default is just the USER-AGENT string for the
-            copra client. This can also be any MultiDict variant.
-            
-        :returns: aiohttp.ClientResponse object 
-        """
-        if params:
-            url += '?{}'.format(urllib.parse.urlencode(params))
-            
-        return await self._request('get', url, headers=headers)
-
-        
-    async def post(self, url, data={}, headers=HEADERS):
-        """Method for making POST requests.
-        
-        :param str url The url of the resource to be POST'ed to.
-            
-        :param dict data: (optional) Key/value str pairs to be sent in the 
-            body of the request. The default is {}.
-            
-        :param dict headers: (optional) key/value pairs to be sent as headers
-            for the request. The default is just the USER-AGENT string for the
-            copra client.
-            
-        :returns: aiohttp.ClientResponse object
-        """
-        data = json.dumps(data) if data else ''
-        return await self._request('post', url, data=data, headers=headers)
-        
-        
 class APIRequestError(Exception):
     """Error returned by the server to an API endpoint request.
     
@@ -177,7 +47,7 @@ class APIRequestError(Exception):
         self.response = response
     
     
-class Client(BaseClient):
+class Client:
     """Asyncronous REST client for Coinbase Pro.
     """
     
@@ -203,6 +73,7 @@ class Client(BaseClient):
         :raises ValueError: If auth is True and key, secret, and passphrase are
             not provided.
         """
+        self.loop = loop
         self.url = url
         
         if auth and not (key and secret and passphrase):
@@ -213,10 +84,30 @@ class Client(BaseClient):
         self.secret = secret
         self.passphrase = passphrase
 
-        super().__init__(loop)
+        self.session = aiohttp.ClientSession(loop=loop)
 
 
-    def get_auth_headers(self, path, method='GET', body={}, timestamp=None):
+    @property
+    def closed(self):
+        """True if the client has been closed, False otherwise
+        """
+        return self.session.closed
+        
+        
+    async def close(self):
+        """Close the client session and release all aquired resources.
+        """
+        await self.session.close()
+        
+        
+    async def __aenter__(self):
+        return self
+    
+    async def __aexit__(self, exc_type, exc_value, traceback):
+        await self.session.close()
+
+
+    def get_auth_headers(self, path, method='GET', data='', timestamp=None):
         """Get the headers necessary to authenticate a client request.
         
         :param str path: The path portion of the REST request. For example,
@@ -225,8 +116,8 @@ class Client(BaseClient):
         :param str method: (optional) The method of the request. The default is
             GET.
             
-        :param dict body: (optional) Dictionary of key/value str pairs
-            to be sent in the body of the request. The default is {}.
+        :param json data: (optional) json-encoded dict or Multidict of key/value 
+            str pairs to be sent as the body of a POST request. The default is ''.
             
         :param float timestamp: (optional) A UNIX timestamp. This parameter 
             exists for testing purposes and generally should not be used. If a 
@@ -241,12 +132,10 @@ class Client(BaseClient):
         if not self.auth:
             raise ValueError('client is not properly configured for authorization')
             
-        body = json.dumps(body) if body else ''
-        
         if not timestamp:
             timestamp = time.time()
         timestamp = str(timestamp)
-        message = timestamp + method + path + body
+        message = timestamp + method + path + data
         message = message.encode('ascii')
         hmac_key = base64.b64decode(self.secret)
         signature = hmac.new(hmac_key, message, hashlib.sha256)
@@ -298,10 +187,18 @@ class Client(BaseClient):
         :raises APIRequestError: For any error generated by the Coinbase Pro
             API server.
         """
-        req_headers = self.get_auth_headers(path, 'DELETE') if auth else HEADERS
-        resp = await super().delete(self.url + path, params, headers=req_headers)
+        qs = '?{}'.format(urllib.parse.urlencode(params)) if params else ''
+        url = self.url + path + qs
+        req_headers = self.get_auth_headers(path + qs, 'DELETE') if auth else HEADERS
+        
+        resp = await self.session.delete(url, headers=req_headers)
+        
+        if int(resp.status) >= 400:
+            await self.handle_error(resp)
+        
         body = await resp.json()
         headers = dict(resp.headers)
+        
         return (headers, body)
         
 
@@ -311,7 +208,7 @@ class Client(BaseClient):
         :param str path: (optional) The path not including the base URL of the
             resource to be retrieved. The default is '/'.
             
-        :param dict params: (optional) Dictionary of key/value str pairs
+        :param dict params: (optional) dict or MultiDict of key/value str pairs
             to be appended to the request. The default is None.
             
         :param boolean auth: (optional) Indicates whether or not this request 
@@ -324,13 +221,21 @@ class Client(BaseClient):
         :raises APIRequestError: For any error generated by the Coinbase Pro
             API server.
         """
-        req_headers = self.get_auth_headers(path) if auth else HEADERS
-        resp = await super().get(self.url + path, params, headers=req_headers)
+        qs = '?{}'.format(urllib.parse.urlencode(params)) if params else ''
+        url = self.url + path + qs
+        req_headers = self.get_auth_headers(path + qs) if auth else HEADERS
+        
+        resp = await self.session.get(url, headers=req_headers)
+        
+        if int(resp.status) >= 400:
+            await self.handle_error(resp)
+        
         body = await resp.json()
         headers = dict(resp.headers)
+        
         return (headers, body)
-
-
+        
+        
     async def post(self, path='/', data=None, auth=False):
         """Base method for making POST requests.
         
@@ -350,11 +255,18 @@ class Client(BaseClient):
         :raises APIRequestError: For any error generated by the Coinbase Pro
             API server.
         """
+        data = json.dumps(data) if data else ''
+        url = self.url + path
         req_headers = self.get_auth_headers(path, 'POST', data) if auth else HEADERS
             
-        resp = await super().post(self.url + path, data, headers=req_headers)
+        resp = await self.session.post(url, data=data, headers=req_headers)
+        
+        if int(resp.status) >= 400:
+            await self.handle_error(resp)
+            
         body = await resp.json()
         headers = dict(resp.headers)
+        
         return (headers, body)
             
             
@@ -1206,7 +1118,7 @@ class Client(BaseClient):
         data = {
                  'side': side,
                  'product_id': product_id,
-                 'order_type': order_type,
+                 'type': order_type,
                  'stp': stp
                 }
                  
