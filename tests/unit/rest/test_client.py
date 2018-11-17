@@ -534,6 +534,12 @@ class TestRest(MockTestCase):
                                                       price=100, size=5,
                                                       time_in_force='OPP')
                                                       
+        # GTT time_in_force, no cancel_after
+        with self.assertRaises(ValueError):
+            resp = await self.auth_client.place_order('buy', 'BTC_USD', 'limit',
+                                                      price=100, size=5,
+                                                      time_in_force='GTT')
+        
         # cancel_after wrong time_in_force
         with self.assertRaises(ValueError):
             resp = await self.auth_client.place_order('buy', 'BTC-USD', 'limit',
@@ -547,7 +553,21 @@ class TestRest(MockTestCase):
                                                       price=100, size=5,
                                                       time_in_force='GTT',
                                                       cancel_after='lifetime')
-        
+                                                      
+        # IOC time_in_force, post_only True
+        with self.assertRaises(ValueError):
+            resp = await self.auth_client.place_order('buy', 'BTC-USD', 'limit',
+                                                      price=43, size=10,
+                                                      time_in_force='IOC',
+                                                      post_only=True)
+                                                      
+        # FOK time_in_force, post_only True
+        with self.assertRaises(ValueError):
+            resp = await self.auth_client.place_order('buy', 'BTC-USD', 'limit',
+                                                      price=21, size=12,
+                                                      time_in_force='FOK',
+                                                      post_only=True)
+                                                      
         # Default order_type, time_in_force
         resp = await self.auth_client.place_order('buy', 'BTC-USD',
                                                   price=100.1, size=5)

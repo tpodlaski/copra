@@ -10,9 +10,12 @@ import asyncio
 from datetime import datetime, timedelta
 import os
 import json
+import random
 import time
+from uuid import uuid4
 
 from asynctest import TestCase, skipUnless, expectedFailure
+from dateutil import parser
 
 from copra.rest import APIRequestError, Client, SANDBOX_URL, USER_AGENT
 
@@ -37,6 +40,7 @@ class TestRest(TestCase):
      
                                   
     def tearDown(self):
+        self.loop.run_until_complete(self.auth_client.cancel_all())
         self.loop.create_task(self.client.close())
         self.loop.create_task(self.auth_client.close())
         self.loop.run_until_complete(asyncio.sleep(0.250))
@@ -44,60 +48,60 @@ class TestRest(TestCase):
         self.loop.run_until_complete(asyncio.sleep(0.5))
         
         
-    async def test_user_agent(self):
+    # async def test_user_agent(self):
         
-        async with Client(self.loop, HTTPBIN) as client:
-            headers, body = await client.get('/user-agent')
-            self.assertEqual(body['user-agent'], USER_AGENT)
+    #     async with Client(self.loop, HTTPBIN) as client:
+    #         headers, body = await client.get('/user-agent')
+    #         self.assertEqual(body['user-agent'], USER_AGENT)
 
     
-    async def test_handle_error(self):
-        async with Client(self.loop, HTTPBIN) as client:
+    # async def test_handle_error(self):
+    #     async with Client(self.loop, HTTPBIN) as client:
         
-            with self.assertRaises(APIRequestError) as cm:
-                headers, body = await client.get('/status/404')
+    #         with self.assertRaises(APIRequestError) as cm:
+    #             headers, body = await client.get('/status/404')
                 
 
-    async def test_delete(self):
-        async with Client(self.loop, HTTPBIN) as client:
-            headers, body = await client.delete('/delete')
-            self.assertEqual(body['args'], {})
-            self.assertEqual(body['headers']['User-Agent'], USER_AGENT)
-            self.assertIsInstance(headers, dict)
-            self.assertIn('Content-Type', headers)
-            self.assertIn('Content-Length', headers)
+    # async def test_delete(self):
+    #     async with Client(self.loop, HTTPBIN) as client:
+    #         headers, body = await client.delete('/delete')
+    #         self.assertEqual(body['args'], {})
+    #         self.assertEqual(body['headers']['User-Agent'], USER_AGENT)
+    #         self.assertIsInstance(headers, dict)
+    #         self.assertIn('Content-Type', headers)
+    #         self.assertIn('Content-Length', headers)
             
-            params = {'key1': 'item1', 'key2': 'item2'}
-            headers, body = await client.delete('/delete', params=params)
-            self.assertEqual(body['args'], params)
+    #         params = {'key1': 'item1', 'key2': 'item2'}
+    #         headers, body = await client.delete('/delete', params=params)
+    #         self.assertEqual(body['args'], params)
             
 
-    async def test_get(self):
-        async with Client(self.loop, HTTPBIN) as client:
-            headers, body = await client.get('/get')
-            self.assertEqual(body['args'], {})
-            self.assertEqual(body['headers']['User-Agent'], USER_AGENT)
-            self.assertIsInstance(headers, dict)
-            self.assertIn('Content-Type', headers)
-            self.assertIn('Content-Length', headers)
+    # async def test_get(self):
+    #     async with Client(self.loop, HTTPBIN) as client:
+    #         headers, body = await client.get('/get')
+    #         self.assertEqual(body['args'], {})
+    #         self.assertEqual(body['headers']['User-Agent'], USER_AGENT)
+    #         self.assertIsInstance(headers, dict)
+    #         self.assertIn('Content-Type', headers)
+    #         self.assertIn('Content-Length', headers)
             
-            params = {'key1': 'item1', 'key2': 'item2'}
-            headers, body = await client.get('/get', params=params)
-            self.assertEqual(body['args'], params)
+    #         params = {'key1': 'item1', 'key2': 'item2'}
+    #         headers, body = await client.get('/get', params=params)
+    #         self.assertEqual(body['args'], params)
     
 
-    async def test_post(self):
-        async with Client(self.loop, HTTPBIN) as client:
-            headers, body = await client.post('/post')
-            self.assertEqual(body['form'], {})
-            self.assertEqual(body['headers']['User-Agent'], USER_AGENT)
-            self.assertIsInstance(headers, dict)
-            self.assertIn('Content-Type', headers)
-            self.assertIn('Content-Length', headers)
+    # async def test_post(self):
+    #     async with Client(self.loop, HTTPBIN) as client:
+    #         headers, body = await client.post('/post')
+    #         self.assertEqual(body['form'], {})
+    #         self.assertEqual(body['headers']['User-Agent'], USER_AGENT)
+    #         self.assertIsInstance(headers, dict)
+    #         self.assertIn('Content-Type', headers)
+    #         self.assertIn('Content-Length', headers)
             
-            data = {"key1": "item1", "key2": "item2"}
-            headers, body = await client.post('/post', data=data)
-            self.assertEqual(json.loads(body['data']), data)
+    #         data = {"key1": "item1", "key2": "item2"}
+    #         headers, body = await client.post('/post', data=data)
+    #         self.assertEqual(json.loads(body['data']), data)
 
       
     # async def test_products(self):
@@ -280,56 +284,147 @@ class TestRest(TestCase):
     #     assert False
         
         
-    # @skipUnless(TEST_AUTH, "Auth credentials required")
-    # async def test_place_order(self):
+    @skipUnless(TEST_AUTH, "Auth credentials required")
+    async def test_place_order_limit(self):
+        # Assumes cancel works
+        for side, base_price in (('buy', 1), ('sell', 10000)):
+            # default order_type, default time_in_force
+            price = base_price + (random.randint(1, 9) / 10)
+            size = random.randint(1, 10) / 1000
+            order = await self.auth_client.place_order(side, 'BTC-USD', 
+                                                        price=price, size=size)
+                                                        
+            keys = {'created_at', 'executed_value', 'fill_fees', 'filled_size', 
+                'id', 'post_only', 'price', 'product_id', 'settled', 'side', 
+                'size', 'status', 'stp', 'time_in_force', 'type'}
+                
+            self.assertEqual(order.keys(), keys)
+            self.assertEqual(float(order['price']), price)
+            self.assertEqual(float(order['size']), size)
+            self.assertEqual(order['product_id'], 'BTC-USD')
+            self.assertEqual(order['side'], side)
+            self.assertEqual(order['stp'], 'dc')
+            self.assertEqual(order['type'], 'limit')
+            self.assertEqual(order['time_in_force'], 'GTC')
+            
+            await self.auth_client.cancel(order['id'])
         
-    #     # Limit orders #############################################
+            # explicit order_type, default time_in_force
+            price = base_price + (random.randint(1, 9) / 10)
+            size = random.randint(1, 10) / 1000
+            order = await self.auth_client.place_order(side, 'BTC-USD', 
+                                              order_type='limit', price=price, 
+                                              size=size)
+            
+            self.assertEqual(order.keys(), keys)
+            self.assertEqual(float(order['price']), price)
+            self.assertEqual(float(order['size']), size)
+            self.assertEqual(order['product_id'], 'BTC-USD')
+            self.assertEqual(order['side'], side)
+            self.assertEqual(order['stp'], 'dc')
+            self.assertEqual(order['type'], 'limit')
+            self.assertEqual(order['time_in_force'], 'GTC')
+            
+            await self.auth_client.cancel(order['id'])
+            
+            # explicit order_type, client_oid, explicit_in_force
+            price = base_price + (random.randint(1, 9) / 10)
+            size = random.randint(1, 10) / 1000
+            client_oid = str(uuid4())
+            order = await self.auth_client.place_order(side, 'BTC-USD', 
+                                              order_type='limit', price=price, 
+                                              size=size, time_in_force='GTC',
+                                              client_oid=client_oid)
+            self.assertEqual(order.keys(), keys)
+            self.assertEqual(float(order['price']), price)
+            self.assertEqual(float(order['size']), size)
+            self.assertEqual(order['product_id'], 'BTC-USD')
+            self.assertEqual(order['side'], side)
+            self.assertEqual(order['stp'], 'dc')
+            self.assertEqual(order['type'], 'limit')
+            self.assertEqual(order['time_in_force'], 'GTC')
+            
+            await self.auth_client.cancel(order['id'])
+            
+            # explicit order_type, IOC time_in_force
+            price = base_price + (random.randint(1, 9) / 10)
+            size = random.randint(1, 10) / 1000
+                
+            order = await self.auth_client.place_order(side, 'BTC-USD', 
+                              order_type='limit', price=price, size=size,
+                              time_in_force='IOC', post_only=False)
+            
+            self.assertEqual(order.keys(), keys)
+            self.assertEqual(float(order['price']), price)
+            self.assertEqual(float(order['size']), size)
+            self.assertEqual(order['product_id'], 'BTC-USD')
+            self.assertEqual(order['side'], side)
+            self.assertEqual(order['stp'], 'dc')
+            self.assertEqual(order['type'], 'limit')
+            self.assertEqual(order['time_in_force'], 'IOC')
+            
+            try:
+                await self.auth_client.cancel(order['id'])
+            except APIRequestError:
+                pass
+            
+            # explicit order_type, FOK time_in_force
+            price = base_price + (random.randint(1, 9) / 10)
+            size = random.randint(1, 10) / 1000
+                
+            order = await self.auth_client.place_order(side, 'BTC-USD', 
+                              order_type='limit', price=price, size=size,
+                              time_in_force='FOK', post_only=False)
+                              
+            if 'reject_reason' in order:
+                keys = {'created_at', 'executed_value', 'fill_fees', 'filled_size', 
+                    'id', 'post_only', 'price', 'product_id', 'reject_reason', 
+                    'settled', 'side', 'size', 'status', 'time_in_force', 
+                    'type'}
+            
+            self.assertEqual(order.keys(), keys)
+            self.assertEqual(float(order['price']), price)
+            self.assertEqual(float(order['size']), size)
+            self.assertEqual(order['product_id'], 'BTC-USD')
+            self.assertEqual(order['side'], side)
+            self.assertEqual(order['type'], 'limit')
+            self.assertEqual(order['time_in_force'], 'FOK')
+            
+            try:
+                await self.auth_client.cancel(order['id'])
+            except APIRequestError:
+                pass
+
+            # explicit order_type, GTT time_in_force, iterate cancel_after
+            for ca_str, ca_int in [('min', 60), ('hour', 3600), ('day', 86400)]:
+                o_time = await self.client.server_time()
+                o_time = float(o_time['epoch'])
         
-    #     keys = {'id', 'price', 'size', 'product_id', 'side', 'stp', 'type',
-    #             'time_in_force', 'post_only', 'created_at', 'fill_fees', 
-    #             'filled_size', 'executed_value', 'status', 'settled'}
-        
-    #     # Buy, default order_type, time_in_force
-    #     order = await self.auth_client.place_order('buy', 'BTC-USD', price=1.50, 
-    #                                               size=5)
-    #     self.assertEqual(order.keys(), keys)
-    #     self.assertEqual(float(order['price']), 1.50)
-    #     self.assertEqual(float(order['size']), 5.0)
-    #     self.assertEqual(order['product_id'], 'BTC-USD')
-    #     self.assertEqual(order['side'], 'buy')
-    #     self.assertEqual(order['stp'], 'dc')
-    #     self.assertEqual(order['type'], 'limit')
-    #     self.assertEqual(order['time_in_force'], 'GTC')
-        
-    #      # Sell, default order_type, time_in_force
-    #     order = await self.auth_client.place_order('sell', 'BTC-USD', 
-    #                                       price=10000, size=0.01)
-    #     self.assertEqual(order.keys(), keys)
-    #     self.assertEqual(float(order['price']), 10000.0)
-    #     self.assertEqual(float(order['size']), 0.01)
-    #     self.assertEqual(order['product_id'], 'BTC-USD')
-    #     self.assertEqual(order['side'], 'sell')
-    #     self.assertEqual(order['stp'], 'dc')
-    #     self.assertEqual(order['type'], 'limit')
-    #     self.assertEqual(order['time_in_force'], 'GTC')
-        
-        
-        # keys = {'id', 'size', 'product_id', 'side', 'stp', 'funds', 'type',
-        #         'post_only', 'created_at', 'fill_fees', 'filled_size', 
-        #         'executed_value', 'status', 'settled'}
-        
-        # # market buy
-        # order = await self.auth_client.place_order('buy', 'BTC-USD', 
-        #                                          order_type='market', size=0.01)
-        # print(order)
-        # self.assertEqual(order.keys(), keys)
-        # self.assertEqual(float(order['size']), 0.01)
-        # self.assertEqual(order['product_id'], 'BTC-USD')
-        # self.assertEqual(order['side'], 'buy')
-        # self.assertEqual(order['stp'], 'dc')
-        # self.assertEqual(order['type'], 'market')
-        # self.assertEqual(order['post_only'], False)
-        
+                price = base_price + (random.randint(1, 9) / 10)
+                size = random.randint(1, 10) / 1000
+                
+                order = await self.auth_client.place_order(side, 'BTC-USD', 
+                                            order_type='limit', price=price, 
+                                            size=size, time_in_force='GTT',  
+                                            cancel_after=ca_str)
+                                            
+                keys = {'created_at', 'executed_value', 'expire_time', 'fill_fees', 
+                    'filled_size', 'id', 'post_only', 'price', 'product_id', 'settled', 
+                    'side', 'size', 'status', 'stp', 'time_in_force', 'type'}
+                    
+                self.assertEqual(order.keys(), keys)
+                self.assertEqual(float(order['price']), price)
+                self.assertEqual(float(order['size']), size)
+                self.assertEqual(order['product_id'], 'BTC-USD')
+                self.assertEqual(order['side'], side)
+                self.assertEqual(order['stp'], 'dc')
+                self.assertEqual(order['type'], 'limit')
+                self.assertEqual(order['time_in_force'], 'GTT')
+                e_time = parser.parse(order['expire_time']).timestamp()
+                self.assertLessEqual(e_time - o_time - ca_int, 1.0)
+                
+                await self.auth_client.cancel(order['id'])
+                
         
     # # TO DO   
     # @expectedFailure 
@@ -337,23 +432,81 @@ class TestRest(TestCase):
     # async def test_cancel(self):
     #     assert False
         
-    # # TO DO   
-    # @expectedFailure 
     # @skipUnless(TEST_AUTH, "Auth credentials required")
     # async def test_cancel_all(self):
-    #     assert False
+    #     # Assumes place_order and orders work
+    #     resp = await self.auth_client.cancel_all()
+    #     orders, _, _ = await self.auth_client.orders('open')
+    #     self.assertEqual(len(orders), 0)
+        
+    #     await asyncio.sleep(0.5)
+        
+    #     for price in (1, 2, 3):
+    #         order = await self.auth_client.place_order('buy', 'BTC-USD', 
+    #                                                   price=price, size=1)
+    #         await asyncio.sleep(0.5)
+            
+    #     for price in (10000, 20000, 30000):
+    #         order = await self.auth_client.place_order('sell', 'BTC-USD', 
+    #                                                   price=price, size=0.01)
+    #         await asyncio.sleep(0.5)    
+        
+    #     orders, _, _ = await self.auth_client.orders('open')
+    #     self.assertEqual(len(orders), 6)
+    #     resp = await self.auth_client.cancel_all()
+    #     orders, _, _ = await self.auth_client.orders('open')
+    #     self.assertEqual(len(orders), 0)
         
 
     # @skipUnless(TEST_AUTH, "Auth credentials required")
     # async def test_orders(self):
-    #     orders, before, after = await self.auth_client.orders()
-    #     for order in orders:
-    #         print(order)
+    #     # Assumes place_order and cancel_all work
+    #     await self.auth_client.cancel_all()
+    #     open_orders, _, _, = await self.auth_client.orders('open')
+    #     self.assertEqual(len(open_orders), 0)
+        
+    #     open_ids = []
+    #     for price in (1.0, 1.1):
+    #         order = await self.auth_client.place_order('buy', 'BTC-USD', 
+    #                                                   price=price, size=1)
+    #         open_ids.append(order['id'])
+            
+    #     open_orders, _, _ = await self.auth_client.orders('open')
+    #     self.assertEqual(len(open_orders), 2)
+    #     self.assertEqual(open_orders[0]['id'], open_ids[1])
+    #     self.assertEqual(open_orders[1]['id'], open_ids[0])
+        
+    #     market_ids = []
+    #     for _ in range(2):
+    #         order = await self.auth_client.place_order('buy', 'BTC-USD',
+    #                                             order_type='market', size=0.01)
+    #         market_ids.append(order['id'])
+        
+    #     all_orders, _, _, = await self.auth_client.orders('all')
+    #     self.assertGreaterEqual(len(all_orders), 4)
+    #     self.assertEqual(all_orders[0]['id'], market_ids[1])
+    #     self.assertEqual(all_orders[1]['id'], market_ids[0])
+    #     self.assertEqual(all_orders[2]['id'], open_ids[1])
+    #     self.assertEqual(all_orders[3]['id'], open_ids[0])
+        
+    #     await self.auth_client.cancel_all()
+    #     open_orders, _, _, = await self.auth_client.orders('open')
+    #     self.assertEqual(len(open_orders), 0)
         
 
     # @skipUnless(TEST_AUTH, "Auth credentials required")
     # async def test_order(self):
-    #     assert False   
+    #     # Assumes place order works
+    #     open_ids = []
+    #     for price in (1.1, 1.2, 1.3):
+    #         order = await self.auth_client.place_order('buy', 'BTC-USD', 
+    #                                                   price=price, size=1)
+    #         open_ids.append(order['id'])
+            
+    #     order = await self.auth_client.order(open_ids[1])
+        
+    #     await self.auth_client.cancel_all()
+        
         
     # # TO DO
     # @expectedFailure 
@@ -379,8 +532,6 @@ class TestRest(TestCase):
     #     keys =  {'id', 'name', 'balance', 'currency', 'type', 'primary', 'active'}
         
     #     accounts = await self.auth_client.coinbase_accounts()
-    #     for account in accounts:
-    #         print(account, '\n')
     #     self.assertIsInstance(accounts, list)
     #     self.assertIsInstance(accounts[0], dict)
     #     self.assertGreaterEqual(accounts[0].keys(), keys)

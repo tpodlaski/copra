@@ -1028,7 +1028,8 @@ class Client:
         :param str time_in_force: For limit orders, time in force policies 
             provide guarantees about the lifetime of an order. There are 
             four policies: good till canceled GTC, good till time GTT, immediate 
-            or cancel IOC, and fill or kill FOK. The default is GTC.
+            or cancel IOC, and fill or kill FOK. GTT requires that cancel_after
+            be set. IOC and FOK require post_only be True. The default is GTC.
             
         :param str cancel_after: The length of time before a GTT order is 
             cancelled. Must be either min, hour, or day. time_in_force must 
@@ -1047,7 +1048,7 @@ class Client:
         :param float stop_price: The trigger price for stop orders. Ignored if
             stop is not set. This may also be a string. The default is None.
             
-        :param str client_oid: A self generated ID to identify the order. The
+        :param str client_oid: A self generated UUID to identify the order. The
             default is None.
             
         :param str stp: Self trade preservation flag. The possible values are
@@ -1088,8 +1089,11 @@ class Client:
             * If the order_type is limit and size and price are
                 not set.
             * The time_in_force for a limit order is not GTC, GTT, IOC or FOK.
+            * time_in_force is GTT but cancel_after is not set
             * cancel_after is set for a limit order but time_in_force isn't GTT.
             * cancel_after for a limit order is set but isn't min, hour or day.
+            * The time_in_force is IOC and post_only is True
+            * The time_in_force is FOK and post_only is False
             * A market order doesn't have either funds or size set.
             * A market order has both funds and size set.
             * stop is set to something other than loss or entry.
@@ -1136,12 +1140,19 @@ class Client:
             if time_in_force not in ('GTC', 'GTT', 'IOC', 'FOK'):
                 raise ValueError('time_in_force must be GTC, GCC, IOC or FOK.')
                 
+            if time_in_force == 'GTT' and not cancel_after:
+                raise ValueError('cancel_after required for GTT time_in_force.')
+            
             if cancel_after and not time_in_force == 'GTT':
-                raise ValueError('cancel_after requires time_in_force to be GTT')
+                raise ValueError('cancel_after requires time_in_force to be GTT.')
                 
             if cancel_after and cancel_after not in ('min', 'hour', 'day'):
-                raise ValueError('cancel_after must be min, hour, or day')
+                raise ValueError('cancel_after must be min, hour, or day.')
                 
+            if (time_in_force == 'IOC' or time_in_force == 'FOK') and post_only:
+                raise ValueError(
+                    'post_only must be False for time_in_force {}'.format(time_in_force))
+            
             data.update({
                           'price': price,
                           'size': size,
@@ -1258,7 +1269,7 @@ class Client:
             list of strings to return more than one status. i.e, ['open', 'active'].
             Passing 'all' returns orders of all statuses. Note: Open orders may 
             change state between the request and the response depending on 
-            market conditions.
+            market conditions. The default is ['open', 'active', 'pending'].
         
         :param str product_id: (optional) Filter orders listed by product_id
         
