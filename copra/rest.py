@@ -1019,8 +1019,8 @@ class Client:
         :param bool post_only:(optional) Indicates that the order should only 
             make liquidity. If any part of the order results in taking 
             liquidity, the  order will be rejected and no part of it will 
-            execute. This flag is ignored for IOC and FOK orders. The default 
-            is False.
+            execute. This flag is ignored for IOC and FOK orders. This value
+            must be False for all stop orders. The default is False.
         
         :param str stp: (optional) Self trade preservation flag. The possible 
             values are dc (decrease and cancel), co (cancel oldest), 
@@ -1057,6 +1057,7 @@ class Client:
             * stop is set to something other than loss or entry.
             * A stop order does not have stop_price set.
             * stop_price is set but stop is not
+            * A stop_order has post_only set to True
         """
         if side not in ('buy', 'sell'):
             raise ValueError("Invalid side: {}. Must be either buy or sell".format(side))
@@ -1089,6 +1090,9 @@ class Client:
         if stop_price and not stop:
             raise ValueError("Stop orders must have the stop parameter set.")
             
+        if stop and post_only:
+            raise ValueError("post_only must be False for stop orders.")
+            
         data = {'type': 'limit', 'side': side, 'product_id': product_id, 
                 'price': price, 'size': size, 'time_in_force': time_in_force, 
                 'post_only': post_only, 'stp': stp}
@@ -1098,6 +1102,10 @@ class Client:
             
         if client_oid:
             data['client_oid'] = client_oid
+            
+        if stop:
+            data['stop'] = stop
+            data['stop_price'] = stop_price
             
         headers, body = await self.post('/orders', data=data, auth=True)
         return body
