@@ -985,7 +985,8 @@ class Client:
     
     async def limit_order(self, side, product_id, price, size, 
                           time_in_force='GTC', cancel_after=None, 
-                          post_only=False, client_oid=None, stp='dc'):
+                          post_only=False, client_oid=None, stp='dc',
+                          stop=None, stop_price=None):
         """Place a limit order.
         
         ..note:: This method requires authorization. The API key must have 
@@ -1004,31 +1005,40 @@ class Client:
         :param float size: The quantity of the cryptocurrency to buy or sell. 
             This parameter may also be a string.
             
-        :param str time_in_force: Time in force policies  provide guarantees 
-            about the lifetime of an order. There are four policies: good till 
-            canceled GTC, good till time GTT, immediate  or cancel IOC, and fill 
-            or kill FOK. GTT requires that cancel_after be set. IOC and FOK 
-            require post_only be False. The default is GTC.
+        :param str time_in_force: (optional) Time in force policies provide 
+            guarantees about the lifetime of an order. There are four policies: 
+            good till, canceled GTC, good till time GTT, immediate  or 
+            cancel IOC, and fill or kill FOK. GTT requires that cancel_after be 
+            set. IOC and FOK require post_only be False. The default is GTC.
             
-        :param str cancel_after: The length of time before a GTT order is 
-            cancelled. Must be either min, hour, or day. time_in_force must 
-            be GTT or an error is raised. If cancel_after is not set for a GTT
-            order, the order will be treated as GTC. The default is None.
+        :param str cancel_after: (optional) The length of time before a GTT 
+            order is cancelled. Must be either min, hour, or day. time_in_force 
+            must be GTT or an error is raised. If cancel_after is not set for a 
+            GTT order, the order will be treated as GTC. The default is None.
             
-        :param bool post_only: Indicates that the order should only make 
-            liquidity. If any part of the order results in taking liquidity, the 
-            order will be rejected and no part of it will execute. This flag is 
-            ignored for IOC and FOK orders. The default is False.
+        :param bool post_only:(optional) Indicates that the order should only 
+            make liquidity. If any part of the order results in taking 
+            liquidity, the  order will be rejected and no part of it will 
+            execute. This flag is ignored for IOC and FOK orders. The default 
+            is False.
         
-        :param str stp: Self trade preservation flag. The possible values are
-            dc (decrease and cancel), co (cancel oldest), cn (cancel newest),
-            or cb (cancel both). The default is dc.
+        :param str stp: (optional) Self trade preservation flag. The possible 
+            values are dc (decrease and cancel), co (cancel oldest), 
+            cn (cancel newest), or cb (cancel both). The default is dc.
             
         ..warning:: As of 11/18, sending anything other than dc for stp while
             testing in Coinbase Pro's sandbox yields an APIRequestError 
             "Invalid stp..." even though the Coinbase API documentation claims
             the other options for stp are valid. Change this from dc at your
             own risk.
+            
+        :param str stop: (optional) If this is a stop order, this value must be 
+            either loss or entry. Requires stop_price to be set. The default is 
+            None.
+            
+        :param float stop_price: (optioinal) The trigger price for stop orders. 
+            Required if stop is set. This may also be a string. The default is 
+            None. 
             
         ..note:: To see a more detailed explanation of these parameters and to
             learn more about the order life cycle, please see the official 
@@ -1044,6 +1054,9 @@ class Client:
             * cancel_after is set for a limit order but time_in_force isn't GTT.
             * The time_in_force is IOC or FOK and post_only is True
             * stp is a value other than dc. co, cn, or cb.
+            * stop is set to something other than loss or entry.
+            * A stop order does not have stop_price set.
+            * stop_price is set but stop is not
         """
         if side not in ('buy', 'sell'):
             raise ValueError("Invalid side: {}. Must be either buy or sell".format(side))
@@ -1067,6 +1080,15 @@ class Client:
         if stp not in ('dc', 'co', 'cn', 'cb'):
             raise ValueError('Invalid stp: {}. Must be dc, co, cn, or cb.'.format(stp))
             
+        if stop and stop not in ('loss', 'entry'):
+            raise ValueError("Invalid stop: {}. Must be either loss or entry.".format(stop))
+
+        if stop and not stop_price:
+            raise ValueError("Stop orders must have stop_price set.")
+            
+        if stop_price and not stop:
+            raise ValueError("Stop orders must have the stop parameter set.")
+            
         data = {'type': 'limit', 'side': side, 'product_id': product_id, 
                 'price': price, 'size': size, 'time_in_force': time_in_force, 
                 'post_only': post_only, 'stp': stp}
@@ -1082,8 +1104,8 @@ class Client:
 
 
     async def market_order(self, side, product_id, size=None, funds=None,
-                           client_oid=None, stp='dc'):
-        """Place a market order.
+                         client_oid=None, stp='dc', stop=None, stop_price=None):
+        """Place a market order or a stop entry/loss market order.
         
         ..note:: This method requires authorization. The API key must have 
             the "trade" permission.
@@ -1104,18 +1126,26 @@ class Client:
             Either size or funds must be set for a market order but not both. 
             This may also be a string. The default is None.
             
-        :param str client_oid: A self generated UUID to identify the order. The
-            default is None.
+        :param str client_oid: (optional) A self generated UUID to identify the 
+            order. The default is None.
             
-        :param str stp: Self trade preservation flag. The possible values are
-            dc (decrease and cancel), co (cancel oldest), cn (cancel newest),
-            or cb (cancel both). The default is dc.
+        :param str stp: (optional) Self trade preservation flag. The possible 
+            values are dc (decrease and cancel), co (cancel oldest), 
+            cn (cancel newest), or cb (cancel both). The default is dc.
             
         ..warning:: As of 11/18, sending anything other than dc for stp while
             testing in Coinbase Pro's sandbox yields an APIRequestError 
             "Invalid stp..." even though the Coinbase API documentation claims
             the other options for stp are valid. Change this from dc at your
             own risk.
+            
+        :param str stop: (optional) If this is a stop order, this value must be 
+            either loss or entry. Requires stop_price to be set. The default is 
+            None.
+            
+        :param float stop_price: (optional) The trigger price for stop orders. 
+            Required if stop is set. This may also be a string. The default is 
+            None.  
             
         ..note:: To see a more detailed explanation of these parameters and to
             learn more about the order life cycle, please see the official 
@@ -1128,6 +1158,9 @@ class Client:
             * Neither size nor funds is set.
             * Both size and funds are set
             * stp is a value other than dc. co, cn, or cb.
+            * stop is set to something other than loss or entry.
+            * A stop order does not have stop_price set.
+            * stop_price is set but stop is not
         """
         if side not in ('buy', 'sell'):
             raise ValueError("Invalid side: {}. Must be either buy or sell".format(side))
@@ -1140,6 +1173,15 @@ class Client:
                 
         if stp not in ('dc', 'co', 'cn', 'cb'):
             raise ValueError('Invalid stp: {}. Must be dc, co, cn, or cb.'.format(stp))
+            
+        if stop and stop not in ('loss', 'entry'):
+            raise ValueError("Invalid stop: {}. Must be either loss or entry.".format(stop))
+            
+        if stop and not stop_price:
+            raise ValueError("Stop orders must have stop_price set.")
+            
+        if stop_price and not stop:
+            raise ValueError("Stop orders must have the stop parameter set.")
                 
         data = {'type': 'market', 'side': side, 'product_id': product_id, 'stp':stp}
         
@@ -1151,6 +1193,10 @@ class Client:
             
         if client_oid:
             data['client_oid'] = client_oid
+            
+        if stop:
+            data['stop'] = stop
+            data['stop_price'] = stop_price
             
         headers, body = await self.post('/orders', data=data, auth=True)
         return body

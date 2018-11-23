@@ -493,97 +493,113 @@ class TestRest(MockTestCase):
     #                   query={'limit': '100', 'after': after}, headers=AUTH_HEADERS)
 
 
-    async def test_limit_order(self):
+    # async def test_limit_order(self):
         
-        # Unauthorized client
-        with self.assertRaises(ValueError):
-            resp = await self.client.limit_order('buy', 'BTC-USD', 1, 100)          
+    #     # Unauthorized client
+    #     with self.assertRaises(ValueError):
+    #         resp = await self.client.limit_order('buy', 'BTC-USD', 1, 100)          
         
-        # Invalid side
-        with self.assertRaises(ValueError):
-            resp = await self.auth_client.limit_order('right', 'BTC-USD', 1, 100)
+    #     # Invalid side
+    #     with self.assertRaises(ValueError):
+    #         resp = await self.auth_client.limit_order('right', 'BTC-USD', 1, 100)
         
-        # Invalid time_in_force
-        with self.assertRaises(ValueError):
-            resp = await self.auth_client.limit_order('buy', 'BTC-USD', 100, 5,
-                                                      time_in_force='OPP')
+    #     # Invalid time_in_force
+    #     with self.assertRaises(ValueError):
+    #         resp = await self.auth_client.limit_order('buy', 'BTC-USD', 100, 5,
+    #                                                   time_in_force='OPP')
                                                       
-        # GTT time_in_force, no cancel_after
-        with self.assertRaises(ValueError):
-            resp = await self.auth_client.limit_order('buy', 'BTC_USD', 2, 60,
-                                                      time_in_force='GTT')
+    #     # GTT time_in_force, no cancel_after
+    #     with self.assertRaises(ValueError):
+    #         resp = await self.auth_client.limit_order('buy', 'BTC_USD', 2, 60,
+    #                                                   time_in_force='GTT')
                                                       
-        # Invalid cancel_after
-        with self.assertRaises(ValueError):
-            resp = await self.auth_client.limit_order('buy', 'BTC-USD', 3, 47,
-                                                      time_in_force='GTT',
-                                                      cancel_after='lifetime')
+    #     # Invalid cancel_after
+    #     with self.assertRaises(ValueError):
+    #         resp = await self.auth_client.limit_order('buy', 'BTC-USD', 3, 47,
+    #                                                   time_in_force='GTT',
+    #                                                   cancel_after='lifetime')
                                                       
-        # cancel_after wrong time_in_force
-        with self.assertRaises(ValueError):
-            resp = await self.auth_client.limit_order('buy', 'BTC-USD', 4, 33,
-                                                      time_in_force='FOK',
-                                                      cancel_after='hour')
+    #     # cancel_after wrong time_in_force
+    #     with self.assertRaises(ValueError):
+    #         resp = await self.auth_client.limit_order('buy', 'BTC-USD', 4, 33,
+    #                                                   time_in_force='FOK',
+    #                                                   cancel_after='hour')
 
-        # IOC time_in_force, post_only True
-        with self.assertRaises(ValueError):
-            resp = await self.auth_client.limit_order('buy', 'BTC-USD', 5, 82,
-                                                      time_in_force='IOC',
-                                                      post_only=True)
+    #     # IOC time_in_force, post_only True
+    #     with self.assertRaises(ValueError):
+    #         resp = await self.auth_client.limit_order('buy', 'BTC-USD', 5, 82,
+    #                                                   time_in_force='IOC',
+    #                                                   post_only=True)
                                                       
-        # FOK time_in_force, post_only True
-        with self.assertRaises(ValueError):
-            resp = await self.auth_client.limit_order('buy', 'BTC-USD', 6, 12,
-                                                      time_in_force='FOK',
-                                                      post_only=True)
+    #     # FOK time_in_force, post_only True
+    #     with self.assertRaises(ValueError):
+    #         resp = await self.auth_client.limit_order('buy', 'BTC-USD', 6, 12,
+    #                                                   time_in_force='FOK',
+    #                                                   post_only=True)
                                                       
-        # Invalid stp
-        with self.assertRaises(ValueError):
-            resp = await self.auth_client.limit_order('buy', 'BTC-USD', 7, 14,
-                                                      stp='Core')
+    #     # Invalid stp
+    #     with self.assertRaises(ValueError):
+    #         resp = await self.auth_client.limit_order('buy', 'BTC-USD', 7, 14,
+    #                                                   stp='Core')
 
-        # Default order_type, time_in_force
-        resp = await self.auth_client.limit_order('buy', 'BTC-USD', 1.1, 3.14)
+    #     # Default order_type, time_in_force
+    #     resp = await self.auth_client.limit_order('buy', 'BTC-USD', 1.1, 3.14)
         
-        self.check_req(self.mock_post, '{}/orders'.format(URL),
-                      data={'side': 'buy', 'product_id': 'BTC-USD',
-                            'type': 'limit', 'price': 1.1,
-                            'size': 3.14, 'time_in_force': 'GTC', 
-                            'post_only': False, 'stp': 'dc'},
-                      headers=AUTH_HEADERS)
+    #     self.check_req(self.mock_post, '{}/orders'.format(URL),
+    #                   data={'side': 'buy', 'product_id': 'BTC-USD',
+    #                         'type': 'limit', 'price': 1.1,
+    #                         'size': 3.14, 'time_in_force': 'GTC', 
+    #                         'post_only': False, 'stp': 'dc'},
+    #                   headers=AUTH_HEADERS)
                       
-        # GTT order with cancel_after
-        resp = await self.auth_client.limit_order('buy', 'BTC-USD', 1.7, 29,
-                            time_in_force='GTT', cancel_after='hour')
+    #     # GTT order with cancel_after
+    #     resp = await self.auth_client.limit_order('buy', 'BTC-USD', 1.7, 29,
+    #                         time_in_force='GTT', cancel_after='hour')
                             
-        self.check_req(self.mock_post, '{}/orders'.format(URL),
-                      data={'side': 'buy', 'product_id': 'BTC-USD',
-                            'type': 'limit', 'price': 1.7, 'size': 29, 
-                            'time_in_force': 'GTT', 'cancel_after': 'hour',
-                            'post_only': False, 'stp': 'dc'},
-                        headers=AUTH_HEADERS)
+    #     self.check_req(self.mock_post, '{}/orders'.format(URL),
+    #                   data={'side': 'buy', 'product_id': 'BTC-USD',
+    #                         'type': 'limit', 'price': 1.7, 'size': 29, 
+    #                         'time_in_force': 'GTT', 'cancel_after': 'hour',
+    #                         'post_only': False, 'stp': 'dc'},
+    #                     headers=AUTH_HEADERS)
                         
-        # client_oid, stp
-        resp = await self.auth_client.limit_order('buy', 'LTC-USD', 0.8, 11,
-                            client_oid='back', stp='cb')        
+    #     # client_oid, stp
+    #     resp = await self.auth_client.limit_order('buy', 'LTC-USD', 0.8, 11,
+    #                         client_oid='back', stp='cb')        
 
-        self.check_req(self.mock_post, '{}/orders'.format(URL),
-                      data={'side': 'buy', 'product_id': 'LTC-USD',
-                            'type': 'limit', 'price': 0.8, 'size': 11, 
-                            'time_in_force': 'GTC', 'client_oid': 'back',
-                            'post_only': False, 'stp': 'cb'},
-                        headers=AUTH_HEADERS)        
+    #     self.check_req(self.mock_post, '{}/orders'.format(URL),
+    #                   data={'side': 'buy', 'product_id': 'LTC-USD',
+    #                         'type': 'limit', 'price': 0.8, 'size': 11, 
+    #                         'time_in_force': 'GTC', 'client_oid': 'back',
+    #                         'post_only': False, 'stp': 'cb'},
+    #                     headers=AUTH_HEADERS)        
 
+
+    async def test_limit_order_stop(self):
+        
+        # Invalid stop
+        with self.assertRaises(ValueError):
+            resp = await self.auth_client.limit_order('buy', 'BTC-USD', 1, .001, 
+                                            stop="Hammer Time", stop_price=10)
+        # stop w/ no stop_price
+        with self.assertRaises(ValueError):
+            resp = await self.auth_client.limit_order('buy', 'BTC-USD', 1, .001, 
+                                                       stop="loss")
+                                            
+        # stop_price w/ no stop
+        with self.assertRaises(ValueError):
+            resp = await self.auth_client.limit_order('buy', 'BTC-USD', 2, .002,
+                                                       stop_price=10)
 
     # async def test_market_order(self):
         
     #     # Unauthorized client
     #     with self.assertRaises(ValueError):
-    #         resp = await self.client.market_order('buy', 'BTC-USD', .00001)
+    #         resp = await self.client.market_order('buy', 'BTC-USD', .001)
         
     #     # Invalid side
     #     with self.assertRaises(ValueError):
-    #         resp = await self.auth_client.market_order('dark', 'BTC-USD', .00001)
+    #         resp = await self.auth_client.market_order('dark', 'BTC-USD', .001)
             
     #     # No funds or size
     #     with self.assertRaises(ValueError):
@@ -592,12 +608,12 @@ class TestRest(MockTestCase):
     #     # funds and size
     #     with self.assertRaises(ValueError):
     #         resp = await self.auth_client.market_order('buy', 'BTC-USD',
-    #                                           size=.00001, funds=10000)
+    #                                           size=.001, funds=10000)
                                                
     #     # Invalid stp
     #     with self.assertRaises(ValueError):
     #         resp = await self.auth_client.market_order('buy', 'BTC-USD', 
-    #                                                   size=.0001, stp='plush')
+    #                                                   size=.001, stp='plush')
 
     #     # Size, no client_oid, default stp
     #     resp = await self.auth_client.market_order('buy', 'BTC-USD', size=5)
@@ -631,7 +647,25 @@ class TestRest(MockTestCase):
     #                       'client_oid': 'of the Jedi', 'stp': 'cb'},
     #                   headers=AUTH_HEADERS)
 
-                    
+
+    # async def test_market_order_stop(self):
+        
+    #     # Invalid stop
+    #     with self.assertRaises(ValueError):
+    #         resp = await self.auth_client.market_order('buy', 'BTC-USD', .001,
+    #                                         stop="Hammer Time", stop_price=10)
+                                                       
+    #     # stop w/ no stop_price
+    #     with self.assertRaises(ValueError):
+    #         resp = await self.auth_client.market_order('buy', 'BTC-USD', .001,
+    #                                                   stop="loss")
+                                            
+    #     # stop_price w/ no stop
+    #     with self.assertRaises(ValueError):
+    #         resp = await self.auth_client.market_order('buy', 'BTC-USD', .001,
+    #                                                   stop_price=10)
+                                                       
+                                                       
     # async def test_place_order(self):
         
     #     # Unauthorized client
