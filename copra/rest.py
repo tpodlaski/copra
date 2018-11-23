@@ -998,13 +998,89 @@ class Client:
             quote currency. eg., BTC-USD, ETH-EUR, etc. To see all of the 
             product ids, use :meth:`rest.Client.products`.
             
+        :param float price: The price the order is to be executed at. This 
+            paramater may also be a string to avoid  floating point issues.
+            
+        :param float size: The quantity of the cryptocurrency to buy or sell. 
+            This parameter may also be a string.
+            
+        :param str time_in_force: Time in force policies  provide guarantees 
+            about the lifetime of an order. There are four policies: good till 
+            canceled GTC, good till time GTT, immediate  or cancel IOC, and fill 
+            or kill FOK. GTT requires that cancel_after be set. IOC and FOK 
+            require post_only be False. The default is GTC.
+            
+        :param str cancel_after: The length of time before a GTT order is 
+            cancelled. Must be either min, hour, or day. time_in_force must 
+            be GTT or an error is raised. If cancel_after is not set for a GTT
+            order, the order will be treated as GTC. The default is None.
+            
+        :param bool post_only: Indicates that the order should only make 
+            liquidity. If any part of the order results in taking liquidity, the 
+            order will be rejected and no part of it will execute. This flag is 
+            ignored for IOC and FOK orders. The default is False.
+        
+        :param str stp: Self trade preservation flag. The possible values are
+            dc (decrease and cancel), co (cancel oldest), cn (cancel newest),
+            or cb (cancel both). The default is dc.
+            
+        ..warning:: As of 11/18, sending anything other than dc for stp while
+            testing in Coinbase Pro's sandbox yields an APIRequestError 
+            "Invalid stp..." even though the Coinbase API documentation claims
+            the other options for stp are valid. Change this from dc at your
+            own risk.
+            
+        ..note:: To see a more detailed explanation of these parameters and to
+            learn more about the order life cycle, please see the official 
+            Coinbase Pro API documentation at: https://docs.gdax.com/#channels.
+            
         :raises ValueError: If... 
         
             * The client is not configured for authorization.
+            * The side is not either "buy" or "sell".
+            * The time_in_force is not GTC, GTT, IOC or FOK.
+            * time_in_force is GTT but cancel_after is not set
+            * cancel_after for a limit order is set but isn't min, hour or day.
+            * cancel_after is set for a limit order but time_in_force isn't GTT.
+            * The time_in_force is IOC or FOK and post_only is True
+            * stp is a value other than dc. co, cn, or cb.
         """
-        pass
+        if side not in ('buy', 'sell'):
+            raise ValueError("Invalid side: {}. Must be either buy or sell".format(side))
+            
+        if time_in_force not in ('GTC', 'GTT', 'IOC', 'FOK'):
+            raise ValueError('time_in_force must be GTC, GCC, IOC or FOK.')
+            
+        if time_in_force == 'GTT' and not cancel_after:
+            raise ValueError('cancel_after required for GTT time_in_force.')
+            
+        if cancel_after and cancel_after not in ('min', 'hour', 'day'):
+            raise ValueError('cancel_after must be min, hour, or day.')
+            
+        if cancel_after and not time_in_force == 'GTT':
+            raise ValueError('cancel_after requires time_in_force to be GTT.')
+            
+        if (time_in_force == 'IOC' or time_in_force == 'FOK') and post_only:
+            raise ValueError(
+                'post_only must be False for time_in_force {}'.format(time_in_force))
+                
+        if stp not in ('dc', 'co', 'cn', 'cb'):
+            raise ValueError('Invalid stp: {}. Must be dc, co, cn, or cb.'.format(stp))
+            
+        data = {'type': 'limit', 'side': side, 'product_id': product_id, 
+                'price': price, 'size': size, 'time_in_force': time_in_force, 
+                'post_only': post_only, 'stp': stp}
+                
+        if cancel_after:
+            data['cancel_after'] = cancel_after
+            
+        if client_oid:
+            data['client_oid'] = client_oid
+            
+        headers, body = await self.post('/orders', data=data, auth=True)
+        return body
 
-    
+
     async def market_order(self, side, product_id, size=None, funds=None,
                            client_oid=None, stp='dc'):
         """Place a market order.
