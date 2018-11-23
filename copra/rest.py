@@ -982,7 +982,104 @@ class Client:
                                        params=params, auth=True)
         return (body, headers.get('cb-before', None), headers.get('cb-after', None))
         
+    
+    async def limit_order(self, side, product_id, price, size, 
+                          time_in_force='GTC', cancel_after=None, 
+                          post_only=False, client_oid=None, stp='dc'):
+        """Place a limit order.
         
+        ..note:: This method requires authorization. The API key must have 
+            the "trade" permission.
+            
+        :param str side: Either buy or sell
+        
+        :param str product_id: The product id to be bought or sold.
+            The product id is a string consisting of a base currency and a 
+            quote currency. eg., BTC-USD, ETH-EUR, etc. To see all of the 
+            product ids, use :meth:`rest.Client.products`.
+            
+        :raises ValueError: If... 
+        
+            * The client is not configured for authorization.
+        """
+        pass
+
+    
+    async def market_order(self, side, product_id, size=None, funds=None,
+                           client_oid=None, stp='dc'):
+        """Place a market order.
+        
+        ..note:: This method requires authorization. The API key must have 
+            the "trade" permission.
+            
+        :param str side: Either buy or sell
+        
+        :param str product_id: The product id to be bought or sold.
+            The product id is a string consisting of a base currency and a 
+            quote currency. eg., BTC-USD, ETH-EUR, etc. To see all of the 
+            product ids, use :meth:`rest.Client.products`.
+            
+        :param float size: The quantity of the cryptocurrency to buy or sell. 
+            Either size or funds must be set for a market order but not both.  
+            This may also be a string. The default is None. 
+
+        :param float funds: This is the amount of quote currency to be used for 
+            a purchase (buy) or the amount to be obtained from a sale (sell). 
+            Either size or funds must be set for a market order but not both. 
+            This may also be a string. The default is None.
+            
+        :param str client_oid: A self generated UUID to identify the order. The
+            default is None.
+            
+        :param str stp: Self trade preservation flag. The possible values are
+            dc (decrease and cancel), co (cancel oldest), cn (cancel newest),
+            or cb (cancel both). The default is dc.
+            
+        ..warning:: As of 11/18, sending anything other than dc for stp while
+            testing in Coinbase Pro's sandbox yields an APIRequestError 
+            "Invalid stp..." even though the Coinbase API documentation claims
+            the other options for stp are valid. Change this from dc at your
+            own risk.
+            
+        ..note:: To see a more detailed explanation of these parameters and to
+            learn more about the order life cycle, please see the official 
+            Coinbase Pro API documentation at: https://docs.gdax.com/#channels.
+            
+        :raises ValueError: If... 
+        
+            * The client is not configured for authorization.
+            * The side is not either "buy" or "sell".
+            * Neither size nor funds is set.
+            * Both size and funds are set
+            * stp is a value other than dc. co, cn, or cb.
+        """
+        if side not in ('buy', 'sell'):
+            raise ValueError("Invalid side: {}. Must be either buy or sell".format(side))
+            
+        if not (size or funds):
+                raise ValueError('Market orders must have size or funds set.')
+                
+        if size and funds:
+                raise ValueError("Market orders can't have both size and funds set.")
+                
+        if stp not in ('dc', 'co', 'cn', 'cb'):
+            raise ValueError('Invalid stp: {}. Must be dc, co, cn, or cb.'.format(stp))
+                
+        data = {'type': 'market', 'side': side, 'product_id': product_id, 'stp':stp}
+        
+        if size:
+            data['size'] = size
+            
+        if funds:
+            data['funds'] = funds
+            
+        if client_oid:
+            data['client_oid'] = client_oid
+            
+        headers, body = await self.post('/orders', data=data, auth=True)
+        return body
+
+
     async def place_order(self, side, product_id, order_type='limit', price=None,
                           size=None, funds=None, time_in_force='GTC', 
                           cancel_after=None, post_only=True, stop=None,

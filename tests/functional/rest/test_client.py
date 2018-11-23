@@ -432,8 +432,7 @@ class TestRest(TestCase):
             # Size
             size = random.randint(1, 10) / 1000
             
-            order = await self.auth_client.place_order(side, 'BTC-USD',
-                                                 order_type='market', size=size)
+            order = await self.auth_client.market_order(side, 'BTC-USD', size=size)
 
             keys = {'created_at', 'executed_value', 'fill_fees', 'filled_size', 
                     'funds', 'id', 'post_only', 'product_id', 'settled', 'side', 
@@ -450,11 +449,12 @@ class TestRest(TestCase):
             self.assertEqual(order['type'], 'market')
             self.assertEqual(order['post_only'], False)
             
-            # Funds
-            funds = 1000 + random.randint(1, 10)
+            await asyncio.sleep(.5)
             
-            order = await self.auth_client.place_order(side, 'BTC-USD',
-                                              order_type='market', funds=funds)
+            # Funds
+            funds = 100 + random.randint(1, 10)
+            
+            order = await self.auth_client.market_order(side, 'BTC-USD', funds=funds)
                                                
             keys = {'created_at', 'executed_value', 'fill_fees', 'filled_size', 
                     'funds', 'id', 'post_only', 'product_id', 'settled', 'side', 
@@ -470,6 +470,32 @@ class TestRest(TestCase):
             self.assertEqual(float(order['specified_funds']), funds)
             self.assertEqual(order['type'], 'market')
             self.assertEqual(order['post_only'], False)
+            
+            await asyncio.sleep(.5)
+            
+        #client_oid
+        client_oid = str(uuid4())
+        order = await self.auth_client.market_order('sell', 'BTC-USD', funds=100,
+                                                  client_oid=client_oid, stp='dc')
+        self.assertEqual(order.keys(), keys)
+        
+        self.assertEqual(order.keys(), keys)
+        self.assertEqual(order['product_id'], 'BTC-USD')
+        self.assertEqual(order['side'], side)
+        self.assertEqual(order['stp'], 'dc')
+        self.assertEqual(float(order['funds']), 100)
+        self.assertEqual(order['type'], 'market')
+        self.assertEqual(order['post_only'], False)
+        
+        await asyncio.sleep(.5)
+        
+        # This really shouldn't raise an error, but as of 11/18, the Coinbase
+        # sandbox won't accept an stp other dc even though the Coinbase API
+        # documentation claims otherwise.
+        with self.assertRaises(APIRequestError):
+            order = await self.auth_client.market_order('sell', 'BTC-USD', 
+                                       funds=100, client_oid=client_oid, stp='cb')
+    
             
     # # TO DO   
     # @expectedFailure 
