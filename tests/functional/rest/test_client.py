@@ -817,40 +817,84 @@ class TestRest(TestCase):
     #     self.assertEqual(len(oa_orders), 0)
         
 
-    @skipUnless(TEST_AUTH, "Auth credentials required")
-    async def test_order(self):
-        # Assumes limit_order and market_order work
-        ids = []
-        for i in range(1, 4):
-            price = 1 + i/10
-            size = .001 * i
-            order = await self.auth_client.limit_order('buy', 'BTC-USD', 
-                                                       price=price, size=size)
-            ids.append(order['id'])
-            
-        for i in range(1, 4):
-            size = .001 * i
-            order = await self.auth_client.market_order('sell', 'BTC-USD',
-                                                        size=size)
-            ids.append(order['id'])
-            
-        oid = random.choice(ids)
-        order = await self.auth_client.order(oid)
-        self.assertEqual(order['id'], oid)
-        
-        oid = random.choice(ids)
-        order = await self.auth_client.order(oid)
-        self.assertEqual(order['id'], oid)
-        
-
-        
-    # # TO DO
-    # @expectedFailure 
     # @skipUnless(TEST_AUTH, "Auth credentials required")
-    # async def test_fills(self):
-    #     assert False
+    # async def test_order(self):
+    #     # Assumes limit_order and market_order work
+    #     ids = []
+    #     for i in range(1, 4):
+    #         price = 1 + i/10
+    #         size = .001 * i
+    #         order = await self.auth_client.limit_order('buy', 'BTC-USD', 
+    #                                                   price=price, size=size)
+    #         ids.append(order['id'])
+            
+    #     for i in range(1, 4):
+    #         size = .001 * i
+    #         order = await self.auth_client.market_order('sell', 'BTC-USD',
+    #                                                     size=size)
+    #         ids.append(order['id'])
+            
+    #     oid = random.choice(ids)
+    #     order = await self.auth_client.order(oid)
+    #     self.assertEqual(order['id'], oid)
+        
+    #     oid = random.choice(ids)
+    #     order = await self.auth_client.order(oid)
+    #     self.assertEqual(order['id'], oid)
         
 
+        
+    @skipUnless(TEST_AUTH, "Auth credentials required")
+    async def test_fills(self):
+        # Assumes market_order works
+        
+        orders = []
+        for i in range(1, 5):
+            btc_size = .001 * i
+            ltc_size = .01 * i
+            side = random.choice(['buy', 'sell'])
+            
+            order = await self.auth_client.market_order(side, 'BTC-USD', size=btc_size)
+            orders.append(order)
+            
+            await asyncio.sleep(.25)
+            
+            order = await self.auth_client.market_order(side, 'LTC-USD', size=ltc_size)
+            orders.append(order)
+            
+            await asyncio.sleep(.25)
+            
+        fills, _, _ = await self.auth_client.fills(product_id='BTC-USD')
+        
+        keys = {'created_at', 'fee', 'liquidity', 'order_id', 'price', 
+                'product_id', 'profile_id', 'settled', 'side', 'size', 
+                'trade_id', 'usd_volume', 'user_id'}
+        self.assertGreaterEqual(len(fills), 4)
+        self.assertEqual(fills[0]['order_id'], orders[6]['id'])
+        
+        fills, before, after = await self.auth_client.fills(product_id='LTC-USD', limit=3)
+        self.assertEqual(len(fills), 3)
+        self.assertEqual(fills[0]['order_id'], orders[7]['id'])
+        
+        after_fills, after_before, after_after = await self.auth_client.fills(
+                                              product_id='LTC-USD', after=after)
+                                              
+        self.assertLess(after_fills[0]['trade_id'], fills[-1]['trade_id'])
+        
+        original_fills, _, _ = await self.auth_client.fills(product_id='LTC-USD',
+                                                             before=after_before)
+        self.assertEqual(original_fills, fills)
+        
+        order = random.choice(orders)
+        fills, _, _ = await self.auth_client.fills(order_id=order['id'])
+        self.assertGreaterEqual(len(fills), 1)
+        
+        total = 0
+        for fill in fills:
+            total += float(fill['size'])
+        self.assertAlmostEqual(total, float(order['size']))
+            
+            
     # @skipUnless(TEST_AUTH, "Auth credentials required")
     # async def test_payment_methods(self):
     #     keys = {'id', 'type', 'name', 'currency', 'primary_buy', 'primary_sell',
