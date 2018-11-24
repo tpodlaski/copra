@@ -271,66 +271,82 @@ class TestRest(TestCase):
     #     self.assertEqual(account['currency'], 'BTC')
             
             
-    # @skipUnless(TEST_AUTH and TEST_BTC_ACCOUNT, "Auth credentials and test BTC account ID required")
-    # async def test_account_history(self):
+    @skipUnless(TEST_AUTH and TEST_BTC_ACCOUNT, "Auth credentials and test BTC account ID required")
+    async def test_account_history(self):
+        # Assumes market_order works.
         
-    #     order = await self.auth_client.market_order('buy', 'BTC-USD', size=.001)
+        orders = []
+        for i in range(1,6):
+            size = 0.001 * i
+            order = await self.auth_client.market_order('buy', 'BTC-USD', size)
+            orders.append(order)
+            await asyncio.sleep(0.25)
         
-    #     history, before, after = await self.auth_client.account_history(TEST_BTC_ACCOUNT)
-        
-    #     keys = {'amount', 'balance', 'created_at', 'details', 'id', 'type'}
-    #     self.assertIsInstance(history, list)
-    #     self.assertGreaterEqual(len(history), 1)
-    #     self.assertEqual(history[0].keys(), keys)
-        
-    #     if after:
-    #         after_history, after_before, after_after =  await self.auth_client.account_history(TEST_BTC_ACCOUNT, after=after)
-    #         self.assertGreater(history[-1]['id'], after_history[0]['id'])
+        history, before, after = await self.auth_client.account_history(
+                                                          TEST_BTC_ACCOUNT, limit=3)
             
-    #         original_history, _, _ = await self.auth_client.account_history(TEST_BTC_ACCOUNT, before=after_before)
-    #         self.assertEqual(original_history, history)
+        keys = {'amount', 'balance', 'created_at', 'details', 'id', 'type'}
+        self.assertIsInstance(history, list)
+        self.assertEqual(len(history), 3)
+        self.assertEqual(history[0].keys(), keys)
+        self.assertEqual(history[0]['type'], 'match')
+        self.assertEqual(history[0]['details']['order_id'], orders[4]['id'])
+        self.assertEqual(history[0]['details']['product_id'], 'BTC-USD')
+            
+        after_history, after_before, after_after =  await self.auth_client.account_history(TEST_BTC_ACCOUNT, after=after)
+        self.assertGreater(history[-1]['id'], after_history[0]['id'])
+                
+        original_history, _, _ = await self.auth_client.account_history(TEST_BTC_ACCOUNT, before=after_before)
+        self.assertEqual(original_history, history)
             
         
 
-    @skipUnless(TEST_AUTH and TEST_BTC_ACCOUNT, "Auth credentials and test BTC account ID required")
-    async def test_holds(self):
-        # Assumes cancel, cancel_all and limit_order work
+    # @skipUnless(TEST_AUTH and TEST_BTC_ACCOUNT, "Auth credentials and test BTC account ID required")
+    # async def test_holds(self):
+    #     # Assumes cancel, cancel_all and limit_order work
         
-        await self.auth_client.cancel_all(stop=True)
-        holds, _, _ = await self.auth_client.holds(TEST_BTC_ACCOUNT)
-        self.assertEqual(holds, [])
+    #     await self.auth_client.cancel_all(stop=True)
+    #     holds, _, _ = await self.auth_client.holds(TEST_BTC_ACCOUNT)
+    #     self.assertEqual(holds, [])
         
-        for i in range(1, 8):
-            size = .001 * i
-            price = 10000 + i * 1000
-            order = await self.auth_client.limit_order('sell', 'BTC-USD', price, size)
-            await asyncio.sleep(.25)
+    #     orders = []
+    #     for i in range(1, 8):
+    #         size = .001 * i
+    #         price = 10000 + i * 1000
+    #         order = await self.auth_client.limit_order('sell', 'BTC-USD', price, size)
+    #         orders.append(order)
+    #         await asyncio.sleep(.25)
             
-        holds, _, _ = await self.auth_client.holds(TEST_BTC_ACCOUNT)
-        self.assertEqual(len(holds), 7)
+    #     holds, _, _ = await self.auth_client.holds(TEST_BTC_ACCOUNT)
+
+    #     keys = {'amount', 'created_at', 'id', 'ref', 'type'}
+    #     self.assertEqual(len(holds), 7)
+    #     self.assertEqual(holds[0].keys(), keys)
+    #     self.assertEqual(float(holds[0]['amount']), .007)
+    #     self.assertEqual(orders[6]['id'], holds[0]['ref'])
         
-        holds, before, after = await self.auth_client.holds(TEST_BTC_ACCOUNT, 
-                                                                        limit=5)
-        self.assertEqual(len(holds), 5)
+    #     holds, before, after = await self.auth_client.holds(TEST_BTC_ACCOUNT, 
+    #                                                                     limit=5)
+    #     self.assertEqual(len(holds), 5)
         
-        after_holds, after_before, after_after =  await self.auth_client.holds(
-                                                  TEST_BTC_ACCOUNT, after=after)
-        self.assertEqual(len(after_holds), 2)
+    #     after_holds, after_before, after_after =  await self.auth_client.holds(
+    #                                               TEST_BTC_ACCOUNT, after=after)
+    #     self.assertEqual(len(after_holds), 2)
         
-        original_holds, _, _ = await self.auth_client.holds(TEST_BTC_ACCOUNT,
-                                                   before=after_before, limit=5)
-        self.assertEqual(original_holds, holds)
+    #     original_holds, _, _ = await self.auth_client.holds(TEST_BTC_ACCOUNT,
+    #                                               before=after_before, limit=5)
+    #     self.assertEqual(original_holds, holds)
         
-        for i in range(3):
-            resp = await self.auth_client.cancel(holds[i]['ref'])
-            self.assertEqual(resp[0], holds[i]['ref'])
+    #     for order in orders[4:]:
+    #         resp = await self.auth_client.cancel(order['id'])
+    #         self.assertEqual(resp[0], order['id'])
             
-        holds, _, _ = await self.auth_client.holds(TEST_BTC_ACCOUNT)
+    #     holds, _, _ = await self.auth_client.holds(TEST_BTC_ACCOUNT)
         
-        total = 0
-        for hold in holds:
-            total += float(hold['amount'])
-        self.assertAlmostEqual(total, 0.01)
+    #     total = 0
+    #     for hold in holds:
+    #         total += float(hold['amount'])
+    #     self.assertAlmostEqual(total, 0.01)
         
 
     # @skipUnless(TEST_AUTH, "Auth credentials required")
