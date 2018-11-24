@@ -1210,204 +1210,6 @@ class Client:
         return body
 
 
-    async def place_order(self, side, product_id, order_type='limit', price=None,
-                          size=None, funds=None, time_in_force='GTC', 
-                          cancel_after=None, post_only=True, stop=None,
-                          stop_price=None, client_oid=None, stp='dc'):
-        """Place a new order.
-        
-        You can place two types of orders: limit and market. Orders can only be 
-        placed if your account has sufficient funds. Once an order is placed, 
-        your account funds will be put on hold for the duration of the order. 
-        How much and which funds are put on hold depends on the order type and 
-        parameters specified. 
-        
-        ..note:: This method requires authorization. The API key must have 
-            the "trade" permission.
-            
-        :param str side: Either buy or sell
-        
-        :param str product_id: The product id to be bought or sold.
-            The product id is a string consisting of a base currency and a 
-            quote currency. eg., BTC-USD, ETH-EUR, etc. To see all of the 
-            product ids, use :meth:`rest.Client.products`.
-            
-        :param str order_type: The type of the order. This must be either limit
-            or market. The order type you specify will influence which other 
-            order parameters are required as well as how your order will be 
-            executed by the matching engine. If order_type is not specified, 
-            the order will default to a limit order.
-            
-        :param float price: For limit orders this is the price the order is to
-            be executed at. This paramater may also be a string to avoid 
-            floating point issues. The default is None.
-            
-        :param float size: For both limit and market orders this is the quantity
-            of the cryptocurrency to buy or sell. This parameter may also be
-            a string. The default is None
-            
-        :param float funds: For market orders, this is the amount of quote
-            currency to be used for a purchase (buy) or the amount to be 
-            obtained from a sale (sell). Either size or funds must be set
-            for a market order but not both. This may also be a string. The
-            default is None.
-        
-        :param str time_in_force: For limit orders, time in force policies 
-            provide guarantees about the lifetime of an order. There are 
-            four policies: good till canceled GTC, good till time GTT, immediate 
-            or cancel IOC, and fill or kill FOK. GTT requires that cancel_after
-            be set. IOC and FOK require post_only be True. The default is GTC.
-            
-        :param str cancel_after: The length of time before a GTT order is 
-            cancelled. Must be either min, hour, or day. time_in_force must 
-            be GTT or an error is raised. If cancel_after is not set for a GTT
-            order, the order will be treated as GTC. The default is None.
-            
-        :param bool post_only: The post only flag for limit orders. It indicates 
-            that the order should only make liquidity. If any part of the order 
-            results in taking liquidity, the order will be rejected and no part 
-            of it will execute. This flag is ignored for IOC and FOK orders. The
-            default is True.
-            
-        :param str stop: If this is a stop order, this value must be either loss
-            or entry. Requires stop_price to be set. The default is None.
-            
-        :param float stop_price: The trigger price for stop orders. Ignored if
-            stop is not set. This may also be a string. The default is None.
-            
-        :param str client_oid: A self generated UUID to identify the order. The
-            default is None.
-            
-        :param str stp: Self trade preservation flag. The possible values are
-            dc (decrease and cancel), co (cancel oldest), cn (cancel newest),
-            or cb (cancel both). The default is dc.
-            
-        ..note:: To see a more detailed explanation of these parameters and to
-            learn more about the order life cycle, please see the official 
-            Coinbase Pro API documentation at: https://docs.gdax.com/#channels.
-        
-        :returns: A dict of order information.
-        
-        :Example:
-        
-        {
-          'id': '5f25cced-f487-41bc-a771-e71fabf0b5ad', 
-          'price': '7000.00000000', 
-          'size': '0.10000000', 
-          'product_id': 'BTC-USD', 
-          'side': 'sell', 
-          'stp': 'dc', 
-          'type': 'limit', 
-          'time_in_force': 'GTC', 
-          'post_only': True, 
-          'created_at': '2018-11-02T12:53:00.724371Z', 
-          'fill_fees': '0.0000000000000000', '
-          'filled_size': '0.00000000', 
-          'executed_value': '0.0000000000000000', 
-          'status': 'pending', 
-          'settled': False
-        }
-        
-        :raises ValueError: If... 
-        
-            * The client is not configured for authorization.
-            * The side is not either "buy" or "sell".
-            * The order_type is not either "limit" or "market".
-            * If the order_type is limit and size and price are
-                not set.
-            * The time_in_force for a limit order is not GTC, GTT, IOC or FOK.
-            * time_in_force is GTT but cancel_after is not set
-            * cancel_after is set for a limit order but time_in_force isn't GTT.
-            * cancel_after for a limit order is set but isn't min, hour or day.
-            * The time_in_force is IOC and post_only is True
-            * The time_in_force is FOK and post_only is False
-            * A market order doesn't have either funds or size set.
-            * A market order has both funds and size set.
-            * stop is set to something other than loss or entry.
-            * A stop order does not have stop_price set.
-            * stp is a value other than dc. co, cn, or cb.
-            
-        :raises APIRequestError: For any error generated by the Coinbase Pro
-            API server.
-        """
-        
-        if side not in ('buy', 'sell'):
-            raise ValueError("Invalid side: {}. Must be either buy or sell".format(side))
-            
-        if order_type not in ('limit', 'market'):
-            raise ValueError("Invalid order type: {}. Must be either market or limit".format(order_type))
-            
-        if stop and stop not in ('loss', 'entry'):
-            raise ValueError("Invalid stop: {}. Must be either loss or entry.".format(stop))
-            
-        if stop and not stop_price:
-            raise ValueError("Stop orders must have stop_price set.")
-            
-        if stp not in ('dc', 'co', 'cn', 'cb'):
-            raise ValueError('Invalid stp: {}. Must be dc, co, cn, or cb.'.format(stp))
-        
-        data = {
-                 'side': side,
-                 'product_id': product_id,
-                 'type': order_type,
-                 'stp': stp
-                }
-                 
-        if stop:
-            data.update({'stop': stop, 'stop_price': stop_price})
-            
-        if client_oid:
-            data['client_oid'] = client_oid
-                 
-        if order_type == 'limit':
-            
-            if not (price and size):
-                raise ValueError('Limit orders must have both price and size set.')
-                
-            if time_in_force not in ('GTC', 'GTT', 'IOC', 'FOK'):
-                raise ValueError('time_in_force must be GTC, GCC, IOC or FOK.')
-                
-            if time_in_force == 'GTT' and not cancel_after:
-                raise ValueError('cancel_after required for GTT time_in_force.')
-            
-            if cancel_after and not time_in_force == 'GTT':
-                raise ValueError('cancel_after requires time_in_force to be GTT.')
-                
-            if cancel_after and cancel_after not in ('min', 'hour', 'day'):
-                raise ValueError('cancel_after must be min, hour, or day.')
-                
-            if (time_in_force == 'IOC' or time_in_force == 'FOK') and post_only:
-                raise ValueError(
-                    'post_only must be False for time_in_force {}'.format(time_in_force))
-            
-            data.update({
-                          'price': price,
-                          'size': size,
-                          'time_in_force': time_in_force,
-                          'post_only': post_only
-                        })
-                         
-            if cancel_after:
-                data['cancel_after'] = cancel_after
-                
-        else:
-            
-            if not (funds or size):
-                raise ValueError('Market orders must have funds or size set.')
-                
-            if funds and size:
-                raise ValueError("Market orders can't have both funds and size set.")
-                
-            if size:
-                data['size'] = size
-                
-            if funds:
-                data['funds'] = funds
-        
-        headers, body = await self.post('/orders', data=data, auth=True)
-        return body
-        
-    
     async def cancel(self, order_id):
         """Cancel a previously placed order.
 
@@ -1438,14 +1240,22 @@ class Client:
         return body
         
         
-    async def cancel_all(self, product_id=None):
-        """Cancel all open orders.
+    async def cancel_all(self, product_id=None, stop=False):
+        """Cancel all orders.
+        
+        The default behavior of this method (and the Coinbase API method) is to
+        only cancel *open* orders. Stop orders, once placed, have a status 
+        method of active and will not be cancelled. Setting stop=True will also
+        cancel stop orders or :meth:`rest.Client.cancel` can be used to cancel 
+        invidual stop orders.
         
          ..note:: This method requires authorization. The API key must have 
             the "trade" permission.
             
         :param str product_id: (optional) Only cancel orders for the specified
             product. The default is None.
+            
+        :param bool stop: (optional) Also delete stop orders
             
         :returns: A list of the ids of the orders that were successfully 
             cancelled.
@@ -1467,9 +1277,20 @@ class Client:
         """
         params = {'product_id': product_id} if product_id else {}
         
-        headers, body = await self.delete('/orders', params=params, auth=True)
+        headers, cancelled = await self.delete('/orders', params=params, auth=True)
         
-        return body
+        if stop:
+            orders, _, _ = await self.orders(['active', 'open', 'pending'])
+            for order in orders:
+                try:
+                    if not product_id or product_id == order['product_id']:
+                        resp = await self.cancel(order['id'])
+                        if len(resp):
+                            cancelled.append(resp[0])
+                except APIRequestError:
+                    pass
+        
+        return cancelled
         
     
     async def orders(self, status=None, product_id=None, limit=100, before=None, 
