@@ -271,11 +271,25 @@ class TestRest(TestCase):
     #     self.assertEqual(account['currency'], 'BTC')
             
             
-    # # TO DO
-    # @expectedFailure
-    # @skipUnless(TEST_AUTH and TEST_ACCOUNT, "Auth credentials and test account ID required")
-    # async def test_get_account_history(self):
-    #     assert False
+    @skipUnless(TEST_AUTH and TEST_BTC_ACCOUNT, "Auth credentials and test BTC account ID required")
+    async def test_account_history(self):
+        
+        order = await self.auth_client.market_order('buy', 'BTC-USD', size=.001)
+        
+        history, before, after = await self.auth_client.account_history(TEST_BTC_ACCOUNT)
+        
+        keys = {'amount', 'balance', 'created_at', 'details', 'id', 'type'}
+        self.assertIsInstance(history, list)
+        self.assertGreaterEqual(len(history), 1)
+        self.assertEqual(history[0].keys(), keys)
+        
+        if after:
+            after_history, after_before, after_after =  await self.auth_client.account_history(TEST_BTC_ACCOUNT, after=after)
+            self.assertGreater(history[-1]['id'], after_history[0]['id'])
+            
+            original_history, _, _ = await self.auth_client.account_history(TEST_BTC_ACCOUNT, before=after_before)
+            self.assertEqual(original_history, history)
+            
         
     # # TO DO   
     # @expectedFailure
@@ -615,58 +629,58 @@ class TestRest(TestCase):
     #     self.assertEqual(resp[0], s_order['id'])
             
         
-    @skipUnless(TEST_AUTH, "Auth credentials required")
-    async def test_cancel_all(self):
-        # Assumes place_order and orders work
-        await self.auth_client.cancel_all(stop=True)
-        orders, _, _ = await self.auth_client.orders(['open', 'active'])
-        self.assertEqual(len(orders), 0)
+    # @skipUnless(TEST_AUTH, "Auth credentials required")
+    # async def test_cancel_all(self):
+    #     # Assumes place_order and orders work
+    #     await self.auth_client.cancel_all(stop=True)
+    #     orders, _, _ = await self.auth_client.orders(['open', 'active'])
+    #     self.assertEqual(len(orders), 0)
         
-        await asyncio.sleep(0.5)
+    #     await asyncio.sleep(0.5)
         
-        for price in (1, 2, 3):
-            order = await self.auth_client.limit_order('buy', 'BTC-USD', 
-                                                      price=price, size=1)
-            await asyncio.sleep(0.5)
+    #     for price in (1, 2, 3):
+    #         order = await self.auth_client.limit_order('buy', 'BTC-USD', 
+    #                                                   price=price, size=1)
+    #         await asyncio.sleep(0.5)
             
-        for price in (10000, 20000, 30000):
-            order = await self.auth_client.limit_order('sell', 'LTC-USD', 
-                                                      price=price, size=0.01)
-            await asyncio.sleep(0.5)    
+    #     for price in (10000, 20000, 30000):
+    #         order = await self.auth_client.limit_order('sell', 'LTC-USD', 
+    #                                                   price=price, size=0.01)
+    #         await asyncio.sleep(0.5)    
         
-        order = await self.auth_client.limit_order('buy', 'ETH-USD', 1, .01)
+    #     order = await self.auth_client.limit_order('buy', 'ETH-USD', 1, .01)
         
-        order = await self.auth_client.market_order('sell', 'LTC-USD', .02,
-                                                    stop='loss', stop_price=1)
+    #     order = await self.auth_client.market_order('sell', 'LTC-USD', .02,
+    #                                                 stop='loss', stop_price=1)
         
-        order = await self.auth_client.limit_order('buy', 'LTC-USD', 8000, .01,
-                                                   stop='entry', stop_price=6500)
+    #     order = await self.auth_client.limit_order('buy', 'LTC-USD', 8000, .01,
+    #                                               stop='entry', stop_price=6500)
 
-        order = await self.auth_client.market_order('buy', 'ETH-USD', .03,
-                                                   stop='entry', stop_price=2000)
+    #     order = await self.auth_client.market_order('buy', 'ETH-USD', .03,
+    #                                               stop='entry', stop_price=2000)
                                                     
-        orders, _, _ = await self.auth_client.orders(['open', 'active'])
-        self.assertEqual(len(orders), 10)
+    #     orders, _, _ = await self.auth_client.orders(['open', 'active'])
+    #     self.assertEqual(len(orders), 10)
         
-        resp = await self.auth_client.cancel_all('BTC-USD')
-        self.assertEqual(len(resp), 3)
-        orders, _, _ = await self.auth_client.orders(['open', 'active'])
-        self.assertEqual(len(orders), 7)
+    #     resp = await self.auth_client.cancel_all('BTC-USD')
+    #     self.assertEqual(len(resp), 3)
+    #     orders, _, _ = await self.auth_client.orders(['open', 'active'])
+    #     self.assertEqual(len(orders), 7)
         
-        resp = await self.auth_client.cancel_all()
-        self.assertEqual(len(resp), 4)
-        orders, _, _ = await self.auth_client.orders(['open', 'active'])
-        self.assertEqual(len(orders), 3)
+    #     resp = await self.auth_client.cancel_all()
+    #     self.assertEqual(len(resp), 4)
+    #     orders, _, _ = await self.auth_client.orders(['open', 'active'])
+    #     self.assertEqual(len(orders), 3)
         
-        resp = await self.auth_client.cancel_all(product_id='LTC-USD', stop=True)
-        self.assertEqual(len(resp), 2)
-        orders, _, _ = await self.auth_client.orders(['open', 'active'])
-        self.assertEqual(len(orders), 1)
+    #     resp = await self.auth_client.cancel_all(product_id='LTC-USD', stop=True)
+    #     self.assertEqual(len(resp), 2)
+    #     orders, _, _ = await self.auth_client.orders(['open', 'active'])
+    #     self.assertEqual(len(orders), 1)
         
-        resp = await self.auth_client.cancel_all(stop=True)
-        self.assertEqual(len(resp), 1)
-        orders, _, _ = await self.auth_client.orders(['open', 'active'])
-        self.assertEqual(orders, [])        
+    #     resp = await self.auth_client.cancel_all(stop=True)
+    #     self.assertEqual(len(resp), 1)
+    #     orders, _, _ = await self.auth_client.orders(['open', 'active'])
+    #     self.assertEqual(orders, [])        
 
 
     # @skipUnless(TEST_AUTH, "Auth credentials required")

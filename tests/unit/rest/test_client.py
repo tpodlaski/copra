@@ -16,7 +16,7 @@ from multidict import MultiDict
 from copra.rest import APIRequestError, Client, URL, HEADERS
 from tests.unit.rest.util import MockTestCase
 
-
+# These are made up
 TEST_KEY = 'a035b37f42394a6d343231f7f772b99d'
 TEST_SECRET = 'aVGe54dHHYUSudB3sJdcQx4BfQ6K5oVdcYv4eRtDN6fBHEQf5Go6BACew4G0iFjfLKJHmWY5ZEwlqxdslop4CC=='
 TEST_PASSPHRASE = 'a2f9ee4dx2b'
