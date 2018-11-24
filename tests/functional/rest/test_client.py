@@ -271,36 +271,35 @@ class TestRest(TestCase):
     #     self.assertEqual(account['currency'], 'BTC')
             
             
-    @skipUnless(TEST_AUTH and TEST_BTC_ACCOUNT, "Auth credentials and test BTC account ID required")
-    async def test_account_history(self):
-        # Assumes market_order works.
+    # @skipUnless(TEST_AUTH and TEST_BTC_ACCOUNT, "Auth credentials and test BTC account ID required")
+    # async def test_account_history(self):
+    #     # Assumes market_order works.
         
-        orders = []
-        for i in range(1,6):
-            size = 0.001 * i
-            order = await self.auth_client.market_order('buy', 'BTC-USD', size)
-            orders.append(order)
-            await asyncio.sleep(0.25)
+    #     orders = []
+    #     for i in range(1,6):
+    #         size = 0.001 * i
+    #         order = await self.auth_client.market_order('buy', 'BTC-USD', size)
+    #         orders.append(order)
+    #         await asyncio.sleep(0.25)
         
-        history, before, after = await self.auth_client.account_history(
-                                                          TEST_BTC_ACCOUNT, limit=3)
+    #     history, before, after = await self.auth_client.account_history(
+    #                                                       TEST_BTC_ACCOUNT, limit=3)
             
-        keys = {'amount', 'balance', 'created_at', 'details', 'id', 'type'}
-        self.assertIsInstance(history, list)
-        self.assertEqual(len(history), 3)
-        self.assertEqual(history[0].keys(), keys)
-        self.assertEqual(history[0]['type'], 'match')
-        self.assertEqual(history[0]['details']['order_id'], orders[4]['id'])
-        self.assertEqual(history[0]['details']['product_id'], 'BTC-USD')
+    #     keys = {'amount', 'balance', 'created_at', 'details', 'id', 'type'}
+    #     self.assertIsInstance(history, list)
+    #     self.assertEqual(len(history), 3)
+    #     self.assertEqual(history[0].keys(), keys)
+    #     self.assertEqual(history[0]['type'], 'match')
+    #     self.assertEqual(history[0]['details']['order_id'], orders[4]['id'])
+    #     self.assertEqual(history[0]['details']['product_id'], 'BTC-USD')
             
-        after_history, after_before, after_after =  await self.auth_client.account_history(TEST_BTC_ACCOUNT, after=after)
-        self.assertGreater(history[-1]['id'], after_history[0]['id'])
+    #     after_history, after_before, after_after =  await self.auth_client.account_history(TEST_BTC_ACCOUNT, after=after)
+    #     self.assertGreater(history[-1]['id'], after_history[0]['id'])
                 
-        original_history, _, _ = await self.auth_client.account_history(TEST_BTC_ACCOUNT, before=after_before)
-        self.assertEqual(original_history, history)
+    #     original_history, _, _ = await self.auth_client.account_history(TEST_BTC_ACCOUNT, before=after_before)
+    #     self.assertEqual(original_history, history)
             
         
-
     # @skipUnless(TEST_AUTH and TEST_BTC_ACCOUNT, "Auth credentials and test BTC account ID required")
     # async def test_holds(self):
     #     # Assumes cancel, cancel_all and limit_order work
@@ -682,7 +681,7 @@ class TestRest(TestCase):
         
     # @skipUnless(TEST_AUTH, "Auth credentials required")
     # async def test_cancel_all(self):
-    #     # Assumes place_order and orders work
+    #     # Assumes market_order, limit_order, and orders work
     #     await self.auth_client.cancel_all(stop=True)
     #     orders, _, _ = await self.auth_client.orders(['open', 'active'])
     #     self.assertEqual(len(orders), 0)
@@ -736,53 +735,114 @@ class TestRest(TestCase):
 
     # @skipUnless(TEST_AUTH, "Auth credentials required")
     # async def test_orders(self):
-    #     # Assumes place_order and cancel_all work
-    #     await self.auth_client.cancel_all()
-    #     open_orders, _, _, = await self.auth_client.orders('open')
-    #     self.assertEqual(len(open_orders), 0)
+    #     # Assumes limit_order, market_order, and cancel_all work
+    #     await self.auth_client.cancel_all(stop=True)
+    #     orders, _, _, = await self.auth_client.orders(['open', 'active'])
+    #     self.assertEqual(len(orders), 0)
         
     #     open_ids = []
-    #     for price in (1.0, 1.1):
-    #         order = await self.auth_client.place_order('buy', 'BTC-USD', 
-    #                                                   price=price, size=1)
+    #     for i in range(1, 4):
+    #         price = 1 + i /10
+    #         size = .001 * i
+    #         order = await self.auth_client.limit_order('buy', 'BTC-USD', 
+    #                                                   price=price, size=size)
     #         open_ids.append(order['id'])
             
     #     open_orders, _, _ = await self.auth_client.orders('open')
-    #     self.assertEqual(len(open_orders), 2)
-    #     self.assertEqual(open_orders[0]['id'], open_ids[1])
-    #     self.assertEqual(open_orders[1]['id'], open_ids[0])
+    #     self.assertEqual(len(open_orders), 3)
+    #     self.assertEqual(open_orders[0]['id'], open_ids[2])
+    #     self.assertEqual(open_orders[1]['id'], open_ids[1])
+    #     self.assertEqual(open_orders[2]['id'], open_ids[0])
+        
+    #     active_ids = []
+    #     for i in range(1,4):
+    #         price = i + 1
+    #         stop_price = i
+    #         size = .01 * i
+    #         order = await self.auth_client.limit_order('sell', 'LTC-USD',
+    #                                          price=price, size=size,
+    #                                          stop='loss', stop_price=stop_price)
+    #         active_ids.append(order['id'])
+            
+    #     active_orders, _, _ = await self.auth_client.orders('active')
+    #     self.assertEqual(len(active_orders), 3)
+    #     self.assertEqual(active_orders[0]['id'], active_ids[2])
+    #     self.assertEqual(active_orders[1]['id'], active_ids[1])
+    #     self.assertEqual(active_orders[2]['id'], active_ids[0])
         
     #     market_ids = []
-    #     for _ in range(2):
-    #         order = await self.auth_client.place_order('buy', 'BTC-USD',
-    #                                             order_type='market', size=0.01)
+    #     for i in range(1,4):
+    #         size = 0.001 * i
+    #         order = await self.auth_client.market_order('buy', 'BTC-USD',
+    #                                                     size=0.01)
     #         market_ids.append(order['id'])
-        
+    #         await asyncio.sleep(0.25)
+            
     #     all_orders, _, _, = await self.auth_client.orders('all')
-    #     self.assertGreaterEqual(len(all_orders), 4)
-    #     self.assertEqual(all_orders[0]['id'], market_ids[1])
-    #     self.assertEqual(all_orders[1]['id'], market_ids[0])
-    #     self.assertEqual(all_orders[2]['id'], open_ids[1])
-    #     self.assertEqual(all_orders[3]['id'], open_ids[0])
+    #     self.assertGreaterEqual(len(all_orders), 9)
+    #     self.assertEqual(all_orders[0]['id'], market_ids[2])
+    #     self.assertEqual(all_orders[1]['id'], market_ids[1])
+    #     self.assertEqual(all_orders[2]['id'], market_ids[0])
+    #     self.assertEqual(all_orders[3]['id'], active_ids[2])
         
-    #     await self.auth_client.cancel_all()
-    #     open_orders, _, _, = await self.auth_client.orders('open')
-    #     self.assertEqual(len(open_orders), 0)
+    #     oa_orders, _, _, = await self.auth_client.orders(['open', 'active'])
+    #     self.assertGreaterEqual(len(all_orders), 9)
+    #     self.assertEqual(oa_orders[0]['id'], active_ids[2])
+    #     self.assertEqual(oa_orders[1]['id'], active_ids[1])
+    #     self.assertEqual(oa_orders[2]['id'], active_ids[0])
+    #     self.assertEqual(oa_orders[3]['id'], open_ids[2])
+    #     self.assertEqual(oa_orders[4]['id'], open_ids[1])
+    #     self.assertEqual(oa_orders[5]['id'], open_ids[0])
+        
+    #     oa_btc_orders, _, _  = await self.auth_client.orders(['open', 'active'],
+    #                                                          'BTC-USD')
+    #     self.assertEqual(oa_btc_orders[0]['id'], open_ids[2])
+    #     self.assertEqual(oa_btc_orders[1]['id'], open_ids[1])
+    #     self.assertEqual(oa_btc_orders[2]['id'], open_ids[0])
+        
+    #     orders, before, after = await self.auth_client.orders('all', limit=5)
+    #     self.assertEqual(len(orders), 5)
+    #     self.assertEqual(orders[0]['id'], market_ids[2])
+    #     self.assertEqual(orders[4]['id'], active_ids[1])
+        
+    #     after_orders, after_before, after_after = await self.auth_client.orders(
+    #                                                          'all', after=after)
+    #     self.assertEqual(after_orders[0]['id'], active_ids[0])
+        
+    #     original_orders, _, _ = await self.auth_client.orders('all', before=after_before)
+    #     self.assertEqual(original_orders, orders)
+        
+    #     await self.auth_client.cancel_all(stop=True)
+    #     oa_orders, _, _, = await self.auth_client.orders(['open', 'active'])
+    #     self.assertEqual(len(oa_orders), 0)
         
 
-    # @skipUnless(TEST_AUTH, "Auth credentials required")
-    # async def test_order(self):
-    #     # Assumes place order works
-    #     open_ids = []
-    #     for price in (1.1, 1.2, 1.3):
-    #         order = await self.auth_client.place_order('buy', 'BTC-USD', 
-    #                                                   price=price, size=1)
-    #         open_ids.append(order['id'])
+    @skipUnless(TEST_AUTH, "Auth credentials required")
+    async def test_order(self):
+        # Assumes limit_order and market_order work
+        ids = []
+        for i in range(1, 4):
+            price = 1 + i/10
+            size = .001 * i
+            order = await self.auth_client.limit_order('buy', 'BTC-USD', 
+                                                       price=price, size=size)
+            ids.append(order['id'])
             
-    #     order = await self.auth_client.order(open_ids[1])
+        for i in range(1, 4):
+            size = .001 * i
+            order = await self.auth_client.market_order('sell', 'BTC-USD',
+                                                        size=size)
+            ids.append(order['id'])
+            
+        oid = random.choice(ids)
+        order = await self.auth_client.order(oid)
+        self.assertEqual(order['id'], oid)
         
-    #     await self.auth_client.cancel_all()
+        oid = random.choice(ids)
+        order = await self.auth_client.order(oid)
+        self.assertEqual(order['id'], oid)
         
+
         
     # # TO DO
     # @expectedFailure 
