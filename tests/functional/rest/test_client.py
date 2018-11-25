@@ -935,18 +935,18 @@ class TestRest(TestCase):
     #     self.assertEqual(resp['currency'], 'USD')
     
 
-    @skipUnless(TEST_AUTH and TEST_USD_ACCOUNT and TEST_USD_COINBASE_ACCOUNT, 
-    "Auth credentials, test USD account, and test usd Coinbase account  required")
-    async def test_deposit_cointbase(self):
+    # @skipUnless(TEST_AUTH and TEST_USD_ACCOUNT and TEST_USD_COINBASE_ACCOUNT, 
+    # "Auth credentials, test USD account, and test usd Coinbase account  required")
+    # async def test_deposit_cointbase(self):
         
-        resp = await self.auth_client.deposit_coinbase(150, 'USD',
-                                                      TEST_USD_COINBASE_ACCOUNT)
+    #     resp = await self.auth_client.deposit_coinbase(150, 'USD',
+    #                                                   TEST_USD_COINBASE_ACCOUNT)
         
-        keys = {'amount', 'currency', 'id'}
-        self.assertIsInstance(resp, dict)
-        self.assertEqual(resp.keys(), keys)
-        self.assertEqual(resp['currency'], 'USD')
-        self.assertEqual(float(resp['amount']), 150.0)
+    #     keys = {'amount', 'currency', 'id'}
+    #     self.assertIsInstance(resp, dict)
+    #     self.assertEqual(resp.keys(), keys)
+    #     self.assertEqual(resp['currency'], 'USD')
+    #     self.assertEqual(float(resp['amount']), 150.0)
 
 
     # # TO DO
@@ -955,12 +955,20 @@ class TestRest(TestCase):
     # async def test_withdraw_payment_method(self):
     #     assert False
         
-    # # TO DO
-    # @expectedFailure 
-    # @skipUnless(TEST_AUTH, "Auth credentials required")
-    # async def test_withdraw_cointbase(self):
-    #     assert False
+
+    @skipUnless(TEST_AUTH and TEST_USD_ACCOUNT and TEST_USD_COINBASE_ACCOUNT, 
+    "Auth credentials, test USD account, and test usd Coinbase account  required")
+    async def test_withdraw_cointbase(self):
+
+        resp = await self.auth_client.withdraw_coinbase(75, 'USD',
+                                                      TEST_USD_COINBASE_ACCOUNT)
         
+        keys = {'amount', 'currency', 'id'}
+        self.assertIsInstance(resp, dict)
+        self.assertEqual(resp.keys(), keys)
+        self.assertEqual(resp['currency'], 'USD')
+        self.assertEqual(float(resp['amount']), 75.0)
+
     # # TO DO
     # @expectedFailure 
     # @skipUnless(TEST_AUTH, "Auth credentials required")
