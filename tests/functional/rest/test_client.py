@@ -1,11 +1,27 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """Functional tests for `copra.rest.Client` class.
+
+Without any additional user input, this module will test all of the 
+unauthenticated methods of the copra.rest.Client.
+
+An API key for the Coinbase Pro sandbox is required to test the authenticated
+methods. The key information as well as the ids of a few test accounts are 
+read in to this module as environment variables by the dotenv module from a
+file named .env. The .env file must reside in the same directory as this test 
+module.
+
+An example .env file named .env.sample is provided. To test the authenticated
+methods, fill out the .env.sample file accordingly and rename it to .env.
 """
 
-from dotenv import load_dotenv
-load_dotenv()
-
+import os.path
+if os.path.isfile(os.path.join(os.path.dirname(__file__), '.env')):
+    from dotenv import load_dotenv
+    load_dotenv()
+else:
+    print("\n** .env file not found. Authenticated methods will be skipped. **\n")
+    
 import asyncio
 from datetime import datetime, timedelta
 import os
@@ -25,7 +41,7 @@ PASSPHRASE = os.getenv('PASSPHRASE')
 TEST_AUTH = True if (KEY and SECRET and PASSPHRASE) else False
 TEST_BTC_ACCOUNT = os.getenv('TEST_BTC_ACCOUNT')
 TEST_USD_ACCOUNT = os.getenv('TEST_USD_ACCOUNT')
-TEST_USD_DEPOSIT_METHOD = os.getenv('TEST_USD_DEPOSIT_METHOD')
+TEST_USD_PAYMENT_METHOD = os.getenv('TEST_USD_PAYMENT_METHOD')
 TEST_USD_COINBASE_ACCOUNT = os.getenv('TEST_USD_COINBASE_ACCOUNT')
 
 HTTPBIN = 'http://httpbin.org'
@@ -35,14 +51,17 @@ class TestRest(TestCase):
     
     def setUp(self):
         self.client = Client(self.loop)
-        self.auth_client = Client(self.loop, SANDBOX_URL, auth=True, key=KEY, secret=SECRET, 
-                                  passphrase=PASSPHRASE)
+        if TEST_AUTH:
+            self.auth_client = Client(self.loop, SANDBOX_URL, auth=True, 
+                                      key=KEY, secret=SECRET, 
+                                      passphrase=PASSPHRASE)
      
                                   
     def tearDown(self):
-        self.loop.run_until_complete(self.auth_client.cancel_all(stop=True))
         self.loop.create_task(self.client.close())
-        self.loop.create_task(self.auth_client.close())
+        if TEST_AUTH:
+            self.loop.run_until_complete(self.auth_client.cancel_all(stop=True))
+            self.loop.create_task(self.auth_client.close())
         # try to avoid public rate limit, allow for aiohttp cleanup and
         # all outstanding Coinbase actions to complete
         self.loop.run_until_complete(asyncio.sleep(1))
@@ -920,13 +939,13 @@ class TestRest(TestCase):
         
         
     @expectedFailure
-    @skipUnless(TEST_AUTH and TEST_USD_ACCOUNT and TEST_USD_DEPOSIT_METHOD,
+    @skipUnless(TEST_AUTH and TEST_USD_ACCOUNT and TEST_USD_PAYMENT_METHOD,
     "Auth credentials, test USD account, and test USD payment method required.")
     async def test_deposit_payment_method(self):
         # As of 11/25/18 this call returns a 401 error:
         # "refresh of oauth token failed"
         resp = await self.auth_client.deposit_payment_method(1500, 'USD', 
-                                                        TEST_USD_DEPOSIT_METHOD)
+                                                        TEST_USD_PAYMENT_METHOD)
                                                         
         keys = {'amount', 'currency', 'id', 'payout_at'}
         self.assertIsInstance(resp, dict)
@@ -949,13 +968,13 @@ class TestRest(TestCase):
         self.assertEqual(float(resp['amount']), 150.0)
 
     @expectedFailure
-    @skipUnless(TEST_AUTH and TEST_USD_ACCOUNT and TEST_USD_DEPOSIT_METHOD,
+    @skipUnless(TEST_AUTH and TEST_USD_ACCOUNT and TEST_USD_PAYMENT_METHOD,
     "Auth credentials, test USD account, and test USD payment method required.")
     async def test_withdraw_payment_method(self):
         # As of 11/25/18 this call returns a 401 error:
         # "refresh of oauth token failed"    
         resp = await self.auth_client.withdraw_payment_method(1500, 'USD', 
-                                                        TEST_USD_DEPOSIT_METHOD)
+                                                        TEST_USD_PAYMENT_METHOD)
                                                         
         keys = {'amount', 'currency', 'id', 'payout_at'}
         self.assertIsInstance(resp, dict)
