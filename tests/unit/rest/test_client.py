@@ -980,10 +980,8 @@ class TestRest(MockTestCase):
             
         resp =await self.auth_client.stablecoin_conversion('USD', 'USDC', 19.72)
         self.check_req(self.mock_post, '{}/conversions'.format(URL),
-                      data={'from_currency_id': 'USD', 
-                             'to_currency_id': 'USDC', 
-                             'amount': 19.72}, 
-                        headers=AUTH_HEADERS)                       
+                       data={'from': 'USD', 'to': 'USDC', 'amount': 19.72}, 
+                       headers=AUTH_HEADERS)                       
     
 
     async def test_create_report(self):

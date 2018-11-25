@@ -1964,8 +1964,8 @@ class Client:
             API server.
         """
         headers, body = await self.post('/conversions', 
-                                data={'from_currency_id': from_currency_id,
-                                      'to_currency_id': to_currency_id,
+                                data={'from': from_currency_id,
+                                      'to': to_currency_id,
                                       'amount': amount},
                                 auth=True)
         return body
