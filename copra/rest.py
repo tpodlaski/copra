@@ -2057,10 +2057,10 @@ class Client:
                 "Invalid format {}. Must be either 'csv' or 'pdf'.".format(report_format))
             
         data = {
-                'report_type': report_type,
+                'type': report_type,
                 'start_date': start_date,
                 'end_date': end_date,
-                'report_format': report_format
+                'format': report_format
                }
                
         if product_id:

@@ -1017,9 +1017,9 @@ class TestRest(MockTestCase):
         # report type fills, default format
         resp = await self.auth_client.create_report('fills', start, end, 'BTC_USD')
         self.check_req(self.mock_post, '{}/reports'.format(URL),
-                      data={'report_type': 'fills', 'product_id': 'BTC_USD',
+                      data={'type': 'fills', 'product_id': 'BTC_USD',
                              'start_date': start, 'end_date': end, 
-                             'report_format': 'pdf'},
+                             'format': 'pdf'},
                       headers=AUTH_HEADERS)
                        
         # report type account, non-default format, email
@@ -1027,9 +1027,9 @@ class TestRest(MockTestCase):
                              account_id='R2D2', report_format='csv',
                              email='me@example.com')
         self.check_req(self.mock_post, '{}/reports'.format(URL),
-                      data={'report_type': 'account', 'account_id': 'R2D2',
+                      data={'type': 'account', 'account_id': 'R2D2',
                              'start_date': start, 'end_date': end,
-                             'report_format': 'csv', 'email': 'me@example.com'},
+                             'format': 'csv', 'email': 'me@example.com'},
                       headers=AUTH_HEADERS)
                 
             

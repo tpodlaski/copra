@@ -965,24 +965,90 @@ class TestRest(TestCase):
     # async def test_stablecoin_conversion(self):
     #     assert False
         
-    # # TO DO
-    # @expectedFailure 
-    # @skipUnless(TEST_AUTH, "Auth credentials required")
-    # async def test_create_report(self):
-    #     assert False
-        
-    # # TO DO
-    # @expectedFailure 
-    # @skipUnless(TEST_AUTH, "Auth credentials required")
-    # async def test_report_status(self):
-    #     assert False
-        
 
-    @skipUnless(TEST_AUTH, "Auth credentials required")
-    async def test_trailing_volume (self):
-        tv = await self.auth_client.trailing_volume()
+    @skipUnless(TEST_AUTH and TEST_BTC_ACCOUNT, "Auth credentials and test BTC account ID required")
+    async def test_reports(self):
+        # Combines tests for create_report and report_status
+        orders = []
+        for i in range(1, 4):
+            size = .001 * i
+            side = random.choice(['buy', 'sell'])
+            
+            order = await self.auth_client.market_order(side, 'BTC-USD', size=size)
+            orders.append(order)
+            await asyncio.sleep(.25)
         
-        keys ={'product_id', 'volume', 'exchange_volume', 'recorded_at'}
-        self.assertIsInstance(tv, list)
-        self.assertIsInstance(tv[0], dict)
-        self.assertEqual(tv[0].keys(), keys)
+        keys = {'id', 'type', 'status'}
+        
+        end = datetime.utcnow()
+        start = end - timedelta(days=1)
+        end = end.isoformat()
+        start = start.isoformat()
+        resp1 = await self.auth_client.create_report('account', start, end,
+                                                    account_id=TEST_BTC_ACCOUNT)
+        self.assertIsInstance(resp1, dict)
+        self.assertEqual(resp1.keys(), keys)
+        self.assertEqual(resp1['type'], 'account')
+        
+        resp2 = await self.auth_client.create_report('fills', start, end,
+                                                           product_id='BTC-USD')
+        self.assertIsInstance(resp2, dict)
+        self.assertEqual(resp2.keys(), keys)
+        self.assertEqual(resp2['type'], 'fills')
+        
+        resp3 = await self.auth_client.create_report('fills', start, end,
+                                      product_id='BTC-USD', report_format='csv', 
+                                      email='test@example.com')
+                                      
+        self.assertIsInstance(resp3, dict)
+        self.assertEqual(resp3.keys(), keys)
+        self.assertEqual(resp3['type'], 'fills')
+        
+        await asyncio.sleep(10)
+        
+        status1 = await self.auth_client.report_status(resp1['id'])
+        
+        keys = {'completed_at', 'created_at', 'expires_at', 'file_url', 'id', 
+                'params', 'status', 'type', 'user_id'}
+        statuses = {'pending', 'creating', 'ready'}
+        self.assertIsInstance(status1, dict)
+        self.assertEqual(status1.keys(), keys)
+        self.assertEqual(status1['id'], resp1['id'])
+        self.assertEqual(status1['type'], 'account')
+        self.assertIn(status1['status'], statuses)
+        self.assertEqual(status1['params']['start_date'], start)
+        self.assertEqual(status1['params']['end_date'], end)
+        self.assertEqual(status1['params']['format'], 'pdf')
+        self.assertEqual(status1['params']['account_id'], TEST_BTC_ACCOUNT)
+        
+        status2 = await self.auth_client.report_status(resp2['id'])
+        self.assertIsInstance(status2, dict)
+        self.assertEqual(status2.keys(), keys)
+        self.assertEqual(status2['id'], resp2['id'])
+        self.assertEqual(status2['type'], 'fills')
+        self.assertIn(status2['status'], statuses)
+        self.assertEqual(status2['params']['start_date'], start)
+        self.assertEqual(status2['params']['end_date'], end)
+        self.assertEqual(status2['params']['format'], 'pdf')
+        self.assertEqual(status2['params']['product_id'], 'BTC-USD')
+        
+        status3 = await self.auth_client.report_status(resp3['id'])
+        self.assertIsInstance(status3, dict)
+        self.assertEqual(status3.keys(), keys)
+        self.assertEqual(status3['id'], resp3['id'])
+        self.assertEqual(status3['type'], 'fills')
+        self.assertIn(status3['status'], statuses)
+        self.assertEqual(status3['params']['start_date'], start)
+        self.assertEqual(status3['params']['end_date'], end)
+        self.assertEqual(status3['params']['email'], 'test@example.com')
+        self.assertEqual(status3['params']['format'], 'csv')
+
+
+    # @skipUnless(TEST_AUTH, "Auth credentials required")
+    # async def test_trailing_volume (self):
+    #     tv = await self.auth_client.trailing_volume()
+        
+    #     keys ={'product_id', 'volume', 'exchange_volume', 'recorded_at'}
+    #     self.assertIsInstance(tv, list)
+    #     self.assertIsInstance(tv[0], dict)
+    #     self.assertEqual(tv[0].keys(), keys)
