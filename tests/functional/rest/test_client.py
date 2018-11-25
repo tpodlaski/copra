@@ -948,26 +948,34 @@ class TestRest(TestCase):
     #     self.assertEqual(resp['currency'], 'USD')
     #     self.assertEqual(float(resp['amount']), 150.0)
 
-
-    # # TO DO
-    # @expectedFailure 
-    # @skipUnless(TEST_AUTH, "Auth credentials required")
-    # async def test_withdraw_payment_method(self):
-    #     assert False
-        
-
-    @skipUnless(TEST_AUTH and TEST_USD_ACCOUNT and TEST_USD_COINBASE_ACCOUNT, 
-    "Auth credentials, test USD account, and test usd Coinbase account  required")
-    async def test_withdraw_cointbase(self):
-
-        resp = await self.auth_client.withdraw_coinbase(75, 'USD',
-                                                      TEST_USD_COINBASE_ACCOUNT)
-        
-        keys = {'amount', 'currency', 'id'}
+    @expectedFailure
+    @skipUnless(TEST_AUTH and TEST_USD_ACCOUNT and TEST_USD_DEPOSIT_METHOD,
+    "Auth credentials, test USD account, and test USD payment method required.")
+    async def test_withdraw_payment_method(self):
+        # As of 11/25/18 this call returns a 401 error:
+        # "refresh of oauth token failed"    
+        resp = await self.auth_client.withdraw_payment_method(1500, 'USD', 
+                                                        TEST_USD_DEPOSIT_METHOD)
+                                                        
+        keys = {'amount', 'currency', 'id', 'payout_at'}
         self.assertIsInstance(resp, dict)
         self.assertEqual(resp.keys(), keys)
-        self.assertEqual(resp['currency'], 'USD')
-        self.assertEqual(float(resp['amount']), 75.0)
+        self.assertEqual(float(resp['amount']), 1500.0)
+        self.assertEqual(resp['currency'], 'USD')        
+        
+
+    # @skipUnless(TEST_AUTH and TEST_USD_ACCOUNT and TEST_USD_COINBASE_ACCOUNT, 
+    # "Auth credentials, test USD account, and test usd Coinbase account  required")
+    # async def test_withdraw_cointbase(self):
+
+    #     resp = await self.auth_client.withdraw_coinbase(75, 'USD',
+    #                                                   TEST_USD_COINBASE_ACCOUNT)
+        
+    #     keys = {'amount', 'currency', 'id'}
+    #     self.assertIsInstance(resp, dict)
+    #     self.assertEqual(resp.keys(), keys)
+    #     self.assertEqual(resp['currency'], 'USD')
+    #     self.assertEqual(float(resp['amount']), 75.0)
 
     # # TO DO
     # @expectedFailure 
