@@ -977,12 +977,21 @@ class TestRest(TestCase):
     #     self.assertEqual(resp['currency'], 'USD')
     #     self.assertEqual(float(resp['amount']), 75.0)
 
-    # # TO DO
-    # @expectedFailure 
-    # @skipUnless(TEST_AUTH, "Auth credentials required")
-    # async def test_withdraw_crypto(self):
-    #     assert False
+
+    @expectedFailure
+    @skipUnless(TEST_AUTH, "Auth credentials required")
+    async def test_withdraw_crypto(self):
+        # As of 11/25/18 this call returns a 401 error:
+        # "refresh of oauth token failed - The funds were transferred to 
+        # Coinbase for processing, but failed to withdraw to 
+        # 0x5ad5769cd04681FeD900BCE3DDc877B50E83d469. Please manually withdraw 
+        # from Coinbase."
+        address = "0x5ad5769cd04681FeD900BCE3DDc877B50E83d469"
         
+        resp = await self.auth_client.withdraw_crypto(.001, 'BTC', address)
+        print(resp)
+
+      
     # @expectedFailure 
     # @skipUnless(TEST_AUTH, "Auth credentials required")
     # async def test_stablecoin_conversion(self):
