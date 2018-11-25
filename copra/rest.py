@@ -842,8 +842,8 @@ class Client:
               'created_at': '2018-09-28T19:31:21.211159Z', 
               'id': 10712040275, 
               'amount': '-600.9103845810000000', 
-              'balance': '0.0000005931528000', 'type': 
-              'match', 
+              'balance': '0.0000005931528000', 
+              'type': 'match', 
               'details': {
                            'order_id': 'd2fadbb5-8769-4b80-91da-be3d9c6bd38d', 
                            'trade_id': '34209042', 

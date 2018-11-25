@@ -844,55 +844,55 @@ class TestRest(TestCase):
         
 
         
-    @skipUnless(TEST_AUTH, "Auth credentials required")
-    async def test_fills(self):
-        # Assumes market_order works
+    # @skipUnless(TEST_AUTH, "Auth credentials required")
+    # async def test_fills(self):
+    #     # Assumes market_order works
         
-        orders = []
-        for i in range(1, 5):
-            btc_size = .001 * i
-            ltc_size = .01 * i
-            side = random.choice(['buy', 'sell'])
+    #     orders = []
+    #     for i in range(1, 5):
+    #         btc_size = .001 * i
+    #         ltc_size = .01 * i
+    #         side = random.choice(['buy', 'sell'])
             
-            order = await self.auth_client.market_order(side, 'BTC-USD', size=btc_size)
-            orders.append(order)
+    #         order = await self.auth_client.market_order(side, 'BTC-USD', size=btc_size)
+    #         orders.append(order)
             
-            await asyncio.sleep(.25)
+    #         await asyncio.sleep(.25)
             
-            order = await self.auth_client.market_order(side, 'LTC-USD', size=ltc_size)
-            orders.append(order)
+    #         order = await self.auth_client.market_order(side, 'LTC-USD', size=ltc_size)
+    #         orders.append(order)
             
-            await asyncio.sleep(.25)
+    #         await asyncio.sleep(.25)
             
-        fills, _, _ = await self.auth_client.fills(product_id='BTC-USD')
+    #     fills, _, _ = await self.auth_client.fills(product_id='BTC-USD')
         
-        keys = {'created_at', 'fee', 'liquidity', 'order_id', 'price', 
-                'product_id', 'profile_id', 'settled', 'side', 'size', 
-                'trade_id', 'usd_volume', 'user_id'}
-        self.assertGreaterEqual(len(fills), 4)
-        self.assertEqual(fills[0]['order_id'], orders[6]['id'])
+    #     keys = {'created_at', 'fee', 'liquidity', 'order_id', 'price', 
+    #             'product_id', 'profile_id', 'settled', 'side', 'size', 
+    #             'trade_id', 'usd_volume', 'user_id'}
+    #     self.assertGreaterEqual(len(fills), 4)
+    #     self.assertEqual(fills[0]['order_id'], orders[6]['id'])
         
-        fills, before, after = await self.auth_client.fills(product_id='LTC-USD', limit=3)
-        self.assertEqual(len(fills), 3)
-        self.assertEqual(fills[0]['order_id'], orders[7]['id'])
+    #     fills, before, after = await self.auth_client.fills(product_id='LTC-USD', limit=3)
+    #     self.assertEqual(len(fills), 3)
+    #     self.assertEqual(fills[0]['order_id'], orders[7]['id'])
         
-        after_fills, after_before, after_after = await self.auth_client.fills(
-                                              product_id='LTC-USD', after=after)
+    #     after_fills, after_before, after_after = await self.auth_client.fills(
+    #                                           product_id='LTC-USD', after=after)
                                               
-        self.assertLess(after_fills[0]['trade_id'], fills[-1]['trade_id'])
+    #     self.assertLess(after_fills[0]['trade_id'], fills[-1]['trade_id'])
         
-        original_fills, _, _ = await self.auth_client.fills(product_id='LTC-USD',
-                                                             before=after_before)
-        self.assertEqual(original_fills, fills)
+    #     original_fills, _, _ = await self.auth_client.fills(product_id='LTC-USD',
+    #                                                          before=after_before)
+    #     self.assertEqual(original_fills, fills)
         
-        order = random.choice(orders)
-        fills, _, _ = await self.auth_client.fills(order_id=order['id'])
-        self.assertGreaterEqual(len(fills), 1)
+    #     order = random.choice(orders)
+    #     fills, _, _ = await self.auth_client.fills(order_id=order['id'])
+    #     self.assertGreaterEqual(len(fills), 1)
         
-        total = 0
-        for fill in fills:
-            total += float(fill['size'])
-        self.assertAlmostEqual(total, float(order['size']))
+    #     total = 0
+    #     for fill in fills:
+    #         total += float(fill['size'])
+    #     self.assertAlmostEqual(total, float(order['size']))
             
             
     # @skipUnless(TEST_AUTH, "Auth credentials required")
@@ -902,6 +902,8 @@ class TestRest(TestCase):
     #             'limits'}
 
     #     methods = await self.auth_client.payment_methods()
+    #     for method in methods:
+    #         print(method, '\n\n')
     #     self.assertIsInstance(methods, list)
     #     self.assertIsInstance(methods[0], dict)
     #     self.assertGreaterEqual(methods[0].keys(), keys)
@@ -920,10 +922,10 @@ class TestRest(TestCase):
     # @skipUnless(TEST_AUTH and TEST_USD_ACCOUNT and TEST_USD_DEPOSIT_METHOD,
     # "Auth credentials, test USD account, and test USD payment method required.")
     # async def test_deposit_payment_method(self):
-    #     # Presupposes that rest.Client.account() works properly
-    #     usd_account = await self.auth_client.account(TEST_USD_ACCOUNT)
-    #     pre_usd_balance = usd_account['balance']
-    #     print(pre_usd_balance)
+    #     # Assumes account works.
+    #     # usd_account = await self.auth_client.account(TEST_USD_ACCOUNT)
+    #     # pre_usd_balance = usd_account['balance']
+    #     # print(pre_usd_balance)
         
     #     deposit = await self.auth_client.deposit_payment_method(1500, 'USD', 
     #                                                     TEST_USD_DEPOSIT_METHOD)
@@ -976,6 +978,11 @@ class TestRest(TestCase):
     #     assert False
         
 
-    # @skipUnless(TEST_AUTH, "Auth credentials required")
-    # async def test_trailing_volume (self):
-    #     tv = await self.auth_client.trailing_volume()
+    @skipUnless(TEST_AUTH, "Auth credentials required")
+    async def test_trailing_volume (self):
+        tv = await self.auth_client.trailing_volume()
+        
+        keys ={'product_id', 'volume', 'exchange_volume', 'recorded_at'}
+        self.assertIsInstance(tv, list)
+        self.assertIsInstance(tv[0], dict)
+        self.assertEqual(tv[0].keys(), keys)
