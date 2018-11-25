@@ -714,14 +714,7 @@ class Client:
             either the "view" or "trade" permission.
         
         :returns: A list of dicts where each dict contains information about
-            a trading a account. The fields of the dict are:
-            
-        * **id** The account ID
-        * **currency** Account currency
-        * **balance*** Total balance
-        * **available** Blalance available for use (=balance - hold)
-        * **hold** Funds on hold (not available for use)
-        * **profile_id**
+            a trading a account.
         
         :Example:
         
@@ -744,7 +737,8 @@ class Client:
         """
         headers, body = await self.get('/accounts', auth=True)
         return body
-        
+
+       
     async def account(self, account_id):
         """Information for a single account. 
         
@@ -753,16 +747,10 @@ class Client:
             
         :param str account_id: The ID of the account to be retrieved.
             
-        :returns: A dict of account information. The fields of the dict are:
-
-        * **id** The account ID
-        * **currency** Account currency
-        * **balance*** Total balance
-        * **available** Blalance available for use (=balance - hold)
-        * **hold** Funds on hold (not available for use)
-        * **profile_id**
+        :returns: A dict of account information.
         
         :Example:
+        
         {
           'id': 'a764610f-334e-4ece-b4dd-f31111ed58e7', 
           'currency': 'USD', 
@@ -925,20 +913,10 @@ class Client:
             
         :returns: A 3-tuple (holds, before cursor, after cursor)
             The first item is a list of dicts each representing a hold on the 
-            account. The fields of the dict are:
-            
-            * **id** The hold id
-            * **acount_id** The id of the account the hold is on
-            * **created_at** The date and time the hold was created
-            * **updated_at** The date and time the hold was updated
-            * **amount** The amount of the hold
-            * **type** The reason for the hold, either **order** or **transfer**
-            * **ref** The id of the order or the transfer that caused the hold
-            
-            The second item in the tuple is the before cursor which can be used 
-            in squbsequent calls to retrieve a page of results newer than 
-            the current one. The third item is the after cursor which can be 
-            used in subsequent calls to retrieve the page of results that is 
+            account.The second item in the tuple is the before cursor which can 
+            be used in squbsequent calls to retrieve a page of results newer 
+            than the current one. The third item is the after cursor which can 
+            be used in subsequent calls to retrieve the page of results that is 
             older than the current one. NOTE: the before cursor and after
             cursor may be None if there is not an earlier page or later page
             respectively.
@@ -1044,6 +1022,28 @@ class Client:
         ..note:: To see a more detailed explanation of these parameters and to
             learn more about the order life cycle, please see the official 
             Coinbase Pro API documentation at: https://docs.gdax.com/#channels.
+            
+        :returns: A dict of information about the order.
+        
+        :Example:
+        
+        {
+          'id': '97059421-3033-4cf4-99cb-925c1bf2c54f', 
+          'price': '35.00000000', 
+          'size': '0.00100000', 
+          'product_id': 'BTC-USD', 
+          'side': 'buy', 
+          'stp': 'dc', 
+          'type': 'limit', 
+          'time_in_force': 'GTC', 
+          'post_only': False, 
+          'created_at': '2018-11-25T21:24:37.166378Z', 
+          'fill_fees': '0.0000000000000000', 
+          'filled_size': '0.00000000', 
+          'executed_value': '0.0000000000000000', 
+          'status': 'pending', 
+          'settled': False
+        }
             
         :raises ValueError: If... 
         
@@ -1159,7 +1159,27 @@ class Client:
         ..note:: To see a more detailed explanation of these parameters and to
             learn more about the order life cycle, please see the official 
             Coinbase Pro API documentation at: https://docs.gdax.com/#channels.
-            
+        
+        :returns: A dict of information about the order.
+        
+        :Example:
+        
+        {
+          'id': '37e81782-cc45-4ecc-a9ff-59c327bb1d40', 
+          'size': '0.00100000', 
+          'product_id': 'BTC-USD', 
+          'side': 'sell', 
+          'stp': 'dc', 
+          'type': 'market', 
+          'post_only': False, 
+          'created_at': '2018-11-25T21:28:04.788042Z', 
+          'fill_fees': '0.0000000000000000', 
+          'filled_size': '0.00000000', 
+          'executed_value': '0.0000000000000000', 
+          'status': 'pending', 
+          'settled': False
+        }
+        
         :raises ValueError: If... 
         
             * The client is not configured for authorization.
@@ -2182,31 +2202,3 @@ class Client:
         headers, body = await self.get('/users/self/trailing-volume', auth=True)
         
         return body
-    
-    
-if __name__ == '__main__':
-    import os
-    from dotenv import load_dotenv
-    load_dotenv()
-    
-    KEY = os.getenv("KEY")
-    SECRET = os.getenv("SECRET")
-    PASSPHRASE = os.getenv("PASSPHRASE")
-    
-    loop = asyncio.get_event_loop()
-    
-    #client = Client(loop, auth=True, key=KEY, secret=SECRET, passphrase=PASSPHRASE)
-    
-    async def go():
-        async with Client(loop, auth=True, key=KEY, secret=SECRET, passphrase=PASSPHRASE) as client:
-            headers, body = await client.get('/fail', auth=True)
-            print(headers)
-            print(body)
-        
-    loop.run_until_complete(go())
-    loop.run_until_complete(client.close())
-    
-    loop.close()
-        
-        
-    
