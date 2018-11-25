@@ -919,26 +919,34 @@ class TestRest(TestCase):
     #     self.assertGreaterEqual(accounts[0].keys(), keys)
         
         
+    # @expectedFailure
     # @skipUnless(TEST_AUTH and TEST_USD_ACCOUNT and TEST_USD_DEPOSIT_METHOD,
     # "Auth credentials, test USD account, and test USD payment method required.")
     # async def test_deposit_payment_method(self):
-    #     # Assumes account works.
-    #     # usd_account = await self.auth_client.account(TEST_USD_ACCOUNT)
-    #     # pre_usd_balance = usd_account['balance']
-    #     # print(pre_usd_balance)
-        
-    #     deposit = await self.auth_client.deposit_payment_method(1500, 'USD', 
+    #     # As of 11/25/18 this call returns a 401 error:
+    #     # "refresh of oauth token failed"
+    #     resp = await self.auth_client.deposit_payment_method(1500, 'USD', 
     #                                                     TEST_USD_DEPOSIT_METHOD)
                                                         
-    #     print(deposit)
+    #     keys = {'amount', 'currency', 'id', 'payout_at'}
+    #     self.assertIsInstance(resp, dict)
+    #     self.assertEqual(resp.keys(), keys)
+    #     self.assertEqual(float(resp['amount']), 1500.0)
+    #     self.assertEqual(resp['currency'], 'USD')
+    
 
-
-    # @skipUnless(TEST_AUTH and TEST_USD_ACCOUNT and TEST_USD_COINBASE_ACCOUNT, 
-    # "Auth credentials, test USD account, and test usd Coinbase account  required")
-    # async def test_deposit_cointbase(self):
-    #     deposit = await self.auth_client.deposit_coinbase(150, 'USD',
-    #                                               TEST_USD_COINBASE_ACCOUNT)
-    #     print(deposit)
+    @skipUnless(TEST_AUTH and TEST_USD_ACCOUNT and TEST_USD_COINBASE_ACCOUNT, 
+    "Auth credentials, test USD account, and test usd Coinbase account  required")
+    async def test_deposit_cointbase(self):
+        
+        resp = await self.auth_client.deposit_coinbase(150, 'USD',
+                                                      TEST_USD_COINBASE_ACCOUNT)
+        
+        keys = {'amount', 'currency', 'id'}
+        self.assertIsInstance(resp, dict)
+        self.assertEqual(resp.keys(), keys)
+        self.assertEqual(resp['currency'], 'USD')
+        self.assertEqual(float(resp['amount']), 150.0)
 
 
     # # TO DO
@@ -959,19 +967,19 @@ class TestRest(TestCase):
     # async def test_withdraw_crypto(self):
     #     assert False
         
-    @expectedFailure 
-    @skipUnless(TEST_AUTH, "Auth credentials required")
-    async def test_stablecoin_conversion(self):
-        # As of 11/25/18 this call returns a 400 error:
-        # "USDC is not enabled for your account"
-        resp = await self.auth_client.stablecoin_conversion('USD', 'USDC', 100)
+    # @expectedFailure 
+    # @skipUnless(TEST_AUTH, "Auth credentials required")
+    # async def test_stablecoin_conversion(self):
+    #     # As of 11/25/18 this call returns a 400 error:
+    #     # "USDC is not enabled for your account"
+    #     resp = await self.auth_client.stablecoin_conversion('USD', 'USDC', 100)
         
-        keys = {'amount', 'id', 'from', 'from_account_id', 'to', 'to_account_id'}
-        self.assertIsInstance(resp, dict)
-        self.assertEqual(resp.keys(), keys)
-        self.assertEqual(float(resp['amount']), 100.0)
-        self.assertEqual(resp['from'], 'USD')
-        self.assertEqual(resp['to'], 'USDC')
+    #     keys = {'amount', 'id', 'from', 'from_account_id', 'to', 'to_account_id'}
+    #     self.assertIsInstance(resp, dict)
+    #     self.assertEqual(resp.keys(), keys)
+    #     self.assertEqual(float(resp['amount']), 100.0)
+    #     self.assertEqual(resp['from'], 'USD')
+    #     self.assertEqual(resp['to'], 'USDC')
         
 
     # @skipUnless(TEST_AUTH and TEST_BTC_ACCOUNT, "Auth credentials and test BTC account ID required")
