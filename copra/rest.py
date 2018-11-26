@@ -484,13 +484,9 @@ class Client:
         because the maker was a buy order and their order was removed. 
         Conversely, sell side indicates an up-tick.
         
-        .. note:: This method is paginated. Methods that can return multiple 
-            pages of results return a 3-tuple instead of a dict or list like most
-            other methods. The first item in the tuple is the page of results -
-            a list or dict similar to other methods. The 2nd and 3rd items are
-            cursors for making requests for newer/earlier pages, the before cursor 
-            which the second item, and for making requests for older/later pages,
-            the after cursor which is the 3rd item.
+        .. admonition:: Pagination
+        
+            This method is paginated. See pagination_ for more details.
         
         :param str product_id: The product id whose trades are to be retrieved.
             The product id is a string consisting of a base currency and a 
@@ -907,13 +903,9 @@ class Client:
             This method requires authorization. The API key must have either the 
             "view" or "trade" permission.
             
-        .. note:: This method is paginated. Methods that can return multiple 
-            pages of results return a 3-tuple instead of a dict or list like most
-            other methods. The first item in the tuple is the page of results -
-            a list or dict similar to other methods. The 2nd and 3rd items are
-            cursors for making requests for newer/earlier pages, the before cursor 
-            which the second item, and for making requests for older/later pages,
-            the after cursor which is the 3rd item.
+        .. admonition:: Pagination
+        
+            This method is paginated. See pagination_ for more details.
             
         :param str account_id: The acount ID to be checked for holds.
         
@@ -1359,13 +1351,9 @@ class Client:
             This method requires authorization. The API key must have either the 
             "view" or "trade" permission.
             
-        .. note:: This method is paginated. Methods that can return multiple 
-            pages of results return a 3-tuple instead of a dict or list like most
-            other methods. The first item in the tuple is the page of results -
-            a list or dict similar to other methods. The 2nd and 3rd items are
-            cursors for making requests for newer/earlier pages, the before cursor 
-            which the second item, and for making requests for older/later pages,
-            the after cursor which is the 3rd item.
+        .. admonition:: Pagination
+        
+            This method is paginated. See pagination_ for more details.
             
         :param str status: (optional) Limit list of orders to these statuses: 
             open, pending, active or all. The parameter maybe a single string or a 
@@ -1534,13 +1522,9 @@ class Client:
             This method requires authorization. The API key must have either the 
             "view" or "trade" permission.
             
-        .. note:: This method is paginated. Methods that can return multiple 
-            pages of results return a 3-tuple instead of a dict or list like most
-            other methods. The first item in the tuple is the page of results -
-            a list or dict similar to other methods. The 2nd and 3rd items are
-            cursors for making requests for newer/earlier pages, the before cursor 
-            which the second item, and for making requests for older/later pages,
-            the after cursor which is the 3rd item.
+        .. admonition:: Pagination
+        
+            This method is paginated. See pagination_ for more details.
             
         :param str order_id: (optional) Limit list of fills to this order_id
         
