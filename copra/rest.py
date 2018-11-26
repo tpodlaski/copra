@@ -740,7 +740,7 @@ class Client:
 
        
     async def account(self, account_id):
-        """Information for a single account. 
+        """Retrieve information for a single account. 
         
         .. note:: This method requires authorization. The API key must have 
             either the "view" or "trade" permission.
@@ -770,10 +770,10 @@ class Client:
 
       
     async def account_history(self, account_id, limit=100, before=None, after=None):
-        """List activity for an account.account
+        """List activity for an account.
         
-        Account activity either increases or decreases your account balance. 
-        Items are paginated and sorted latest first.
+        Account activity are transactions that either increase or decrease your 
+        account balance. Items are paginated and sorted latest first.
         
         .. note:: This method requires authorization. The API key must have 
             either the "view" or "trade" permission.
@@ -1005,7 +1005,7 @@ class Client:
             values are dc (decrease and cancel), co (cancel oldest), 
             cn (cancel newest), or cb (cancel both). The default is dc.
             
-        ..warning:: As of 11/18, sending anything other than dc for stp while
+        .. warning:: As of 11/18, sending anything other than dc for stp while
             testing in Coinbase Pro's sandbox yields an APIRequestError 
             "Invalid stp..." even though the Coinbase API documentation claims
             the other options for stp are valid. Change this from dc at your
@@ -1142,7 +1142,7 @@ class Client:
             values are dc (decrease and cancel), co (cancel oldest), 
             cn (cancel newest), or cb (cancel both). The default is dc.
             
-        ..warning:: As of 11/18, sending anything other than dc for stp while
+        .. warning:: As of 11/18, sending anything other than dc for stp while
             testing in Coinbase Pro's sandbox yields an APIRequestError 
             "Invalid stp..." even though the Coinbase API documentation claims
             the other options for stp are valid. Change this from dc at your
