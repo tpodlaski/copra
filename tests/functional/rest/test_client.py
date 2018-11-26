@@ -837,9 +837,9 @@ class TestRest(TestCase):
         oa_orders, _, _, = await self.auth_client.orders(['open', 'active'])
         self.assertEqual(len(oa_orders), 0)
         
-
+        
     @skipUnless(TEST_AUTH, "Auth credentials required")
-    async def test_order(self):
+    async def test_get_order(self):
         # Assumes limit_order and market_order work
         ids = []
         for i in range(1, 4):
@@ -856,11 +856,11 @@ class TestRest(TestCase):
             ids.append(order['id'])
             
         oid = random.choice(ids)
-        order = await self.auth_client.order(oid)
+        order = await self.auth_client.get_order(oid)
         self.assertEqual(order['id'], oid)
         
         oid = random.choice(ids)
-        order = await self.auth_client.order(oid)
+        order = await self.auth_client.get_order(oid)
         self.assertEqual(order['id'], oid)
         
 

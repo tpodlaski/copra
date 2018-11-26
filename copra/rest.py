@@ -1442,7 +1442,7 @@ class Client:
         return (body, headers.get('cb-before', None), headers.get('cb-after', None))
         
         
-    async def order(self, order_id):
+    async def get_order(self, order_id):
         """Get a single order by order id.
 
         ..note:: This method requires authorization. The API key must have 
