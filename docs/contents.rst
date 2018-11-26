@@ -5,7 +5,7 @@
    installation
    usage
    examples
-   source/modules
+   source/copra.rest
    contributing
    authors
    license
