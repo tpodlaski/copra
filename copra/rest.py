@@ -50,7 +50,9 @@ class APIRequestError(Exception):
 class Client:
     """Asyncronous REST client for Coinbase Pro.
     
-    This is somemore text.
+    .. _pagination:
+    
+    *Pagination*
     
     """
     
