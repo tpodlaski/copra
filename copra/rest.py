@@ -650,8 +650,8 @@ class Client:
     async def get_24hour_stats(self, product_id):
         """Get 24 hr stats for a product.
         
-        :param str product_id: The product id.`
-            
+        :param str product_id: The product id.
+        
         :returns: A dict of stats for the product including: open, high, low,
             volume, last price, and 30 day volume.
             
