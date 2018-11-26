@@ -811,15 +811,11 @@ class Client:
         :param int limit: (optional) The number of results to be returned per 
             request. The default (and maximum) value is 100.
             
-        :param int before: (optional) The before cursor value. Used to reuest a 
-            page of results newer than a previous request. This would be the 
-            before cursor returned in that earlier call to this method. The 
-            default is None.
+        :param int before: (optional) The before cursor value. The default is 
+            None.
         
-        :param int after: (optional) The after cursor value. Used to reuest a 
-            page of results older than a previous request. This would be the 
-            older cursor returned in that earlier call to this method. The
-            default is None.
+        :param int after: (optional) The after cursor value. The default is 
+            None.
         
         :returns: A 3-tuple (history, before cursor, after cursor)
             The first item is a list of dicts each representing an instance of
