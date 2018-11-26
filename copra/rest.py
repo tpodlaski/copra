@@ -749,16 +749,16 @@ class Client:
             
         :returns: A dict of account information.
         
-        :Example:
-            ::
-                {
-                  'id': 'a764610f-334e-4ece-b4dd-f31111ed58e7', 
-                  'currency': 'USD', 
-                  'balance': '1000.0000005931528000', 
-                  'available': '1000.0000005931528', 
-                  'hold': '0.0000000000000000', 
-                  'profile_id': '019be148-d490-45f9-9ead-0d1f64127716'
-                }
+        .. code:: python
+                
+            {
+              'id': 'a764610f-334e-4ece-b4dd-f31111ed58e7', 
+              'currency': 'USD', 
+              'balance': '1000.0000005931528000', 
+              'available': '1000.0000005931528', 
+              'hold': '0.0000000000000000', 
+              'profile_id': '019be148-d490-45f9-9ead-0d1f64127716'
+            }
         
         :raises ValueError: If the client is not configured for authorization.
         
