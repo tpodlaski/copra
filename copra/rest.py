@@ -811,6 +811,7 @@ class Client:
             "view" or "trade" permission.
             
         .. admonition:: Pagination
+        
             This method is paginated. See pagination_ for more details.
            
         :param str account_id: The account id.
