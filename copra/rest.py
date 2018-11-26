@@ -49,6 +49,12 @@ class APIRequestError(Exception):
     
 class Client:
     """Asyncronous REST client for Coinbase Pro.
+    
+    .. _pagination:
+    
+    Pagination
+    ----------
+    
     """
     
     def __init__(self, loop, url=URL, auth=False, key='', secret='', passphrase=''):
@@ -770,10 +776,10 @@ class Client:
 
       
     async def account_history(self, account_id, limit=100, before=None, after=None):
-        """Retrieve a List of activity for an account.
+        """Retrieve a list of activity for an account.
         
         Account activity includes transactions that either increase or decrease 
-        your account balance. Items are paginated and sorted latest first.
+        your account balance. Transactions are sorted latest first.
         
         .. note:: This method requires authorization. The API key must have 
             either the "view" or "trade" permission.
