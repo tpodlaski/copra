@@ -50,9 +50,9 @@ class APIRequestError(Exception):
 class Client:
     """Asyncronous REST client for Coinbase Pro.
     
-    .. _pagination:
-    
     .. note::
+    
+        .. _pagination:
     
         **About Pagination**
     
@@ -67,12 +67,12 @@ class Client:
         The **before** cursor references the first item in a results page and the 
         **after** cursor references the last item in a set of results.
     
-        To request a page of results before the current one (newer 
-        chronologically), use the **before**  parameter. Your initial request 
+        To request a page of results *before* the current one (*newer 
+        chronologically*), use the **before**  parameter. Your initial request 
         can omit this parameter to get the default first page.
         
-        To request a page of results after the current one (older 
-        chronologically), use the **after**  parameter.
+        To request a page of results *after* the current one (*older chronologically*), 
+        use the **after** parameter.
         
     """
     
@@ -803,13 +803,7 @@ class Client:
         .. note:: This method requires authorization. The API key must have 
             either the "view" or "trade" permission.
             
-        .. note:: This method is paginated. Methods that can return multiple 
-            pages of results return a 3-tuple instead of a dict or list like most
-            other methods. The first item in the tuple is the page of results -
-            a list or dict similar to other methods. The 2nd and 3rd items are
-            cursors for making requests for newer/earlier pages, the before cursor 
-            which the second item, and for making requests for older/later pages,
-            the after cursor which is the 3rd item.
+        .. note:: This method is paginated. See pagination_ for more details.
            
         :param str account_id: The id of the account whose history is to be
             retrieved.
