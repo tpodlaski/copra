@@ -685,7 +685,7 @@ class Client:
         :returns: A list of dicts where each dict contains information about a
             currency.
             
-            Example:
+            Example::
         
                 [
                   {
