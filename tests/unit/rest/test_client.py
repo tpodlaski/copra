@@ -354,15 +354,23 @@ class TestRest(MockTestCase):
         # Invalid granularity
         with self.assertRaises(ValueError):
             rates = await self.client.historic_rates('BTC-USD', granularity=100)
+        
+        stop = datetime.utcnow()
+        start = stop - timedelta(days=1)
+        
+        # start, no stop
+        with self.assertRaises(ValueError):
+            rates = await self.client.historic_rates('BTC-USD', start=start)
+            
+        #stop, no start
+        with self.assertRaises(ValueError):
+            rates = await self.client.historic_rates('BTC-USD', stop=stop)
             
         # Default granularity
         rates = await self.client.historic_rates('BTC-USD')
         self.check_req(self.mock_get, '{}/products/BTC-USD/candles'.format(URL),
                       query={'granularity': '3600'}, headers=UNAUTH_HEADERS)
 
-        stop = datetime.utcnow()
-        start = stop - timedelta(days=1)
-            
         # Custom granularity, start, stop
         rates = await self.client.historic_rates('BTC-USD', 900, 
                                                  start.isoformat(), 
