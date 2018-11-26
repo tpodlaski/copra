@@ -981,36 +981,39 @@ class Client:
         :param str side: Either buy or sell
         
         :param str product_id: The product id to be bought or sold.
-            The product id is a string consisting of a base currency and a 
-            quote currency. eg., BTC-USD, ETH-EUR, etc. To see all of the 
-            product ids, use :meth:`rest.Client.products`.
             
         :param float price: The price the order is to be executed at. This 
-            paramater may also be a string to avoid  floating point issues.
+            paramater may also be a string to avoid floating point issues.
             
         :param float size: The quantity of the cryptocurrency to buy or sell. 
             This parameter may also be a string.
             
         :param str time_in_force: (optional) Time in force policies provide 
             guarantees about the lifetime of an order. There are four policies: 
-            good till, canceled GTC, good till time GTT, immediate  or 
-            cancel IOC, and fill or kill FOK. GTT requires that cancel_after be 
-            set. IOC and FOK require post_only be False. The default is GTC.
+            **GTC** (good till canceled), **GTT** (good till time), **IOC** 
+            (immediate or cancel), and **FOK** (fill or kill) 
+            
+            GTT requires that cancel_after be set. IOC and FOK require 
+            post_only be False. The default is GTC.
             
         :param str cancel_after: (optional) The length of time before a GTT 
-            order is cancelled. Must be either min, hour, or day. time_in_force 
-            must be GTT or an error is raised. If cancel_after is not set for a 
-            GTT order, the order will be treated as GTC. The default is None.
+            order is cancelled. Must be either **min***, **hour**, or **day**. 
+            
+            time_in_force must be GTT or an error is raised. If cancel_after is
+            not set for a GTT order, the order will be treated as GTC. 
+            The default is None.
             
         :param bool post_only:(optional) Indicates that the order should only 
             make liquidity. If any part of the order results in taking 
             liquidity, the  order will be rejected and no part of it will 
-            execute. This flag is ignored for IOC and FOK orders. This value
-            must be False for all stop orders. The default is False.
+            execute. 
+            
+            This flag is ignored for IOC and FOK orders. This value must be 
+            False for all stop orders. The default is False.
         
         :param str stp: (optional) Self trade preservation flag. The possible 
-            values are dc (decrease and cancel), co (cancel oldest), 
-            cn (cancel newest), or cb (cancel both). The default is dc.
+            values are **dc** (decrease and cancel), **co** (cancel oldest), 
+            **cn** (cancel newest), or **cb** (cancel both). The default is dc.
             
         .. warning:: As of 11/18, sending anything other than dc for stp while
             testing in Coinbase Pro's sandbox yields an APIRequestError 
@@ -1019,8 +1022,8 @@ class Client:
             own risk.
             
         :param str stop: (optional) If this is a stop order, this value must be 
-            either loss or entry. Requires stop_price to be set. The default is 
-            None.
+            either **loss** or **entry**. Requires stop_price to be set. The 
+            default is None.
             
         :param float stop_price: (optioinal) The trigger price for stop orders. 
             Required if stop is set. This may also be a string. The default is 
@@ -1032,27 +1035,27 @@ class Client:
             
         :returns: A dict of information about the order.
         
-        :Example:
+            Example::
         
-        {
-          'id': '97059421-3033-4cf4-99cb-925c1bf2c54f', 
-          'price': '35.00000000', 
-          'size': '0.00100000', 
-          'product_id': 'BTC-USD', 
-          'side': 'buy', 
-          'stp': 'dc', 
-          'type': 'limit', 
-          'time_in_force': 'GTC', 
-          'post_only': False, 
-          'created_at': '2018-11-25T21:24:37.166378Z', 
-          'fill_fees': '0.0000000000000000', 
-          'filled_size': '0.00000000', 
-          'executed_value': '0.0000000000000000', 
-          'status': 'pending', 
-          'settled': False
-        }
+                {
+                  'id': '97059421-3033-4cf4-99cb-925c1bf2c54f', 
+                  'price': '35.00000000', 
+                  'size': '0.00100000', 
+                  'product_id': 'BTC-USD', 
+                  'side': 'buy', 
+                  'stp': 'dc', 
+                  'type': 'limit', 
+                  'time_in_force': 'GTC', 
+                  'post_only': False, 
+                  'created_at': '2018-11-25T21:24:37.166378Z', 
+                  'fill_fees': '0.0000000000000000', 
+                  'filled_size': '0.00000000', 
+                  'executed_value': '0.0000000000000000', 
+                  'status': 'pending', 
+                  'settled': False
+                }
             
-        :raises ValueError: If... 
+        :raises ValueError:
         
             * The client is not configured for authorization.
             * The side is not either "buy" or "sell".
@@ -1066,6 +1069,9 @@ class Client:
             * A stop order does not have stop_price set.
             * stop_price is set but stop is not
             * A stop_order has post_only set to True
+            
+        :raises APIRequestError: Any error generated by the Coinbase Pro API 
+            server.
         """
         if side not in ('buy', 'sell'):
             raise ValueError("Invalid side: {}. Must be either buy or sell".format(side))
