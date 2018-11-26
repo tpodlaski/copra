@@ -1808,7 +1808,7 @@ class Client:
         
         
     async def deposit_coinbase(self, amount, currency, coinbase_account_id):
-        """Deposit funds from a coinbase account.
+        """Deposit funds from a Coinbase account.
 
         .. admonition:: Authorization
             :class: attention
