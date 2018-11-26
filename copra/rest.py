@@ -733,8 +733,11 @@ class Client:
     async def accounts(self):
         """Get a list of trading accounts.
         
-        .. attention:: This method requires authorization. The API key must have 
-            either the "view" or "trade" permission.
+        .. admonition:: Authorization
+            :class: attention
+        
+            This method requires authorization. The API key must have either the 
+            "view" or "trade" permission.
         
         :returns: A list of dicts where each dict contains information about
             a trading a account.
@@ -768,8 +771,8 @@ class Client:
         .. admonition:: Authorization
             :class: attention
             
-            This method requires authorization. The API key must have  either
-            the "view" or "trade" permission.
+            This method requires authorization. The API key must have either the 
+            "view" or "trade" permission.
             
         :param str account_id: The ID of the account to be retrieved.
             
@@ -801,8 +804,11 @@ class Client:
         Account activity includes transactions that either increase or decrease 
         your account balance. Transactions are sorted latest first.
         
-        .. attention:: This method requires authorization. The API key must have 
-            either the "view" or "trade" permission.
+        .. admonition:: Authorization
+            :class: attention
+            
+            This method requires authorization. The API key must have either the 
+            "view" or "trade" permission.
             
         .. note:: This method is paginated. See pagination_ for more details.
            
@@ -892,9 +898,12 @@ class Client:
         requests. As an order is filled, the hold amount is updated. If an order 
         is canceled, any remaining hold is removed. For a withdraw, once it is 
         completed, the hold is removed.
-        
-        .. attention:: This method requires authorization. The API key must have 
-            either the "view" or "trade" permission.
+
+        .. admonition:: Authorization
+            :class: attention
+            
+            This method requires authorization. The API key must have either the 
+            "view" or "trade" permission.
             
         .. note:: This method is paginated. Methods that can return multiple 
             pages of results return a 3-tuple instead of a dict or list like most
@@ -975,9 +984,12 @@ class Client:
                           post_only=False, client_oid=None, stp='dc',
                           stop=None, stop_price=None):
         """Place a limit order.
-        
-        .. attention:: This method requires authorization. The API key must have 
-            the "trade" permission.
+
+        .. admonition:: Authorization
+            :class: attention
+            
+            This method requires authorization. The API key must have the 
+            "trade" permission.
             
         :param str side: Either buy or sell
         
@@ -1124,8 +1136,11 @@ class Client:
                          client_oid=None, stp='dc', stop=None, stop_price=None):
         """Place a market order or a stop entry/loss market order.
         
-        .. attention:: This method requires authorization. The API key must have 
-            the "trade" permission.
+        .. admonition:: Authorization
+            :class: attention
+            
+            This method requires authorization. The API key must have the 
+            "trade" permission.
             
         :param str side: Either buy or sell
         
@@ -1246,8 +1261,11 @@ class Client:
         purged. This means the order details will not be available with 
         :meth:`rest.Client.order`.
         
-        .. attention:: This method requires authorization. The API key must have 
-            the "trade" permission.
+        .. admonition:: Authorization
+            :class: attention
+            
+            This method requires authorization. The API key must have the 
+            "trade" permission.
             
         :param str order_id: The id of the order to be cancelled. The order id 
             is the server-assigned order id and not the optional client_oid.
@@ -1278,8 +1296,11 @@ class Client:
         cancel stop orders or :meth:`rest.Client.cancel` can be used to cancel 
         invidual stop orders.
         
-         .. attention:: This method requires authorization. The API key must have 
-            the "trade" permission.
+        .. admonition:: Authorization
+            :class: attention
+        
+            This method requires authorization. The API key must have the 
+            "trade" permission.
             
         :param str product_id: (optional) Only cancel orders for the specified
             product. The default is None.
@@ -1329,9 +1350,12 @@ class Client:
         Only open or un-settled orders are returned. As soon as an order is no 
         longer open and settled, it will no longer appear in the default 
         request.
-        
-        .. attention:: This method requires authorization. The API key must have 
-            either the "view" or "trade" permission.
+
+        .. admonition:: Authorization
+            :class: attention
+            
+            This method requires authorization. The API key must have either the 
+            "view" or "trade" permission.
             
         .. note:: This method is paginated. Methods that can return multiple 
             pages of results return a 3-tuple instead of a dict or list like most
@@ -1453,8 +1477,11 @@ class Client:
     async def get_order(self, order_id):
         """Get a single order by order id.
 
-        .. attention:: This method requires authorization. The API key must have 
-            either the "view" or "trade" permission.
+        .. admonition:: Authorization
+            :class: attention
+            
+            This method requires authorization. The API key must have either the 
+            "view" or "trade" permission.
             
         :param str order_id: The id of the order to be retrieved.
         
@@ -1498,9 +1525,12 @@ class Client:
     async def fills(self, order_id='', product_id='', limit=100, before=None, 
                     after=None):
         """Get a list of recent fills.
-        
-        .. attention:: This method requires authorization. The API key must have 
-            either the "view" or "trade" permission.
+
+        .. admonition:: Authorization
+            :class: attention
+            
+            This method requires authorization. The API key must have either the 
+            "view" or "trade" permission.
             
         .. note:: This method is paginated. Methods that can return multiple 
             pages of results return a 3-tuple instead of a dict or list like most
@@ -1583,8 +1613,11 @@ class Client:
     async def payment_methods(self):
         """Get a list of your payment methods.
 
-        .. attention:: This method requires authorization. The API key must have 
-            the "transfer" permission.
+        .. admonition:: Authorization
+            :class: attention
+            
+            This method requires authorization. The API key must have the 
+            "transfer" permission.
             
         :returns: A list of dicts where each dict contains detailed information
             about a payment method the account has available.
@@ -1672,8 +1705,11 @@ class Client:
     async def coinbase_accounts(self):
         """Get a list of your coinbase accounts.
 
-        .. attention:: This method requires authorization. The API key must have 
-            the "transfer" permission.
+        .. admonition:: Authorization
+            :class: attention
+            
+            This method requires authorization. The API key must have the 
+            "transfer" permission.
             
         :returns: A list of dicts where each dict contains information about a
             Coinbase account.
@@ -1757,9 +1793,12 @@ class Client:
         
         To get a list of available payment methods, use 
         :meth:`rest.Client.payment_methods`.
-        
-        .. attention:: This method requires authorization. The API key must have 
-            the "transfer" permission.
+
+        .. admonition:: Authorization
+            :class: attention
+            
+            This method requires authorization. The API key must have the 
+            "transfer" permission.
             
         :param float amount: The amount of the currency to deposit. This 
             paramater may also be a string to avoid floating point issues.
@@ -1797,9 +1836,12 @@ class Client:
         
     async def deposit_coinbase(self, amount, currency, coinbase_account_id):
         """Deposit funds from a coinbase account.
-        
-        .. attention:: This method requires authorization. The API key must have 
-            the "transfer" permission.
+
+        .. admonition:: Authorization
+            :class: attention
+            
+            This method requires authorization. The API key must have the 
+            "transfer" permission.
             
         :param float amount: The amount of the currency to deposit. This 
             paramater may also be a string to avoid floating point issues.
@@ -1840,9 +1882,12 @@ class Client:
         
         To get a list of available payment methods, use 
         :meth:`rest.Client.payment_methods`.
-        
-        .. attention:: This method requires authorization. The API key must have 
-            the "transfer" permission.
+
+        .. admonition:: Authorization
+            :class: attention
+            
+            This method requires authorization. The API key must have the 
+            "transfer" permission.
             
         :param float amount: The amount of the currency to withdrawal. This 
             paramater may also be a string to avoid floating point issues.
@@ -1881,9 +1926,12 @@ class Client:
         
     async def withdraw_coinbase(self, amount, currency, coinbase_account_id):
         """Withdraw funds to a coinbase account.
-        
-        .. attention:: This method requires authorization. The API key must have 
-            the "transfer" permission.
+
+        .. admonition:: Authorization
+            :class: attention
+            
+            This method requires authorization. The API key must have the 
+            "transfer" permission.
             
         :param float amount: The amount of the currency to withdraw. This 
             paramater may also be a string to avoid floating point issues.
@@ -1922,8 +1970,11 @@ class Client:
     async def withdraw_crypto(self, amount, currency, crypto_address):
         """Withdraw funds to a crypto address.
         
-        .. attention:: This method requires authorization. The API key must have 
-            the "transfer" permission.
+        .. admonition:: Authorization
+            :class: attention
+            
+            This method requires authorization. The API key must have the 
+            "transfer" permission.
             
         :param float amount: The amount of the currency to withdraw. This 
             paramater may also be a string to avoid floating point issues.
@@ -1960,8 +2011,11 @@ class Client:
     async def stablecoin_conversion(self, from_currency_id, to_currency_id, amount):
         """Convert to and from a stablecoin.
         
-        .. attention:: This method requires authorization. The API key must have 
-            the "trade" permission.
+        .. admonition:: Authorization
+            :class: attention
+            
+            This method requires authorization. The API key must have the 
+            "trade" permission.
         
         .. note:: As oF November 8th, 1018, Coinbase Pro only supports
             USD-USDC conversions
@@ -2016,8 +2070,11 @@ class Client:
             being created. Once a report expires, the report is no longer 
             available for download and is deleted.
         
-        .. attention:: This method requires authorization. The API key must have 
-            either the "view" or "trade" permission.
+        .. admonition:: Authorization
+            :class: attention
+            
+            This method requires authorization. The API key must have either the 
+            "view" or "trade" permission.
             
         :param str report_type: The type of report to generate. This must be
             either "fills" or "account".
@@ -2121,8 +2178,11 @@ class Client:
         The final report will be uploaded and available at file_url once the 
         status indicates ready.
         
-        .. attention:: This method requires authorization. The API key must have 
-            either the "view" or "trade" permission.
+        .. admonition:: Authorization
+            :class: attention
+            
+            This method requires authorization. The API key must have either 
+            the "view" or "trade" permission.
             
         :param str report_id: The id of the report. This is obtained from
             :meth:`rest.Client.create_report`.
@@ -2179,8 +2239,11 @@ class Client:
         
          This is a cached value that’s calculated every day at midnight UTC.
          
-        .. attention:: This method requires authorization. The API key must have 
-            either the "view" or "trade" permission.
+        .. admonition:: Authorization
+            :class: attention
+            
+            This method requires authorization. The API key must have either the 
+            "view" or "trade" permission.
             
         :returns: A list of dicts where each dict contains information about
             a specific product that was traded.
