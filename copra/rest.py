@@ -805,8 +805,7 @@ class Client:
             
         .. note:: This method is paginated. See pagination_ for more details.
            
-        :param str account_id: The id of the account whose history is to be
-            retrieved.
+        :param str account_id: The account id.
             
         :param int limit: (optional) The number of results to be returned per 
             request. The default (and maximum) value is 100.
@@ -817,8 +816,9 @@ class Client:
         :param int after: (optional) The after cursor value. The default is 
             None.
         
-        :returns: A 3-tuple (history, before cursor, after cursor)
-            The first item is a list of dicts each representing an instance of
+        :returns: A 3-tuple (results, before cursor, after cursor)
+            
+            results is a list of dicts each representing an instance of
             account activity. The different types of activity returned are:
             
             * **transfer** Funds moved to/from Coinbase to Coinbase Pro
@@ -829,14 +829,6 @@ class Client:
             The details field contains type-specific details about the specific
             transaction.
         
-            The second item in the tuple is the before cursor which can be used 
-            in squbsequent calls to retrieve a page of results newer than 
-            the current one. The third item is the after cursor which can be 
-            used in subsequent calls to retrieve the page of results that is 
-            older than the current one. NOTE: the before cursor and after
-            cursor may be None if there is not an earlier page or later page
-            respectively.
-            
             Example::
         
                 (
