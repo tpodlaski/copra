@@ -53,6 +53,7 @@ class Client:
     .. _pagination:
     
     .. note:
+    
         **Pagination**
     
         Most (but not all) client methods that return a list use cursor pagination. 
