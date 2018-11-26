@@ -990,14 +990,14 @@ class Client:
             
         :param str time_in_force: (optional) Time in force policies provide 
             guarantees about the lifetime of an order. There are four policies: 
-            **GTC** (good till canceled), **GTT** (good till time), **IOC** 
-            (immediate or cancel), and **FOK** (fill or kill) 
+            GTC (good till canceled), GTT (good till time), IOC (immediate or 
+            cancel), and FOK (fill or kill) 
             
             GTT requires that cancel_after be set. IOC and FOK require 
             post_only be False. The default is GTC.
             
         :param str cancel_after: (optional) The length of time before a GTT 
-            order is cancelled. Must be either **min***, **hour**, or **day**. 
+            order is cancelled. Must be either min, hour, or day. 
             
             time_in_force must be GTT or an error is raised. If cancel_after is
             not set for a GTT order, the order will be treated as GTC. 
@@ -1012,8 +1012,8 @@ class Client:
             False for all stop orders. The default is False.
         
         :param str stp: (optional) Self trade preservation flag. The possible 
-            values are **dc** (decrease and cancel), **co** (cancel oldest), 
-            **cn** (cancel newest), or **cb** (cancel both). The default is dc.
+            values are dc (decrease and cancel), co (cancel oldest), cn (cancel 
+            newest), or cb (cancel both). The default is dc.
             
         .. warning:: As of 11/18, sending anything other than dc for stp while
             testing in Coinbase Pro's sandbox yields an APIRequestError 
@@ -1022,8 +1022,8 @@ class Client:
             own risk.
             
         :param str stop: (optional) If this is a stop order, this value must be 
-            either **loss** or **entry**. Requires stop_price to be set. The 
-            default is None.
+            either loss or entry. Requires stop_price to be set. The default is 
+            None.
             
         :param float stop_price: (optioinal) The trigger price for stop orders. 
             Required if stop is set. This may also be a string. The default is 
