@@ -735,7 +735,7 @@ class Client:
     async def accounts(self):
         """Get a list of trading accounts.
         
-        .. note:: This method requires authorization. The API key must have 
+        .. attention:: This method requires authorization. The API key must have 
             either the "view" or "trade" permission.
         
         :returns: A list of dicts where each dict contains information about
