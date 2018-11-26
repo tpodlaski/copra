@@ -53,7 +53,7 @@ class Client:
     .. _pagination:
     
     Pagination
-    ----------
+    ==========
     
     """
     
