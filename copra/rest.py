@@ -146,11 +146,11 @@ class Client:
             exists for testing purposes and generally should not be used. If a 
             timestamp is provided it must be within 30 seconds of the API 
             server's time. This can be found using: 
-            :meth:`rest.Client.server_time`.
+            :meth:`copra.rest.Client.server_time`.
             
         :returns: A dict of headers to be added to the request.
         
-        :raises ValueError: If auth is not True.
+        :raises ValueError: auth is not True.
         """
         if not self.auth:
             raise ValueError('client is not properly configured for authorization')
