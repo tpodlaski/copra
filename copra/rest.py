@@ -1731,7 +1731,7 @@ class Client:
                                 "name": "United States"
                             },
                             "account_name": "Coinbase, Inc",
-                            "account_address": "548 Market Street, #23008, San Francisco, CA 94104",
+                            "account_address": "548 Market Street, San Fran, CA 94104",
                             "reference": "BAOCAEUX"
                         }
                     },
@@ -1744,25 +1744,7 @@ class Client:
                         "primary": true,
                         "active": true
                     },
-                    {
-                        "id": "2a11354e-f133-5771-8a37-622be9b239db",
-                        "name": "EUR Wallet",
-                        "balance": "0.00",
-                        "currency": "EUR",
-                        "type": "fiat",
-                        "primary": false,
-                        "active": true,
-                        "sepa_deposit_information": {
-                            "iban": "EE957700771001355096",
-                            "swift": "LHVBEE22",
-                            "bank_name": "AS LHV Pank",
-                            "bank_address": "Tartu mnt 2, 10145 Tallinn, Estonia",
-                            "bank_country_name": "Estonia",
-                            "account_name": "Coinbase UK, Ltd.",
-                            "account_address": "9th Floor, 107 Cheapside, London, EC2V 6DN, United Kingdom",
-                            "reference": "CBAEUXOVFXOXYX"
-                        }
-                    },
+                    ...,
                 ]
         
         :raises ValueError: The client is not configured for authorization.
