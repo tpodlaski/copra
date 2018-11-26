@@ -767,8 +767,10 @@ class Client:
     async def account(self, account_id):
         """Retrieve information for a single account. 
         
-        .. attention:: This method requires authorization. The API key must have 
-            either the "view" or "trade" permission.
+        .. admonition:: Authorization
+        
+            This method requires authorization. The API key must have  either
+            the "view" or "trade" permission.
             
         :param str account_id: The ID of the account to be retrieved.
             
