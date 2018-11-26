@@ -50,10 +50,10 @@ class APIRequestError(Exception):
 class Client:
     """Asyncronous REST client for Coinbase Pro.
     
-    .. _pagination:
-    
     .. note:
     
+        .. _pagination:
+        
         **About Pagination**
     
         Most (but not all) client methods that return a list use cursor pagination. 
