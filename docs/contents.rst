@@ -5,7 +5,7 @@
    installation
    usage
    examples
-   source/copra.websocket
+   source/modules
    contributing
    authors
    license
