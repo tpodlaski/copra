@@ -1288,7 +1288,7 @@ class Client:
         method) is to cancel only *open* orders. Stop orders, once placed, have a
         status method of *active* and will not be cancelled. 
         
-        Setting **stop**=*True* will also cancel stop orders or 
+        Setting * **stop** = True* will also cancel stop orders or 
         :meth:`rest.Client.cancel` can be used to cancel invidual stop orders.
         
         .. admonition:: Authorization
