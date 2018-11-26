@@ -768,7 +768,6 @@ class Client:
         """Retrieve information for a single account. 
         
         .. admonition:: Authorization
-            
             :class: attention
             
             This method requires authorization. The API key must have  either
