@@ -1289,7 +1289,8 @@ class Client:
         status method of *active* and will not be cancelled. 
         
         Setting **stop** = True will also cancel stop orders or 
-        :meth:`rest.Client.cancel` can be used to cancel invidual stop orders.
+        :meth:`copra.rest.Client.cancel` can be used to cancel invidual stop 
+        orders.
         
         .. admonition:: Authorization
             :class: attention
