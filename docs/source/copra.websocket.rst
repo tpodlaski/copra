@@ -1,6 +1,6 @@
-====================
-Websocket Public API Reference
-====================
+==============================
+WebSocket Public API Reference
+==============================
 
 The following is an API reference of CoPrA generated from Python source code and docstrings.
 
