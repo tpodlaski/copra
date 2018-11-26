@@ -1253,7 +1253,7 @@ class Client:
 
         If the order had no matches during its lifetime its record may be 
         purged. This means the order details will not be available with 
-        :meth:`rest.Client.get_order`.
+        :meth:`copra.rest.Client.get_order`.
         
         .. admonition:: Authorization
             :class: attention
@@ -1701,74 +1701,74 @@ class Client:
         :returns: A list of dicts where each dict contains information about a
             Coinbase account.
             
-        :Example:
+            Example::
         
-        [
-            {
-                "id": "fc3a8a57-7142-542d-8436-95a3d82e1622",
-                "name": "ETH Wallet",
-                "balance": "0.00000000",
-                "currency": "ETH",
-                "type": "wallet",
-                "primary": false,
-                "active": true
-            },
-            {
-                "id": "2ae3354e-f1c3-5771-8a37-6228e9d239db",
-                "name": "USD Wallet",
-                "balance": "0.00",
-                "currency": "USD",
-                "type": "fiat",
-                "primary": false,
-                "active": true,
-                "wire_deposit_information": {
-                    "account_number": "0199003122",
-                    "routing_number": "026013356",
-                    "bank_name": "Metropolitan Commercial Bank",
-                    "bank_address": "99 Park Ave 4th Fl New York, NY 10016",
-                    "bank_country": {
-                        "code": "US",
-                        "name": "United States"
+                [
+                    {
+                        "id": "fc3a8a57-7142-542d-8436-95a3d82e1622",
+                        "name": "ETH Wallet",
+                        "balance": "0.00000000",
+                        "currency": "ETH",
+                        "type": "wallet",
+                        "primary": false,
+                        "active": true
                     },
-                    "account_name": "Coinbase, Inc",
-                    "account_address": "548 Market Street, #23008, San Francisco, CA 94104",
-                    "reference": "BAOCAEUX"
-                }
-            },
-            {
-                "id": "1bfad868-5223-5d3c-8a22-b5ed371e55cb",
-                "name": "BTC Wallet",
-                "balance": "0.00000000",
-                "currency": "BTC",
-                "type": "wallet",
-                "primary": true,
-                "active": true
-            },
-            {
-                "id": "2a11354e-f133-5771-8a37-622be9b239db",
-                "name": "EUR Wallet",
-                "balance": "0.00",
-                "currency": "EUR",
-                "type": "fiat",
-                "primary": false,
-                "active": true,
-                "sepa_deposit_information": {
-                    "iban": "EE957700771001355096",
-                    "swift": "LHVBEE22",
-                    "bank_name": "AS LHV Pank",
-                    "bank_address": "Tartu mnt 2, 10145 Tallinn, Estonia",
-                    "bank_country_name": "Estonia",
-                    "account_name": "Coinbase UK, Ltd.",
-                    "account_address": "9th Floor, 107 Cheapside, London, EC2V 6DN, United Kingdom",
-                    "reference": "CBAEUXOVFXOXYX"
-                }
-            },
-        ]
+                    {
+                        "id": "2ae3354e-f1c3-5771-8a37-6228e9d239db",
+                        "name": "USD Wallet",
+                        "balance": "0.00",
+                        "currency": "USD",
+                        "type": "fiat",
+                        "primary": false,
+                        "active": true,
+                        "wire_deposit_information": {
+                            "account_number": "0199003122",
+                            "routing_number": "026013356",
+                            "bank_name": "Metropolitan Commercial Bank",
+                            "bank_address": "99 Park Ave 4th Fl New York, NY 10016",
+                            "bank_country": {
+                                "code": "US",
+                                "name": "United States"
+                            },
+                            "account_name": "Coinbase, Inc",
+                            "account_address": "548 Market Street, #23008, San Francisco, CA 94104",
+                            "reference": "BAOCAEUX"
+                        }
+                    },
+                    {
+                        "id": "1bfad868-5223-5d3c-8a22-b5ed371e55cb",
+                        "name": "BTC Wallet",
+                        "balance": "0.00000000",
+                        "currency": "BTC",
+                        "type": "wallet",
+                        "primary": true,
+                        "active": true
+                    },
+                    {
+                        "id": "2a11354e-f133-5771-8a37-622be9b239db",
+                        "name": "EUR Wallet",
+                        "balance": "0.00",
+                        "currency": "EUR",
+                        "type": "fiat",
+                        "primary": false,
+                        "active": true,
+                        "sepa_deposit_information": {
+                            "iban": "EE957700771001355096",
+                            "swift": "LHVBEE22",
+                            "bank_name": "AS LHV Pank",
+                            "bank_address": "Tartu mnt 2, 10145 Tallinn, Estonia",
+                            "bank_country_name": "Estonia",
+                            "account_name": "Coinbase UK, Ltd.",
+                            "account_address": "9th Floor, 107 Cheapside, London, EC2V 6DN, United Kingdom",
+                            "reference": "CBAEUXOVFXOXYX"
+                        }
+                    },
+                ]
         
-        :raises ValueError: If the client is not configured for authorization.
+        :raises ValueError: The client is not configured for authorization.
         
-        :raises APIRequestError: For any error generated by the Coinbase Pro
-            API server.
+        :raises APIRequestError: Any error generated by the Coinbase Pro API 
+            server.
         """
         headers, body = await self.get('/coinbase-accounts', auth=True)
         
