@@ -52,24 +52,27 @@ class Client:
     
     .. _pagination:
     
+    .. note:
     **Pagination**
-    Most (but not all) client methods that return a list use cursor pagination. 
-    Cursor pagination allows for fetching results before and after the current 
-    page of results and is well suited for realtime data.
     
-    While non-paginated methods return a single value, paginated methods return
-    a 3-tuple consisting of the page of results, the **before** cursor, and
-    the **after** cursor.
+        Most (but not all) client methods that return a list use cursor pagination. 
+        Cursor pagination allows for fetching results before and after the current 
+        page of results and is well suited for realtime data.
+        
+        While non-paginated methods return a single value, paginated methods return
+        a 3-tuple consisting of the page of results, the **before** cursor, and
+        the **after** cursor.
+        
+        The **before** cursor references the first item in a results page and the 
+        **after** cursor references the last item in a set of results.
     
-    The **before** cursor references the first item in a results page and the 
-    **after** cursor references the last item in a set of results.
-
-    To request a page of results before (newer chronologically) the current one, 
-    use the **before**  parameter. Your initial request can omit this parameter 
-    to get the default first page.
-    
-    To request a page of results after (older chronologically) the current one, 
-    use the **after**  parameter.
+        To request a page of results before (newer chronologically) the current one, 
+        use the **before**  parameter. Your initial request can omit this parameter 
+        to get the default first page.
+        
+        To request a page of results after (older chronologically) the current one, 
+        use the **after**  parameter.
+        
     """
     
     def __init__(self, loop, url=URL, auth=False, key='', secret='', passphrase=''):
