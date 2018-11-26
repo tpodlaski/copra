@@ -118,17 +118,17 @@ class TestRest(MockTestCase):
         self.assertTrue(client.closed)
 
 
-    async def test_get_auth_headers(self):
+    async def test__get_auth_headers(self):
         
         async with Client(self.loop) as client:
             with self.assertRaises(ValueError):
-                client.get_auth_headers('/mypath')
+                client._get_auth_headers('/mypath')
                     
         path = '/mypath'
         timestamp = 1539968909.917318
         
         # Default GET
-        headers = self.auth_client.get_auth_headers(path, timestamp=timestamp)
+        headers = self.auth_client._get_auth_headers(path, timestamp=timestamp)
         self.assertIsInstance(headers, dict)
         self.assertEqual(headers['Content-Type'], 'Application/JSON')
         self.assertEqual(headers['CB-ACCESS-SIGN'], 'haapGobLuJMel4ku5s7ptzyNkQdYtLPMXgQJq5f1/cg=')
@@ -137,7 +137,7 @@ class TestRest(MockTestCase):
         self.assertEqual(headers['CB-ACCESS-PASSPHRASE'], TEST_PASSPHRASE)
         
         # Explicit GET
-        headers = self.auth_client.get_auth_headers(path, method='GET', timestamp=timestamp)
+        headers = self.auth_client._get_auth_headers(path, method='GET', timestamp=timestamp)
         self.assertIsInstance(headers, dict)
         self.assertEqual(headers['Content-Type'], 'Application/JSON')
         self.assertEqual(headers['CB-ACCESS-SIGN'], 'haapGobLuJMel4ku5s7ptzyNkQdYtLPMXgQJq5f1/cg=')
@@ -146,7 +146,7 @@ class TestRest(MockTestCase):
         self.assertEqual(headers['CB-ACCESS-PASSPHRASE'], TEST_PASSPHRASE)
         
         # POST
-        headers = self.auth_client.get_auth_headers(path, method='POST', timestamp=timestamp)
+        headers = self.auth_client._get_auth_headers(path, method='POST', timestamp=timestamp)
         self.assertIsInstance(headers, dict)
         self.assertEqual(headers['Content-Type'], 'Application/JSON')
         self.assertEqual(headers['CB-ACCESS-SIGN'], 'Geo8uJefQp5CG42SYsmKW1lvR7t+28ujcgt3yRM1mpA=')
@@ -155,7 +155,7 @@ class TestRest(MockTestCase):
         self.assertEqual(headers['CB-ACCESS-PASSPHRASE'], TEST_PASSPHRASE)
 
         # DELETE
-        headers = self.auth_client.get_auth_headers(path, method='DELETE', timestamp=timestamp)
+        headers = self.auth_client._get_auth_headers(path, method='DELETE', timestamp=timestamp)
         self.assertIsInstance(headers, dict)
         self.assertEqual(headers['Content-Type'], 'Application/JSON')
         self.assertEqual(headers['CB-ACCESS-SIGN'], 'NRdGfZaOAkFK2ENVDJQ43Rg+fLm+6vg4PML/yzmtuiY=')
@@ -201,7 +201,7 @@ class TestRest(MockTestCase):
         self.check_req(self.mock_del, '{}{}'.format(URL, path), query=query, headers=AUTH_HEADERS)
         
         qs = '?{}'.format(urllib.parse.urlencode(query))
-        expected_headers = self.auth_client.get_auth_headers(path + qs, 'DELETE', timestamp=self.mock_del.headers['CB-ACCESS-TIMESTAMP'])
+        expected_headers = self.auth_client._get_auth_headers(path + qs, 'DELETE', timestamp=self.mock_del.headers['CB-ACCESS-TIMESTAMP'])
         self.assertEqual(self.mock_del.headers['CB-ACCESS-SIGN'], expected_headers['CB-ACCESS-SIGN'])
         
     
@@ -230,7 +230,7 @@ class TestRest(MockTestCase):
         self.check_req(self.mock_get, '{}{}'.format(URL, path), query=query, headers=AUTH_HEADERS)
         
         qs = '?{}'.format(urllib.parse.urlencode(query))
-        expected_headers = self.auth_client.get_auth_headers(path + qs, 'GET', timestamp=self.mock_get.headers['CB-ACCESS-TIMESTAMP'])
+        expected_headers = self.auth_client._get_auth_headers(path + qs, 'GET', timestamp=self.mock_get.headers['CB-ACCESS-TIMESTAMP'])
         self.assertEqual(self.mock_get.headers['CB-ACCESS-SIGN'], expected_headers['CB-ACCESS-SIGN'])
 
 
@@ -259,7 +259,7 @@ class TestRest(MockTestCase):
         self.check_req(self.mock_post, '{}{}'.format(URL, path), data=data, headers=AUTH_HEADERS)
         
         data = json.dumps(data)
-        expected_headers = self.auth_client.get_auth_headers(path, 'POST', data=data, timestamp=self.mock_post.headers['CB-ACCESS-TIMESTAMP'])
+        expected_headers = self.auth_client._get_auth_headers(path, 'POST', data=data, timestamp=self.mock_post.headers['CB-ACCESS-TIMESTAMP'])
         self.assertEqual(self.mock_post.headers['CB-ACCESS-SIGN'], expected_headers['CB-ACCESS-SIGN'])
         
 

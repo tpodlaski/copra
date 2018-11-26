@@ -130,7 +130,7 @@ class Client:
         await self.session.close()
 
 
-    def get_auth_headers(self, path, method='GET', data='', timestamp=None):
+    def _get_auth_headers(self, path, method='GET', data='', timestamp=None):
         """Get the headers necessary to authenticate a client request.
         
         :param str path: The path portion of the REST request. For example,
@@ -214,7 +214,7 @@ class Client:
         # Coinbase doesn't like ':' urlencoded
         qs = '?{}'.format(urllib.parse.urlencode(params, safe=':')) if params else ''
         url = self.url + path + qs
-        req_headers = self.get_auth_headers(path + qs, 'DELETE') if auth else HEADERS
+        req_headers = self._get_auth_headers(path + qs, 'DELETE') if auth else HEADERS
         
         resp = await self.session.delete(url, headers=req_headers)
         
@@ -250,7 +250,7 @@ class Client:
         # Coinbase doesn't like ':' urlencoded
         qs = '?{}'.format(urllib.parse.urlencode(params, safe=':')) if params else ''
         url = self.url + path + qs
-        req_headers = self.get_auth_headers(path + qs) if auth else HEADERS
+        req_headers = self._get_auth_headers(path + qs) if auth else HEADERS
         
         resp = await self.session.get(url, headers=req_headers)
         
@@ -284,7 +284,7 @@ class Client:
         """
         data = json.dumps(data) if data else ''
         url = self.url + path
-        req_headers = self.get_auth_headers(path, 'POST', data) if auth else HEADERS
+        req_headers = self._get_auth_headers(path, 'POST', data) if auth else HEADERS
             
         resp = await self.session.post(url, data=data, headers=req_headers)
         
