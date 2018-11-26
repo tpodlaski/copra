@@ -1480,7 +1480,8 @@ class Client:
         :param str order_id: The order id.
         
         :returns: A dict of information about the order.
-        
+
+
             Example::
         
                 {
