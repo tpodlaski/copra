@@ -174,7 +174,7 @@ class Client:
         }
 
      
-    async def handle_error(self, response):
+    async def _handle_error(self, response):
         """Handle http request errors.
         
         This method is called whenever an API call returns an HTTP status code
@@ -219,7 +219,7 @@ class Client:
         resp = await self.session.delete(url, headers=req_headers)
         
         if int(resp.status) >= 400:
-            await self.handle_error(resp)
+            await self._handle_error(resp)
         
         body = await resp.json()
         headers = dict(resp.headers)
@@ -255,7 +255,7 @@ class Client:
         resp = await self.session.get(url, headers=req_headers)
         
         if int(resp.status) >= 400:
-            await self.handle_error(resp)
+            await self._handle_error(resp)
         
         body = await resp.json()
         headers = dict(resp.headers)
@@ -289,7 +289,7 @@ class Client:
         resp = await self.session.post(url, data=data, headers=req_headers)
         
         if int(resp.status) >= 400:
-            await self.handle_error(resp)
+            await self._handle_error(resp)
             
         body = await resp.json()
         headers = dict(resp.headers)
@@ -1480,8 +1480,7 @@ class Client:
         :param str order_id: The order id.
         
         :returns: A dict of information about the order.
-
-
+        
             Example::
         
                 {

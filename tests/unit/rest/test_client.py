@@ -164,7 +164,7 @@ class TestRest(MockTestCase):
         self.assertEqual(headers['CB-ACCESS-PASSPHRASE'], TEST_PASSPHRASE)
         
     
-    async def test_handle_error(self):
+    async def test__handle_error(self):
         self.mock_get.return_value.status = 404
         self.mock_get.return_value.json.return_value = {'message': 'ERROR MESSAGE'}
         

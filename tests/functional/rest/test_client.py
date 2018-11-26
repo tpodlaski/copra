@@ -74,7 +74,7 @@ class TestRest(TestCase):
             self.assertEqual(body['user-agent'], USER_AGENT)
 
     
-    async def test_handle_error(self):
+    async def test__handle_error(self):
         async with Client(self.loop, HTTPBIN) as client:
         
             with self.assertRaises(APIRequestError) as cm:
