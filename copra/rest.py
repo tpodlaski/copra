@@ -749,6 +749,8 @@ class Client:
             
         :returns: A dict of account information.
         
+            **Example**
+        
             .. code-block:: python
                     
                 {
