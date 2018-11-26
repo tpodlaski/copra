@@ -749,7 +749,7 @@ class Client:
             
         :returns: A dict of account information.
         
-        :Example:
+        :Example::
         
         {
           'id': 'a764610f-334e-4ece-b4dd-f31111ed58e7', 
