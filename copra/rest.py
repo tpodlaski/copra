@@ -500,29 +500,29 @@ class Client:
             trades is a list of dicts representing trades for the 
             product specified.
         
-        Example::
-        
-            (
-              [
-                {
-                  'time': '2018-09-27T22:49:16.105Z', 
-                  'trade_id': 51584925, 
-                  'price': '6681.01000000', 
-                  'size': '0.02350019', 
-                  'side': 'sell'
-                }, 
-                {
-                  'time': '2018-09-27T22:49:12.39Z', 
-                  'trade_id': 51584924, 
-                  'price': '6681.00000000', 
-                  'size': '0.01020000', 
-                  'side': 'buy'
-                },
-                ...
-              ],
-              '51590012', 
-              '51590010'
-            )
+            Example::
+            
+                (
+                  [
+                    {
+                      'time': '2018-09-27T22:49:16.105Z', 
+                      'trade_id': 51584925, 
+                      'price': '6681.01000000', 
+                      'size': '0.02350019', 
+                      'side': 'sell'
+                    }, 
+                    {
+                      'time': '2018-09-27T22:49:12.39Z', 
+                      'trade_id': 51584924, 
+                      'price': '6681.00000000', 
+                      'size': '0.01020000', 
+                      'side': 'buy'
+                    },
+                    ...
+                  ],
+                  '51590012', 
+                  '51590010'
+                )
         
         :raises ValueError: before and after paramters are both provided.
         
