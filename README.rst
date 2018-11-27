@@ -43,6 +43,15 @@ WebSocket Features
 Examples
 --------
 
+REST
+++++
+Without a Coinbase Pro API key, ``copra.rest.Client`` has access to all of the public market data that Coinbase makes available.
+
+.. code:: python
+
+    # 24hour_stats.py
+
+
 WebSocket
 +++++++++
 
