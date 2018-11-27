@@ -51,6 +51,28 @@ Without a Coinbase Pro API key, ``copra.rest.Client`` has access to all of the p
 
     # 24hour_stats.py
 
+    import asyncio
+
+    from copra.rest import Client
+
+    loop = asyncio.get_event_loop()
+
+    client = Client(loop)
+
+    async def get_stats():
+        btc_stats = await client.get_24hour_stats('BTC-USD')
+        print(btc_stats)
+
+    loop.run_until_complete(get_stats())
+    loop.run_until_complete(client.close())
+
+Running the above:
+
+.. code:: bash
+
+    $ python3 24hour_stats.py
+    {'open': '3914.96000000', 'high': '3957.10000000', 'low': '3508.00000000', 'volume': '37134.10720409', 'last': '3670.06000000', 'volume_30day': '423047.53794129'}
+
 
 WebSocket
 +++++++++
