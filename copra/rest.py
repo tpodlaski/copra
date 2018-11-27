@@ -1328,12 +1328,8 @@ class Client:
     
     async def orders(self, status=None, product_id=None, limit=100, before=None, 
                      after=None):
-        """List your current open orders. 
+        """Retrieve a list orders. 
         
-        Only open or un-settled orders are returned. As soon as an order is no 
-        longer open and settled, it will no longer appear in the default 
-        request.
-
         .. admonition:: Authorization
             :class: attention
             
@@ -1348,7 +1344,7 @@ class Client:
             response depending on market conditions.
             
         :param str status: (optional) Limit list of orders to one or more of 
-            these statuses: open, pending, active or all. status maybe a single 
+            these statuses: open, pending, active or all. status may be a single 
             string or a list of strings. i.e, ['open', 'active']. 'all' returns 
             orders of all statuses. The default is ['open', 'active', 'pending'].
         
