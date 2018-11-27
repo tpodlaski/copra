@@ -25,7 +25,7 @@ CoPrA Features
 REST Features
 +++++++++++++
 
-* Coinbase Pro REST client class 
+* Coinbase Pro REST client class that offers access to 100% of the account management, trading, and market data functionality exposed by the Coinbase Pro API.
 * supports user authentication
 * built on **aiohttp**, the asynchronous HTTP client/server framework for asyncio and Python
 
