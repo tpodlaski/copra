@@ -1330,6 +1330,9 @@ class Client:
                      after=None):
         """Retrieve a list orders. 
         
+        The status of an order may change between the request and response
+        depending on market conditions.
+        
         .. admonition:: Authorization
             :class: attention
             
@@ -1339,9 +1342,6 @@ class Client:
         .. admonition:: Pagination
         
             This method is paginated. See pagination_ for more details.
-            
-        .. note:: Open orders may change state between the request and the 
-            response depending on market conditions.
             
         :param str status: (optional) Limit list of orders to one or more of 
             these statuses: open, pending, active or all. status may be a single 
