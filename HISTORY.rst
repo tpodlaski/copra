@@ -48,3 +48,7 @@ History
 1.0.7 (2018-08-19)
 ------------------
 * Modified Travis config to test against Python 3.7.
+
+1.1.0 (2018-11-27)
+------------------
+* Added REST client.
