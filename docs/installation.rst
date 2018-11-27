@@ -8,13 +8,11 @@ Installation
 Stable release
 --------------
 
-To install Coinbase Pro Asyncronous Websocket Client, run this command in your terminal:
+`pip`_ is the preferred method to install CoPrA, as it will always install the most recent stable release. To install CoPrA and its dependencies, run this command in your terminal application:
 
 .. code-block:: console
 
     $ pip install copra
-
-This is the preferred method to install Coinbase Pro Asyncronous Websocket Client, as it will always install the most recent stable release.
 
 If you don't have `pip`_ installed, this `Python installation guide`_ can guide
 you through the process.
@@ -26,7 +24,7 @@ you through the process.
 From sources
 ------------
 
-The sources for Coinbase Pro Asyncronous Websocket Client can be downloaded from the `Github repo`_.
+Alternatively, the source code for the CoPrA package can be downloaded from the `Github repo`_.
 
 You can either clone the public repository:
 
@@ -40,7 +38,7 @@ Or download the `tarball`_:
 
     $ curl  -OL https://github.com/tpodlaski/copra/tarball/master
 
-Once you have a copy of the source, you can install it with:
+Once you have a copy of the source, un-zipped and un-tarred if you downloaded the tarball, you can install it with:
 
 .. code-block:: console
 
