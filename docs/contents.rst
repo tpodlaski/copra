@@ -3,10 +3,10 @@
 
    index
    installation
+   rest
    usage
    examples
-   source/copra.rest
-   source/copra.websocket
+   source/copra.websockett
    contributing
    authors
    license
