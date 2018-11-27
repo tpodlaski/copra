@@ -1359,8 +1359,6 @@ class Client:
         :param int after: (optional) The after cursor value. The default is 
             None. 
             
-        :returns: A list of dicts where each dict is information about an order.
-        
         :returns: A 3-tuple: (orders, before cursor, after cursor)
             
             orders is a list of dicts where each dict represents an order. 
