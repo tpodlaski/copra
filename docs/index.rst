@@ -39,11 +39,78 @@ WebSocket Features
 Examples
 --------
 
-While ``copra.websocket.Client`` is meant to be overridden, it can still be used 'as is' to test the module through the command line.
+REST
+++++
+Without a Coinbase Pro API key, ``copra.rest.Client`` has access to all of the public market data that Coinbase makes available.
 
 .. code:: python
 
-    # example.py
+    # 24hour_stats.py
+
+    import asyncio
+
+    from copra.rest import Client
+
+    loop = asyncio.get_event_loop()
+
+    client = Client(loop)
+
+    async def get_stats():
+        btc_stats = await client.get_24hour_stats('BTC-USD')
+        print(btc_stats)
+
+    loop.run_until_complete(get_stats())
+    loop.run_until_complete(client.close())
+
+Running the above:
+
+.. code:: bash
+
+    $ python3 24hour_stats.py
+    {'open': '3914.96000000', 'high': '3957.10000000', 'low': '3508.00000000', 'volume': '37134.10720409', 'last': '3670.06000000', 'volume_30day': '423047.53794129'}
+
+In conjunction with a Coinbase Pro API key, ``copra.rest.Client`` can be used to trade cryptocurrency and manage your Coinbase pro account. This example also shows how  ``copra.rest.Client`` can be used as a context manager.
+
+.. code:: python
+
+    # btc_account_info.py
+
+    import asyncio
+
+    from copra.rest import Client
+
+    KEY = YOUR_API_KEY
+    SECRET = YOUR_API_SECRET
+    PASSPHRASE = YOUR_API_PASSPHRASE
+
+    BTC_ACCOUNT_ID = YOUR_BTC_ACCOUNT_ID
+
+    loop = asyncio.get_event_loop()
+
+    async def get_btc_account():
+        async with Client(loop, auth=True, key=KEY, 
+                          secret=SECRET, passphrase=PASSPHRASE) as client:
+
+            btc_account = await client.account(BTC_ACCOUNT_ID)
+            print(btc_account)
+
+    loop.run_until_complete(get_btc_account())
+
+Running the above:
+
+.. code:: bash
+
+    $ python3 btc_account_info.py
+    {'id': '1b121cbe-bd4-4c42-9e31-7047632fc7c7', 'currency': 'BTC', 'balance': '26.1023109600000000', 'available': '26.09731096', 'hold': '0.0050000000000000', 'profile_id': '151d9abd-abcc-4597-ae40-b6286d72a0bd'}
+    
+WebSocket
++++++++++
+
+While ``copra.websocket.Client`` is meant to be overridden, but it can be used 'as is' to test the module through the command line.
+
+.. code:: python
+
+    # btc_heartbeat.py
 
     import asyncio
     
@@ -63,7 +130,7 @@ Running the above:
 
 .. code:: bash
 
-    $ python3 example.py
+    $ python3 btc_heartbeat.py
     {'type': 'subscriptions', 'channels': [{'name': 'heartbeat', 'product_ids': ['BTC-USD']}]}
     {'type': 'heartbeat', 'last_trade_id': 45950713, 'product_id': 'BTC-USD', 'sequence': 6254273323, 'time': '2018-07-05T22:36:30.823000Z'}
     {'type': 'heartbeat', 'last_trade_id': 45950714, 'product_id': 'BTC-USD', 'sequence': 6254273420, 'time': '2018-07-05T22:36:31.823000Z'}
@@ -75,19 +142,19 @@ Running the above:
     .
     .
 
-CoPrA supports authentication allowing you to receive only messages specific to your user account. **NOTE:** This requires registering an API key at Coinbase Pro.
+A Coinbase Pro API key allows ``copra.websocket.Client`` to authenticate with the Coinbase WebSocket server giving you access to feeds specific to your user account.
 
 .. code:: python
 
-    # example2.py
+    # user_channel.py
 
     import asyncio
-    
+
     from copra.websocket import Channel, Client
 
-    KEY = YOUR_KEY
-    SECRET = YOUR_SECRET
-    PASSPHRASE = YOUR_PASSPHRASE
+    KEY = YOUR_API_KEY
+    SECRET = YOUR_API_SECRET
+    PASSPHRASE = YOUR_API_PASSPHRASE
     
     loop = asyncio.get_event_loop()
 
@@ -106,16 +173,13 @@ Running the above:
 
 .. code:: bash
 
-    $ python3 example2.py
+    $ python3 user_channel.py
     {'type': 'subscriptions', 'channels': [{'name': 'user', 'product_ids': ['LTC-USD']}]}
-    {'type': 'received', 'order_id': '42d2677d-0d37-435f-a776-e9e7f81ff22b', 'order_type': 'limit', 'size': '50.00000000', 'price': '1.00000000', 'side': 'buy', 'client_oid': '00098b59-4ac9-4ff8-ba16-bd2ef673f7b7', 'product_id': 'LTC-USD', 'sequence': 2311323871, 'user_id': '642394321fdf8343c4006432', 'profile_id': '039ff148-d490-45f9-9aed-0d1f6412884', 'time': '2018-07-07T17:33:29.755000Z'}
-    {'type': 'open', 'side': 'buy', 'price': '1.00000000', 'order_id': '42d2677d-0d37-435f-a776-e9e7f81ff22b', 'remaining_size': '50.00000000', 'product_id': 'LTC-USD', 'sequence': 2311323872, 'user_id': '642394321fdf8343c4006432', 'profile_id': '039ff148-d490-45f9-9aed-0d1f6412884', 'time': '2018-07-07T17:33:29.755000Z'}
+    {'type': 'received', 'order_id': '42d2677d-0d37-435f-a776-e9e7f81ff22b', 'order_type': 'limit', 'size': '50.00000000', 'price': '1.00000000', 'side': 'buy', 'client_oid': '00098b59-4ac9-4ff8-ba16-bd2ef673f7b7', 'product_id': 'LTC-USD', 'sequence': 2311323871, 'user_id': '642394321fdf8242c4006432', 'profile_id': '039ee148-d490-44f9-9aed-0d1f6412884', 'time': '2018-07-07T17:33:29.755000Z'}
+    {'type': 'open', 'side': 'buy', 'price': '1.00000000', 'order_id': '42d2677d-0d37-435f-a776-e9e7f81ff22b', 'remaining_size': '50.00000000', 'product_id': 'LTC-USD', 'sequence': 2311323872, 'user_id': '642394321fdf8242c4006432', 'profile_id': '039ee148-d490-44f9-9aed-0d1f6412884', 'time': '2018-07-07T17:33:29.755000Z'}
     .
     .
     .
-
-More detailed examples can be found on the `Examples <examples.rst>`__ page.
-
 
 .. |Version| image:: https://img.shields.io/pypi/v/copra.svg
    :target: https://pypi.python.org/pypi/copra
