@@ -1669,7 +1669,7 @@ class Client:
         """Get a list of your coinbase accounts.
 
         .. admonition:: Authorization
-            :class: attention
+            :class: attention 
             
             This method requires authorization. The API key must have the 
             "transfer" permission.
