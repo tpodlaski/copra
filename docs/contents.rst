@@ -4,9 +4,7 @@
    index
    installation
    rest/toc
-   usage
-   examples
-   source/copra.websocket
+   websocket/toc
    contributing
    authors
    license
