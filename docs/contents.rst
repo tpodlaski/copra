@@ -3,7 +3,7 @@
 
    index
    installation
-   rest
+   rest/toc
    usage
    examples
    source/copra.websocket
