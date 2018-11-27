@@ -10,7 +10,7 @@ CoPrA
 
 | **Quick Links**: `Documentation <https://copra.readthedocs.io/en/latest/>`__ - `Source Code <https://github.com/tpodlaski/copra>`__
 
-| **Related**: `Coinbase Pro Digital Currency Exchange <https://pro.coinbase.com/>`__ - `Coinbase Pro WebSocket API <https://docs.pro.coinbase.com/#websocket-feed>`_
+| **Related**: `Coinbase Pro Digital Currency Exchange <https://pro.coinbase.com/>`__ - `Coinbase Pro REST API <https://docs.pro.coinbase.com/#api>`_ - `Coinbase Pro WebSocket API <https://docs.pro.coinbase.com/#websocket-feed>`_
 
 
 Introduction
