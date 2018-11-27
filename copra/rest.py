@@ -1574,7 +1574,7 @@ class Client:
         
         
     async def payment_methods(self):
-        """Get a list of your payment methods.
+        """Get a list of the payment methods you have on file.
 
         .. admonition:: Authorization
             :class: attention
@@ -1585,81 +1585,81 @@ class Client:
         :returns: A list of dicts where each dict contains detailed information
             about a payment method the account has available.
             
-        :Example:
+            Example::
         
-        [
-            {
-                "id": "bc6d7162-d984-5ffa-963c-a493b1c1370b",
-                "type": "ach_bank_account",
-                "name": "Bank of America - eBan... ********7134",
-                "currency": "USD",
-                "primary_buy": true,
-                "primary_sell": true,
-                "allow_buy": true,
-                "allow_sell": true,
-                "allow_deposit": true,
-                "allow_withdraw": true,
-                "limits": {
-                    "buy": [
-                        {
-                            "period_in_days": 1,
-                            "total": {
-                                "amount": "10000.00",
-                                "currency": "USD"
-                            },
-                            "remaining": {
-                                "amount": "10000.00",
-                                "currency": "USD"
-                            }
+                [
+                    {
+                        "id": "bc6d7162-d984-5ffa-963c-a493b1c1370b",
+                        "type": "ach_bank_account",
+                        "name": "Bank of America - eBan... ********7134",
+                        "currency": "USD",
+                        "primary_buy": true,
+                        "primary_sell": true,
+                        "allow_buy": true,
+                        "allow_sell": true,
+                        "allow_deposit": true,
+                        "allow_withdraw": true,
+                        "limits": {
+                            "buy": [
+                                {
+                                    "period_in_days": 1,
+                                    "total": {
+                                        "amount": "10000.00",
+                                        "currency": "USD"
+                                    },
+                                    "remaining": {
+                                        "amount": "10000.00",
+                                        "currency": "USD"
+                                    }
+                                }
+                            ],
+                            "instant_buy": [
+                                {
+                                    "period_in_days": 7,
+                                    "total": {
+                                        "amount": "0.00",
+                                        "currency": "USD"
+                                    },
+                                    "remaining": {
+                                        "amount": "0.00",
+                                        "currency": "USD"
+                                    }
+                                }
+                            ],
+                            "sell": [
+                                {
+                                    "period_in_days": 1,
+                                    "total": {
+                                        "amount": "10000.00",
+                                        "currency": "USD"
+                                    },
+                                    "remaining": {
+                                        "amount": "10000.00",
+                                        "currency": "USD"
+                                    }
+                                }
+                            ],
+                            "deposit": [
+                                {
+                                    "period_in_days": 1,
+                                    "total": {
+                                        "amount": "10000.00",
+                                        "currency": "USD"
+                                    },
+                                    "remaining": {
+                                        "amount": "10000.00",
+                                        "currency": "USD"
+                                    }
+                                }
+                            ]
                         }
-                    ],
-                    "instant_buy": [
-                        {
-                            "period_in_days": 7,
-                            "total": {
-                                "amount": "0.00",
-                                "currency": "USD"
-                            },
-                            "remaining": {
-                                "amount": "0.00",
-                                "currency": "USD"
-                            }
-                        }
-                    ],
-                    "sell": [
-                        {
-                            "period_in_days": 1,
-                            "total": {
-                                "amount": "10000.00",
-                                "currency": "USD"
-                            },
-                            "remaining": {
-                                "amount": "10000.00",
-                                "currency": "USD"
-                            }
-                        }
-                    ],
-                    "deposit": [
-                        {
-                            "period_in_days": 1,
-                            "total": {
-                                "amount": "10000.00",
-                                "currency": "USD"
-                            },
-                            "remaining": {
-                                "amount": "10000.00",
-                                "currency": "USD"
-                            }
-                        }
-                    ]
-                }
-            },
-        ]
+                    },
+                ]
         
-        :raises ValueError: If the client is not configured for authorization.
+        :raises ValueError: The client is not configured for authorization.
         
-        :raises APIRequestError: For any error generated by the Coinbase Pro
-            API server.
+        :raises APIRequestError: Any error generated by the Coinbase Pro API 
+            server.
         """
         headers, body = await self.get('/payment-methods', auth=True)
         return body
