@@ -146,7 +146,7 @@ Running the above:
     .
     .
 
-CoPrA supports authentication allowing you to receive only messages specific to your user account. **NOTE:** This requires registering an API key at Coinbase Pro.
+A Coinbase Pro API key allows ``copra.websocket.Client`` to authenticate with the Coinbase WebSocket server giving you access to feeds specific to your user account.
 
 .. code:: python
 
