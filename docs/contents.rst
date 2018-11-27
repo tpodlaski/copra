@@ -6,7 +6,7 @@
    rest
    usage
    examples
-   source/copra.websockett
+   source/copra.websocket
    contributing
    authors
    license
