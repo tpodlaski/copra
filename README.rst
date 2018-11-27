@@ -43,6 +43,9 @@ WebSocket Features
 Examples
 --------
 
+WebSocket
++++++++++
+
 While ``copra.websocket.Client`` is meant to be overridden, but it can be used 'as is' to test the module through the command line.
 
 .. code:: python
