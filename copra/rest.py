@@ -1344,14 +1344,15 @@ class Client:
         
             This method is paginated. See pagination_ for more details.
             
-        :param str status: (optional) Limit list of orders to these statuses: 
-            open, pending, active or all. The parameter maybe a single string or a 
-            list of strings to return more than one status. i.e, ['open', 'active'].
-            Passing 'all' returns orders of all statuses. Note: Open orders may 
-            change state between the request and the response depending on 
-            market conditions. The default is ['open', 'active', 'pending'].
+        .. note:: Open orders may change state between the request and the 
+            response depending on market conditions.
+            
+        :param str status: (optional) Limit list of orders to one or more of 
+            these statuses: open, pending, active or all. status maybe a single 
+            string or a list of strings. i.e, ['open', 'active']. 'all' returns 
+            orders of all statuses. The default is ['open', 'active', 'pending'].
         
-        :param str product_id: (optional) Filter orders listed by product_id
+        :param str product_id: (optional) Filter orders by product_id
         
         :param int limit: (optional) The number of results to be returned per 
             request. The default (and maximum) value is 100.
@@ -1365,64 +1366,59 @@ class Client:
         :returns: A list of dicts where each dict is information about an order.
         
         :returns: A 3-tuple: (orders, before cursor, after cursor)
-            The first item is a list of dicts representing the orders. 
-            The second item is the before cursor which can be used in squbsequent 
-            calls to retrieve a page of results newer than the current one. The 
-            third item is the after cursor which can be used in subsequent calls 
-            to retrieve the page of results that is older than the current one. 
-            NOTE: the before cursor and after cursor may be None if there is not 
-            an earlier page or later page respectively.
+            
+            orders is a list of dicts where each dict represents an order. 
+
+            Example::
         
-        :Example:
+                ([
+                  {
+                    "id": "d0c5340b-6d6c-49d9-b567-48c4bfca13d2",
+                    "price": "0.10000000",
+                    "size": "0.01000000",
+                    "product_id": "BTC-USD",
+                    "side": "buy",
+                    "stp": "dc",
+                    "type": "limit",
+                    "time_in_force": "GTC",
+                    "post_only": false,
+                    "created_at": "2016-12-08T20:02:28.53864Z",
+                    "fill_fees": "0.0000000000000000",
+                    "filled_size": "0.00000000",
+                    "executed_value": "0.0000000000000000",
+                    "status": "open",
+                    "settled": false
+                  },
+                  {
+                    "id": "8b99b139-58f2-4ab2-8e7a-c11c846e3022",
+                    "price": "1.00000000",
+                    "size": "1.00000000",
+                    "product_id": "BTC-USD",
+                    "side": "buy",
+                    "stp": "dc",
+                    "type": "limit",
+                    "time_in_force": "GTC",
+                    "post_only": false,
+                    "created_at": "2016-12-08T20:01:19.038644Z",
+                    "fill_fees": "0.0000000000000000",
+                    "filled_size": "0.00000000",
+                    "executed_value": "0.0000000000000000",
+                    "status": "open",
+                    "settled": false
+                  }
+                 ],
+                 '1071064024',
+                 '1008063508'
+                )
         
-        ([
-          {
-            "id": "d0c5340b-6d6c-49d9-b567-48c4bfca13d2",
-            "price": "0.10000000",
-            "size": "0.01000000",
-            "product_id": "BTC-USD",
-            "side": "buy",
-            "stp": "dc",
-            "type": "limit",
-            "time_in_force": "GTC",
-            "post_only": false,
-            "created_at": "2016-12-08T20:02:28.53864Z",
-            "fill_fees": "0.0000000000000000",
-            "filled_size": "0.00000000",
-            "executed_value": "0.0000000000000000",
-            "status": "open",
-            "settled": false
-          },
-          {
-            "id": "8b99b139-58f2-4ab2-8e7a-c11c846e3022",
-            "price": "1.00000000",
-            "size": "1.00000000",
-            "product_id": "BTC-USD",
-            "side": "buy",
-            "stp": "dc",
-            "type": "limit",
-            "time_in_force": "GTC",
-            "post_only": false,
-            "created_at": "2016-12-08T20:01:19.038644Z",
-            "fill_fees": "0.0000000000000000",
-            "filled_size": "0.00000000",
-            "executed_value": "0.0000000000000000",
-            "status": "open",
-            "settled": false
-          }
-         ],
-         '1071064024',
-         '1008063508'
-        )
+        :raises ValueError:
         
-        :raises ValueError: If ... 
-        
-            * the client is not configured for authorization.
-            * an invalid status string is provided.
+            * The client is not configured for authorization.
+            * An invalid status string is provided.
             * before and after are both set.
             
-        :raises APIRequestError: For any error generated by the Coinbase Pro
-            API server.
+        :raises APIRequestError: Any error generated by the Coinbase Pro API 
+            server.
         """
         if before and after:
             raise ValueError("before and after cannot both be provided.") 
