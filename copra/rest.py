@@ -1912,7 +1912,7 @@ class Client:
             paramater may also be a string to avoid floating point issues.
         
         :param str currency:  The type of currency to withdraw. i.e., BTC, LTC,
-            'USD', etc.
+            USD, etc.
             
         :param str crypto_address: The crypto address of the recipient.
         
