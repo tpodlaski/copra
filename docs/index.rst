@@ -13,7 +13,7 @@ CoPrA
 CoPrA Features
 --------------
 
-CoPrA \(**Co**\ inbase **Pr**\ o **A**\ sync\) is an asyncronous websocket client written in Python for use with the Coinbase Pro digital currency trading platform. To learn about Coinbase Pro's WebSocket service including the available channels and the data they provide, please see `Coinbase Pro's WebSocket API documentation <https://docs.pro.coinbase.com/#websocket-feed/>`__.
+The CoPrA \(**Co**\ inbase **Pr**\ o **A**\ sync\) package provides asyncronous REST and WebSocket clients written in Python for use with the Coinbase Pro digital currency trading platform. To learn about Coinbase Pro's REST and WebSocket APIs as well as how to obtain an API key for authentication to those services, please see `Coinbase Pro's API documentation <https://docs.pro.coinbase.com/>`__.
 
 * Coinbase Pro WebSocket client class with callback hooks for managing every phase of a WebSocket session
 * supports user authentication
