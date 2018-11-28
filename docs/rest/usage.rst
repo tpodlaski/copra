@@ -4,7 +4,7 @@ Usage
 
 .. warning::
 
-  Any references made below to specific aspects of the Coinbase Pro API such as the data returned by methods may be out of date. Please visit `Coinbase Pro's WebSocket REST API documentation <https://docs.pro.coinbase.com/#api/>`__ for the authorative and up to date API information.
+  Any references made below to specific aspects of the Coinbase Pro API such as the data structures returned by methods may be out of date. Please visit `Coinbase Pro's WebSocket REST API documentation <https://docs.pro.coinbase.com/#api/>`__ for the authorative and up to date API information.
   
 Introduction
 ------------
@@ -14,3 +14,8 @@ With very few exceptions there is a one to one correspondence between ``copra.re
 
 Additionally, it should be relatively easy to extend the client in order to build finer grained ordering methods, sophisticated account management systems, and powerful market analytics tools.
 
+Errors
+------
+While ``copra.rest.Client`` takes a hands-off approach to the data returned from API server, it does involve itself while preparing the user-supplied method paramters that will become part of the REST request. Specifically, in instances where the client can identify that the provided parameters will return an error from the API server, it raises a descriptive :class:`ValueError` in order to avoid an unnecessary server call. 
+
+For example, the client method :meth:`copra.rest.Client.market_order` has parameters for the amount of currency to purchase or sell, ``size``, and for the amount of quote currency to use for the transaction, ``funds``.
