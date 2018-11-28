@@ -4,6 +4,6 @@ REST
 .. toctree::
    :maxdepth: 2
 
-    usage
-    examples
+   usage
+   examples
    ../source/copra.rest
