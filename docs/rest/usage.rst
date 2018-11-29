@@ -22,8 +22,8 @@ For example, the client method :meth:`copra.rest.Client.market_order` has parame
 
 The :class:`copra.rest.Client` API documentation details for each method in what instances :class:`ValueErrors` are raised.
 
-:class:`copra.rest.APIRequestError`
-+++++++++++++++++++++++++++++++++++
+copra.rest.APIRequestError
+++++++++++++++++++++++++++
 
 On the other hand, there will be times the client cannot tell ahead of time that an API request will return error. Insufficient funds, invalid account ids, improper authorization, and internal server errors are just a few examples of the errors a request may return.
 
