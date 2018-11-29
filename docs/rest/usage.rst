@@ -27,4 +27,6 @@ copra.rest.APIRequestError
 
 On the other hand, there will be times the client cannot tell ahead of time that an API request will return error. Insufficient funds, invalid account ids, improper authorization, and internal server errors are just a few examples of the errors a request may return.
 
-Because there are many potential error types, and the Coinbase documentation does not list them all, the :class:`copra.rest.Client` raises a generic error, :class:`copra.rest.APIRequestError`, whenever the HTTP status code of an API server response is non-2xx. 
+Because there are many potential error types, and the Coinbase documentation does not list them all, the :class:`copra.rest.Client` raises a generic error, :class:`copra.rest.APIRequestError`, whenever the HTTP status code of an API server response is non-2xx.
+
+.. autoclass:: copra.rest.APIRequestError
