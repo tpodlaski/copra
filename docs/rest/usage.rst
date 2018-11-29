@@ -25,8 +25,8 @@ The :class:`copra.rest.Client` API documentation details for each method in what
 copra.rest.APIRequestError
 ++++++++++++++++++++++++++
 
-On the other hand, there will be times the client cannot tell ahead of time that an API request will return error. Insufficient funds, invalid account ids, improper authorization, and internal server errors are just a few examples of the errors a request may return.
+On the other hand, there will be times the client cannot tell ahead of time that an API request will return an error. Insufficient funds, invalid account ids, improper authorization, and internal server errors are just a few examples of the errors a request may return.
 
 Because there are many potential error types, and the Coinbase documentation does not list them all, the :class:`copra.rest.Client` raises a generic error, :class:`copra.rest.APIRequestError`, whenever the HTTP status code of an API server response is non-2xx.
 
-.. autoclass:: copra.rest.APIRequestError
+The string representation of an ``APIRequestError`` is the message returned by the Coinbase server along the HTTP status code. ``APIRequestError``, also has an additional field, ``response``, is the aiohttp.ClientResponse object returned to the client by the aiohttp request. This can be used to get more information about the request/response including full headers, etc. See the `aiohttp.ClientResponse documentation <https://docs.aiohttp.org/en/stable/client_reference.html#response-object>`_ to learn more about it's attributes.
