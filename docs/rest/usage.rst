@@ -18,6 +18,10 @@ Errors
 ------
 While :class:`copra.rest.Client` takes a hands-off approach to the data returned from API server, it does involve itself while preparing the user-supplied method paramters that will become part of the REST request. Specifically, in instances where the client can identify that the provided parameters will return an error from the API server, it raises a descriptive :class:`ValueError` in order to avoid an unnecessary server call. 
 
-For example, the client method :meth:`copra.rest.Client.market_order` has parameters for the amount of currency to purchase or sell, ``size``, and for the amount of quote currency to use for the transaction, ``funds``. For a market order, it is impossible to require both so the client raises a :class:`ValueError`.
+For example, the client method :meth:`copra.rest.Client.market_order` has parameters for the amount of currency to purchase or sell, ``size``, and for the amount of quote currency to use for the transaction, ``funds``. For a market order, it is impossible to require both so if both are sent in the method call, the client raises a :class:`ValueError`.
 
 The :class:`copra.rest.Client` API documentation details for each method in what instances :class:`ValueErrors` are raised.
+
+On the other hand, there will be times the client cannot tell ahead of time that an API request will return error. Insufficient funds, invalid account ids, improper authorization, and internal server errors are just a few examples of the errors a request may return.
+
+Because there are many potential error types, and the Coinbase documentation does not list them all, the :class:`copra.rest.Client` raises a generic error, :class:`copra.rest.APIRequestError`, whenever the HTTP status code of an API server response is non-2xx. 
