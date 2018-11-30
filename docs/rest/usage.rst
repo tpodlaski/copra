@@ -69,5 +69,43 @@ To initialize an authorized client you will also need the key, secret, passphras
     client = Client(loop, auth=True, key=YOUR_KEY, 
                     secret=YOUR_SECRET, passphrase=YOUR_PASSPHRASE)
 
+Client Lifecycle
+---------------
+
+The lifecycle of a long-lived client is straight forward:
+
+.. code:: python
+    
+    client = Client(loop)
+    
+    # Make a fortune trading Bitcoin here
+    
+    await client.close()
+    
+Initialize the client, make as many requests as you need to, and then close the client to release any resources the underlying aiohttp session acquired. Note that the Python interpreter will complain if your program closes without closing your client first.
+
+If you need to close the client from a function that is not a coroutine and the loop is remaining open you can close it like so:
+
+.. code:: python
+
+    loop.create_task(client.close())
+    
+Or, if the loop is closing, use:
+
+.. code:: python
+
+    loop.run_until_complete(client.close())
+    
 Context Manager
 ---------------
+
+If you only need to create a client, use it briefly and not need it again for the duraction of your program, you can create it as context manager in which case the client is closed automatically when program execution leave the context manager block:
+
+.. code:: python
+
+    async with Client(loop) as client:
+        client.do_something()
+        client.do_something_else()
+        
+Note that if you will be using the client repeatedly over the duration of your program, it is best to create one client, store a reference to it, and use it repeatedly instead of creating a new client every time you need to make a request or two. This has to do with the aiohttp session handles its connection pool. Connections are reused and keep-alives are on which will result in better performance in subsequent requests versus creating a new client every time.
+
