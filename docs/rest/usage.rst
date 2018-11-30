@@ -124,7 +124,7 @@ Products
 
   
 *
-    `` order_book(product_id, level=1):
+    `` order_book(product_id, level=1)``
     
     Get a list of open orders for a product.
     
