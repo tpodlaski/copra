@@ -208,6 +208,11 @@ Orders
         post_only=False, client_oid=None, stp='dc',stop=None, stop_price=None)`` [:meth:`API Documentation <copra.rest.Client.limit_order>`]
     | Place a limit order or a stop entry/loss limit order.
     
+*
+    | ``market_order(self, side, product_id, size=None, funds=None, client_oid=None,\
+                     stp='dc', stop=None, stop_price=None)`` [:meth:`API Documentation <copra.rest.Client.market_order>`]
+    | Place a market order or a stop entry/loss market order.
+    
 Fills       
 +++++
 
