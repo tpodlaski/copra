@@ -118,7 +118,7 @@ Products
 ++++++++
 
 *
-    | ``products()`` :meth: `API Documentation <copra.rest.Client.products>`
+    | ``products()`` :meth:`API Documentation <copra.rest.Client.products>`
     | Get a list of available currency pairs for trading.
 
 *
