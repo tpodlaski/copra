@@ -117,13 +117,10 @@ Coinbase refers to the collection of endpoints that do not require authorization
 Products
 ++++++++
 
-    * :code:`products()`
+.. py:function:: products()
     
       Get a list of available currency pairs for trading.
-      
-    * :code:`order_book(product_id, level=1)`
-      
-      Get a list of open orders for a product. 
+ 
 
 Currency
 ++++++++
