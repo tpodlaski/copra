@@ -130,8 +130,12 @@ Products
     | Get information about the last trade for a product.
     
 *
-    | ``trades(product_id, limit=100, before=None, after=None)  [:meth:`API Documentation <copra.rest.Client.trades>`]
+    | ``trades(product_id, limit=100, before=None, after=None)``  [:meth:`API Documentation <copra.rest.Client.trades>`]
     | List the latest trades for a product.
+    
+*
+    | ``historic_rates(product_id, granularity=3600, start=None, stop=None)`` [:meth:`API Documentation <copra.rest.Client.historic_rates>`]
+    | Get historic rates for a product.
     
 Currency
 ++++++++
