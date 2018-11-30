@@ -118,9 +118,6 @@ Products
 ++++++++
 
 .. automethod:: copra.rest.Client.products
-   :annotation: = Test
-    
-    Get a list of available currency pairs for trading.
  
 
 Currency
