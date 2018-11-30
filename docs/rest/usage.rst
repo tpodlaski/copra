@@ -263,11 +263,38 @@ Withdrawals
 Stablecoin Conversions
 ++++++++++++++++++++++
 
+* 
+    | ``stablecoin_conversion(from_currency_id, to_currency_id, amount)`` [:meth:`API Documentation <copra.rest.Client.stablecoin_converstion>`]
+    | Convert to and from a stablecoin.
+
 Payment Methods
 +++++++++++++++
+
+*
+    | ``payment_methods()`` [:meth:`API Documentation <copra.rest.Client.payment_methods>`]
+    | Get a list of the payment methods you have on file.
 
 Coinbase Accounts
 +++++++++++++++++
 
+*
+    | ``coinbase_accounts()`` [:meth:`API Documentation <copra.rest.Client.coinbase_accounts>`]
+    | Get a list of your coinbase accounts.
+
+Reports
++++++++
+
+*
+    | ``create_report(report_type, start_date, end_date, product_id='', account_id='', report_format='pdf', email='')`` [:meth:`API Documentation <copra.rest.Client.create_report>`]
+    | Create a report about your account history.
+    
+*
+    | ``report_status(report_id)`` [:meth:`API Documentation <copra.rest.Client.report_status>`]
+    | Get the status of a report.
+
 User Account
 ++++++++++++
+
+*
+    | ``trailing_volume()`` [:meth:`API Documentation <copra.rest.Client.trailing_volume>`]
+    | Return your 30-day trailing volume for all products.
