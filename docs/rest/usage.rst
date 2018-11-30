@@ -204,14 +204,28 @@ Orders
 ++++++
 
 *
-    | ``limit_order(side, product_id, price, size, time_in_force='GTC', cancel_after=None,\
-        post_only=False, client_oid=None, stp='dc',stop=None, stop_price=None)`` [:meth:`API Documentation <copra.rest.Client.limit_order>`]
+    | ``limit_order(side, product_id, price, size, time_in_force='GTC', cancel_after=None, post_only=False, client_oid=None, stp='dc',stop=None, stop_price=None)`` [:meth:`API Documentation <copra.rest.Client.limit_order>`]
     | Place a limit order or a stop entry/loss limit order.
     
 *
-    | ``market_order(self, side, product_id, size=None, funds=None, client_oid=None,\
-                     stp='dc', stop=None, stop_price=None)`` [:meth:`API Documentation <copra.rest.Client.market_order>`]
+    | ``market_order(self, side, product_id, size=None, funds=None, client_oid=None, stp='dc', stop=None, stop_price=None)`` [:meth:`API Documentation <copra.rest.Client.market_order>`]
     | Place a market order or a stop entry/loss market order.
+    
+*
+    | ``cancel(order_id)`` [:meth:`API Documentation <copra.rest.Clientcancel>`]
+    | Cancel a previously placed order.
+
+*
+    | ``cancel_all(product_id=None, stop=False)`` [:meth:`API Documentation <copra.rest.Clientcancel_all>`]
+    | Cancel "all" orders.
+    
+*
+    | ``orders(status=None, product_id=None, limit=100, before=None, after=None)`` [:meth:`API Documentation <copra.rest.Client.orders>`]
+    | Retrieve a list orders
+    
+*
+    | ``get_order(self, order_id)`` [:meth:`API Documentation <copra.rest.Client.get_order>`]
+    | Get a single order by order id.
     
 Fills       
 +++++
