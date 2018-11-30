@@ -109,7 +109,7 @@ If you only need to create a client, use it briefly and not need it again for th
         
 Note that if you will be using the client repeatedly over the duration of your program, it is best to create one client, store a reference to it, and use it repeatedly instead of creating a new client every time you need to make a request or two. This has to do with the aiohttp session handles its connection pool. Connections are reused and keep-alives are on which will result in better performance in subsequent requests versus creating a new client every time.
 
-Public (Unauthorized) Client Methods
+Public (Unauthenticated) Client Methods
 --------------
 
 Coinbase refers to the collection of endpoints that do not require authorization as their "Market Data API". They further group those endpoints into 3 categories: products, currency and time. The CoPra rest client provides methods that are a one-to-one match to the endpoints in Coinbase's Market Data API.
@@ -155,3 +155,28 @@ Time
     | ``server_time`` [:meth:`API Documentation <copra.rest.Client.server_time>`]
     | Get the API server time.
 
+
+Private (Authenticated) Client Methods
+--------------------------------------
+
+Coinbase labels its REST endpoints for account and order management as "private." Private in this sense means that they require authentication with the API server by signing all requests with a Coinbase API key. To use the corresponding ``copra.rest.Client`` methods you will need your own Coinbase API key. To learn how to create an API key see the Coinbase Pro support article titled `"How do I create an API key for Coinbase Pro?" <https://support.pro.coinbase.com/customer/en/portal/articles/2945320-how-do-i-create-an-api-key-for-coinbase-pro->`_.
+
+Then you will need to initialize ``copra.rest.Client`` with that API key:
+
+
+.. code:: python
+
+    import asyncio
+
+    from copra.rest import Client
+
+    loop = asyncio.get_event_loop()
+
+    client = Client(loop, auth=True, key=YOUR_KEY, 
+                    secret=YOUR_SECRET, passphrase=YOUR_PASSPHRASE)
+                    
+.. Note:: Even if you have created an authenticated client, it will only sign the requests to the Coinbase API server that require authentication. The "public" market data methods will still be made unsigned.
+
+The Coinbase API documentation groups the "private" authenticated methods into these categories: accounts, orders, fills, deposits, withdrawals, stablecoin conversions, payment methods, Coinbase accounts, reports, and user account.
+
+Again there is a one-to-one mapping from ``copra.rest.Client`` methods and their respective Coinbase API endpoints, but this time there is one exception. Coinbase has a single endpoint, "/orders" for placing orders. This enpoint handles both limit and market orders as well as the stop versions of both. Because of the number of parameters needed to cover all types of orders as well as the complicated interactions between the them, the decision was made to split this enpoint into two methods: :meth:`copra.rest.Client.limit_order`` and :meth:`copra.rest.Client.market_order``.
