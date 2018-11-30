@@ -41,3 +41,5 @@ The CoPrA REST client methods like their respective Coinbase REST API endpoints 
 Initialization
 ++++++++++++++
 
+.. automethod:: copra.rest.Client.__init__
+
