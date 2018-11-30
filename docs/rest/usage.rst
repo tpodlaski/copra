@@ -118,10 +118,7 @@ Products
 ++++++++
 
 *
-    .. code:: python
-
-        products()
-        
+    :code:`products()`        
     Get a list of available currency pairs for trading.
 
   
