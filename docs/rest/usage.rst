@@ -159,7 +159,7 @@ Time
 Private (Authenticated) Client Methods
 --------------------------------------
 
-Coinbase labels its REST endpoints for account and order management as "private." Private in this sense means that they require authentication with the API server by signing all requests with a Coinbase API key. To use the corresponding ``copra.rest.Client`` methods you will need your own Coinbase API key. To learn how to create an API key see the Coinbase Pro support article titled `"How do I create an API key for Coinbase Pro?" <https://support.pro.coinbase.com/customer/en/portal/articles/2945320-how-do-i-create-an-api-key-for-coinbase-pro->`_.
+Coinbase labels its REST endpoints for account and order management as "private." Private in this sense means that they require authentication with the API server by signing all requests with a Coinbase API key. To use the corresponding ``copra.rest.Client`` methods you will need your own Coinbase API key. To learn how to create an API key see the Coinbase Pro support article titled `"How do I create an API key for Coinbase Pro?" <https://support.pro.coinbase.com/customer/en/portal/articles/2945320-how-do-i-create-an-api-key-for-coinbase-pro->`_
 
 Then you will need to initialize ``copra.rest.Client`` with that API key:
 
@@ -179,4 +179,47 @@ Then you will need to initialize ``copra.rest.Client`` with that API key:
 
 The Coinbase API documentation groups the "private" authenticated methods into these categories: accounts, orders, fills, deposits, withdrawals, stablecoin conversions, payment methods, Coinbase accounts, reports, and user account.
 
-Again there is a one-to-one mapping from ``copra.rest.Client`` methods and their respective Coinbase API endpoints, but this time there is one exception. Coinbase has a single endpoint, "/orders" for placing orders. This enpoint handles both limit and market orders as well as the stop versions of both. Because of the number of parameters needed to cover all types of orders as well as the complicated interactions between the them, the decision was made to split this enpoint into two methods: :meth:`copra.rest.Client.limit_order`` and :meth:`copra.rest.Client.market_order``.
+Again there is a one-to-one mapping from ``copra.rest.Client`` methods and their respective Coinbase API endpoints, but this time there is one exception. Coinbase has a single endpoint, "/orders" for placing orders. This enpoint handles both limit and market orders as well as the stop versions of both. Because of the number of parameters needed to cover all types of orders as well as the complicated interactions between the them, the decision was made to split this enpoint into two methods: :meth:`copra.rest.Client.limit_order` and :meth:`copra.rest.Client.market_order`.
+
+Accounts
+++++++
+
+*
+    | ``accounts()`` [:meth:`API Documentation <copra.rest.Client.accounts>`]
+    | Get a list of your Coinbase Pro trading accounts.
+    
+*
+    | ``account(account_id)`` [:meth:`API Documentation <copra.rest.Client.accounts>`]
+    | Retrieve information for a single account.
+    
+*
+    | ``account_history(account_id, limit=100, before=None, after=None)`` [:meth:`API Documentation <copra.rest.Client.account_history>`]
+    | Retrieve a list account activity.
+    
+*
+    | ``holds(account_id, limit=100, before=None, after=None)`` [:meth:`API Documentation <copra.rest.Client.account_holds>`]
+    | Get any existing holds on an account.
+
+Orders
+++++++
+
+Fills       
++++++
+
+Deposits
+++++++++
+
+Withdrawals
++++++++++++
+
+Stablecoin Conversions
+++++++++++++++++++++++
+
+Payment Methods
++++++++++++++++
+
+Coinbase Accounts
++++++++++++++++++
+
+User Account
+++++++++++++
