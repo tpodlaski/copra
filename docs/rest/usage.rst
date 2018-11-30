@@ -230,11 +230,35 @@ Orders
 Fills       
 +++++
 
+*
+    | ``fills(order_id='', product_id='', limit=100, before=None, after=None)`` [:meth:`API Documentation <copra.rest.Client.fills>`]
+    | Get a list of recent fills.
+
 Deposits
 ++++++++
 
+*
+    | ``deposit_payment_method(amount, currency, payment_method_id)`` [:meth:`API Documentation <copra.rest.Client.deposit_payment_method>`]
+    | Deposit funds from a payment method on file.
+    
+*
+    | ``deposit_coinbase(amount, currency, coinbase_account_id)`` [:meth:`API Documentation <copra.rest.Client.deposit_coinbase>`]
+    | Deposit funds from a Coinbase account.
+
 Withdrawals
 +++++++++++
+
+*
+    | ``withdraw_payment_method(self, amount, currency, payment_method_id)`` [:meth:`API Documentation <copra.rest.Client.withdraw_payment_method>`]
+    | Withdraw funds to a payment method on file.
+    
+*
+    | ``withdraw_coinbase(amount, currency, coinbase_account_id)`` [:meth:`API Documentation <copra.rest.Client.withdraw_coinbase>`]
+    | Withdraw funds to a Coinbase account.
+    
+*
+    | ``withdraw_crypto(amount, currency, crypto_address)`` [:meth:`API Documentation <copra.rest.Client.withdraw_crypto>`]
+    | Withdraw funds to a crypto address.
 
 Stablecoin Conversions
 ++++++++++++++++++++++
