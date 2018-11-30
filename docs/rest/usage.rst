@@ -144,6 +144,14 @@ Products
 Currency
 ++++++++
 
+*
+    | ``currencies()`` [:meth:`API Documentation <copra.rest.Client.currencies>`]
+    | List known currencies.
+
 Time
 ++++
+
+*
+    | ``server_time`` [:meth:`API Documentation <copra.rest.Client.server_time>`]
+    | Get the API server time.
 
