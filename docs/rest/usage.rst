@@ -109,9 +109,17 @@ If you only need to create a client, use it briefly and not need it again for th
         
 Note that if you will be using the client repeatedly over the duration of your program, it is best to create one client, store a reference to it, and use it repeatedly instead of creating a new client every time you need to make a request or two. This has to do with the aiohttp session handles its connection pool. Connections are reused and keep-alives are on which will result in better performance in subsequent requests versus creating a new client every time.
 
-Client Methods
+Public (Unauthorized) Client Methods
 --------------
 
-Unauthorized
-++++++++++++
+Coinbase refers to the collection of endpoints that do not require authorization as their "Market Data API". They further group those endpoints into 3 categories: products, currency and time. The CoPra rest client provides methods that are a one-to-one match to the endpoints in Coinbase's Market Data API.
+
+Products
+++++++++
+
+Currency
+++++++++
+
+Time
+++++
 
