@@ -80,6 +80,11 @@ class Client:
         :param loop: The asyncio loop that the client runs in.
         :type loop: asyncio loop
         
+        :param str url: (optional)The url of the REST API server. The default 
+            is https://api.pro.coinbase.com. This generally does not need to be 
+            changed. One reason to change it would be to test against the
+            sandbox server.
+        
         :param bool auth:  (optional) Whether or not the (entire) REST session is
             authenticated. If True, you will need an API key from the Coinbase 
             Pro website. The default is False.
