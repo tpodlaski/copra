@@ -125,6 +125,10 @@ Products
     | ``order_book(product_id, level=1)`` [:meth:`API Documentation <copra.rest.Client.order_book>`]
     | Get a list of open orders for a product.
     
+*
+    | ``ticker(product_id)`` [:meth:`API Documentation <copra.rest.Client.ticker>`]
+    | Get information about the last trade for a product.
+    
 Currency
 ++++++++
 
