@@ -43,3 +43,14 @@ Initialization
 
 .. automethod:: copra.rest.Client.__init__
 
+Initialization of an unauthorized client only requires one parameter: the asyncio loop the client will be running in:
+
+.. code:: python
+
+    import asyncio
+
+    from copra.rest import Client
+
+    loop = asyncio.get_event_loop()
+
+    client = Client(loop)
