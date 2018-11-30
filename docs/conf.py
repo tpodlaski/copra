@@ -165,8 +165,3 @@ texinfo_documents = [
      'One line description of project.',
      'Miscellaneous'),
 ]
-
-
-def setup(app):
-    from sphinx.ext.autodoc import cut_lines
-    app.connect('autodoc-process-docstring', cut_lines(3, 2)
