@@ -2,6 +2,9 @@
 Usage
 =====
 
+.. role:: python(code)
+   :language: python
+   
 .. warning::
 
   Any references made below to specific aspects of the Coinbase Pro API such as the data structures returned by methods may be out of date. Please visit `Coinbase Pro's WebSocket REST API documentation <https://docs.pro.coinbase.com/#api/>`__ for the authorative and up to date API information.
@@ -118,7 +121,7 @@ Products
 ++++++++
 
 *
-    :code:`products()`        
+    :python:`products()`        
     Get a list of available currency pairs for trading.
 
   
