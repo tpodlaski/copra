@@ -2,9 +2,6 @@
 Usage
 =====
 
-.. role:: python(code)
-   :language: python
-   
 .. warning::
 
   Any references made below to specific aspects of the Coinbase Pro API such as the data structures returned by methods may be out of date. Please visit `Coinbase Pro's WebSocket REST API documentation <https://docs.pro.coinbase.com/#api/>`__ for the authorative and up to date API information.
@@ -121,11 +118,16 @@ Products
 ++++++++
 
 *
-    :python:`products()`        
+    ``products()``       
+    
     Get a list of available currency pairs for trading.
 
   
-
+*
+    `` order_book(product_id, level=1):
+    
+    Get a list of open orders for a product.
+    
 Currency
 ++++++++
 
