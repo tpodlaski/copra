@@ -32,3 +32,12 @@ Because there are many potential error types, and the Coinbase documentation doe
 The string representation of an ``APIRequestError`` is the message returned by the Coinbase server along the HTTP status code. ``APIRequestError``, also has an additional field, ``response``, is the `aiohttp.ClientResponse <https://docs.aiohttp.org/en/stable/client_reference.html#response-object>`_ object returned to the CoPrA client by the aiohttp request. This can be used to get more information about the request/response including full headers, etc. See the `aiohttp.ClientResponse documentation <https://docs.aiohttp.org/en/stable/client_reference.html#response-object>`_ to learn more about its attributes.
 
 To get a feel for the types of errors that the Coinbase server may return, please see the `Coinbase Pro API error documentation <https://docs.pro.coinbase.com/#errors>`_.
+
+REST Client 
+-----------
+
+The CoPrA REST client methods like their respective Coinbase REST API endpoints fall in one of two main categories: public and private. Public methods require no authentication. They offer access to market data and other publically avaiable information. The private methods *do* require authentication, specifically by means of an API key.  To learn how to create an API key see the Coinbase Pro support article titled `"How do I create an API key for Coinbase Pro?" <https://support.pro.coinbase.com/customer/en/portal/articles/2945320-how-do-i-create-an-api-key-for-coinbase-pro->`_.
+
+Initialization
+++++++++++++++
+
