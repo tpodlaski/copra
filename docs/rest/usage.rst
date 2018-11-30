@@ -204,8 +204,8 @@ Orders
 ++++++
 
 *
-    | ``limit_order(side, product_id, price, size, time_in_force='GTC', cancel_after=None, ``
-    |               ``post_only=False, client_oid=None, stp='dc',stop=None, stop_price=None)`` [:meth:`API Documentation <copra.rest.Client.limit_order>`]
+    | ``limit_order(side, product_id, price, size, time_in_force='GTC', cancel_after=None,``
+    |             ``post_only=False, client_oid=None, stp='dc',stop=None, stop_price=None)`` [:meth:`API Documentation <copra.rest.Client.limit_order>`]
     | Place a limit order or a stop entry/loss limit order.
     
 Fills       
