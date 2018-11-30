@@ -122,7 +122,7 @@ Products
     | Get a list of available currency pairs for trading.
 
 *
-    | ``order_book(product_id, level=1)`` [:meth:`API Documentation <copra.rest.Client.order_book`]
+    | ``order_book(product_id, level=1)`` [:meth:`API Documentation2 <copra.rest.Client.order_book`]
     | Get a list of open orders for a product.
     
 Currency
