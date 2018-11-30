@@ -129,6 +129,10 @@ Products
     | ``ticker(product_id)`` [:meth:`API Documentation <copra.rest.Client.ticker>`]
     | Get information about the last trade for a product.
     
+*
+    | ``trades(product_id, limit=100, before=None, after=None)  [:meth:`API Documentation <copra.rest.Client.trades>`]
+    | List the latest trades for a product.
+    
 Currency
 ++++++++
 
