@@ -114,7 +114,8 @@ Public (Unauthorized) Client Methods
 
 Coinbase refers to the collection of endpoints that do not require authorization as their "Market Data API". They further group those endpoints into 3 categories: products, currency and time. The CoPra rest client provides methods that are a one-to-one match to the endpoints in Coinbase's Market Data API.
 
-    * ``products()``  
+    * :code`products()`
+    
       Get a list of available currency pairs for trading.
 
 Currency
