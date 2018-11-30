@@ -54,3 +54,20 @@ Initialization of an unauthorized client only requires one parameter: the asynci
     loop = asyncio.get_event_loop()
 
     client = Client(loop)
+    
+To initialize an authorized client you will also need the key, secret, passphrase that Coinbase provides you when you request an  API key:
+
+
+.. code:: python
+
+    import asyncio
+
+    from copra.rest import Client
+
+    loop = asyncio.get_event_loop()
+
+    client = Client(loop, auth=True, key=YOUR_KEY, 
+                    secret=YOUR_SECRET, passphrase=YOUR_PASSPHRASE)
+
+Context Manager
+---------------
