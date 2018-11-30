@@ -117,9 +117,10 @@ Coinbase refers to the collection of endpoints that do not require authorization
 Products
 ++++++++
 
-.. py:function:: products()
+.. automethod:: copra.rest.Client.products
+    :annotation:
     
-      Get a list of available currency pairs for trading.
+    Get a list of available currency pairs for trading.
  
 
 Currency
