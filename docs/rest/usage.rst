@@ -117,9 +117,14 @@ Coinbase refers to the collection of endpoints that do not require authorization
 Products
 ++++++++
 
-.. autoclass:: Client
+*
+    .. code:: python
 
-   .. automethod:: products() 
+        products()
+        
+    Get a list of available currency pairs for trading.
+
+  
 
 Currency
 ++++++++
