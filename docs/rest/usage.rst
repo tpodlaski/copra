@@ -137,6 +137,10 @@ Products
     | ``historic_rates(product_id, granularity=3600, start=None, stop=None)`` [:meth:`API Documentation <copra.rest.Client.historic_rates>`]
     | Get historic rates for a product.
     
+*
+    | ``get_24hour_stats(product_id)`` [:meth:`API Documentation <copra.rest.Client.get_24hour_stats>`]
+    | Get 24 hr stats for a product.
+    
 Currency
 ++++++++
 
