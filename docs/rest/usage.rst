@@ -116,14 +116,13 @@ Coinbase refers to the collection of endpoints that do not require authorization
 
 Products
 ++++++++
+=
+    | ``products()``       
+    | Get a list of available currency pairs for trading.
 
 *
-    |``products()``       
-    |Get a list of available currency pairs for trading.
-
-*
-    |``order_book(product_id, level=1)``
-    |Get a list of open orders for a product.
+    | ``order_book(product_id, level=1)``
+    | Get a list of open orders for a product.
     
 Currency
 ++++++++
