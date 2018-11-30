@@ -117,8 +117,9 @@ Coinbase refers to the collection of endpoints that do not require authorization
 Products
 ++++++++
 
-.. automethod:: copra.rest.Client.products
- 
+.. autoclass:: Client
+
+   .. automethod:: products() 
 
 Currency
 ++++++++
