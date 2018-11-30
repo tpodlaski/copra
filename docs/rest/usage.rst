@@ -41,7 +41,7 @@ The CoPrA REST client methods like their respective Coinbase REST API endpoints 
 Initialization
 ++++++++++++++
 
-.. automethod:: copra.rest.Client.__init__
+``__init__(loop, url=URL, auth=False, key='', secret='', passphrase='')`` [:meth:`API Documentation <copra.rest.Client.__init__>`]
 
 Initialization of an unauthorized client only requires one parameter: the asyncio loop the client will be running in:
 
