@@ -118,7 +118,7 @@ Products
 ++++++++
 
 *
-    | ``products()``       
+    | ``products()`` :ref: :method: `copra.rest.Client.products`
     | Get a list of available currency pairs for trading.
 
 *
