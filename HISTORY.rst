@@ -52,3 +52,7 @@ History
 1.1.0 (2018-11-27)
 ------------------
 * Added REST client.
+
+1.1.2 (2018-12-01)
+------------------
+* Updated documentation formatting.
