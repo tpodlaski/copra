@@ -138,3 +138,5 @@ Running this script with your API key credentials inserted in their proper spots
             Order id: 72998d92-dea2-4f4c-83f2-e119f92861d5
             Size: 0.00100000
             Stop price: $6271.00
+
+    $
