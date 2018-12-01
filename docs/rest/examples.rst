@@ -126,7 +126,7 @@ Running this script with your API key credentials inserted in their proper spots
 
     USD available: $1485.6440517304
 
-    Last BTC-USD price: $6680.55
+    Last BTC-USD price: $6571.00
 
     Market order placed.
             Order id: 1ed693ef-fc95-49ec-af6e-d37937d5ff1b
