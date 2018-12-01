@@ -120,7 +120,7 @@ Running this script with your API key credentials inserted in their proper spots
 
 .. code:: bash
 
-    $ python rest_example.py
+    $ python3 rest_example.py
     
     Minimum BTC-USD order size: 0.001
 
