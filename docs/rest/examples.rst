@@ -30,7 +30,6 @@ This is a contrived example that makes some assumptions and does not count for e
 
     loop = asyncio.get_event_loop()
     
-
     async def run():
     
         async with Client(loop, auth=True, key=KEY, secret=SECRET, 
@@ -44,8 +43,7 @@ This is a contrived example that makes some assumptions and does not count for e
                     break
             
             print('\nMinimum BTC-USD order size: {}\n'.format(min_btc_size))
-                
-        
+                        
             # Get the amount of USD you have available. This assumes you don't 
             # know the account id of your Coinbase Pro USD account. If you did,
             # you could just call client.account(account_id) to retrieve the 
@@ -56,23 +54,20 @@ This is a contrived example that makes some assumptions and does not count for e
                     usd_available = float(account['available'])
                 
             print('USD available: ${}\n'.format(usd_available))
-        
-        
+                
             # Get the last price of BTC-USD
             btc_usd_ticker = await client.ticker('BTC-USD')
             btc_usd_price = float(btc_usd_ticker['price'])
         
             print("Last BTC-USD price: ${}\n".format(btc_usd_price))
-        
-        
+                
             # Verify you have enough USD to place the minimum BTC-USD order
             usd_needed = btc_usd_price * min_btc_size
             if usd_available < usd_needed:
                 print('Sorry, you need ${} to place the minimum BTC order'.format(
                                                                         usd_needed))
                 return
-        
-        
+                
             # Place a market order for the minimum amount of BTC
             try:
                 order = await client.market_order('buy', 'BTC-USD', 
@@ -86,16 +81,13 @@ This is a contrived example that makes some assumptions and does not count for e
             except APIRequestError as e:
                 print(e)
                 return
-        
-        
+                
             # Wait a few seconds just to make sure the order completes.
             await asyncio.sleep(5)
-        
-        
+               
             # Check the order status
             order = await client.get_order(order_id)
-        
-        
+                
             # Assume the order is done and not rejected.
             order_size = float(order['filled_size'])
             order_executed_value = float(order['executed_value'])
@@ -108,7 +100,6 @@ This is a contrived example that makes some assumptions and does not count for e
                                                               order_price, 
                                                               order_executed_value))
                                              
-        
             # Place a stop loss market order at $300 below the order price.
             stop_price = '{:.2f}'.format(6680.55 - 300)
             sl_order = await client.market_order('sell', 'BTC-USD', order_size, 
@@ -125,7 +116,7 @@ This is a contrived example that makes some assumptions and does not count for e
 
     loop.close()
     
-Running this script with your API key credentials inserted in their proper spots should yield output to that below.
+Running this script with your API key credentials inserted in their proper spots should yield output similar to that below.
 
 .. code:: bash
 
