@@ -2,5 +2,54 @@
 """Asynchronous FIX client for the Coinbase Pro platform.
 """
 
-class Client():
+import asyncio
+import os
+import ssl
+
+
+URL = 'fix.pro.coinbase.com:4198'
+SANDBOX_URL = 'fix-public.sandbox.pro.coinbase.com'
+
+CERT_FILE = os.path.join(os.path.dirname(__file__), 'certs', 
+                                                    'fix.pro.coinbase.com.pem')
+SANDBOX_CERT_FILE = os.path.join(os.path.dirname(__file__), 'certs', 
+                                      'fix-public.sandbox.pro.coinbase.com.pem')
+
+
+class Client(asyncio.Protocol):
     """Asynchronous FIX client for Coinbase Pro"""
+    
+    def __init__(self, loop, key, secret, passphrase, url=URL,
+                 cert_file=CERT_FILE):
+        """FIX client initialization.
+        
+        :param loop: The asyncio loop that the client runs in.
+        :type loop: asyncio loop
+ 
+        :param str key: The API key to use for authentication. 
+
+        :param str secret: The secret string for the API key used for
+            authenticaiton.
+            
+        :param str passphrase: The passphrase for the API key used for 
+            authentication.
+            
+        :param str url: (optional) The url of the FIX server. This should 
+            include the port but not the protocol.
+            
+        :param str cert_file: (optional) The path to the ssl certificate for
+            the Coinbase Pro FIX server. The default is
+            './certs/fix.pro.coinbase.com.pem'. Certificates for both the live
+            server and sandbox server are already installed in the `certs` 
+            directory. 
+        """
+        self.loop = loop
+        self.key = key
+        self.secret = secret
+        self.passphrase = passphrase
+        self.url = url
+        
+        self.ssl_context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
+        self.ssl_context.verify_mode = ssl.CERT_REQUIRED
+        self.ssl_context.load_verify_locations(cert_file)
+
