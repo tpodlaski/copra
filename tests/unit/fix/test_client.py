@@ -128,7 +128,7 @@ class TestLoginMessage(TestCase):
         self.assertEqual(msg[49], TEST_KEY)
         self.assertEqual(msg[56], 'Coinbase')
         self.assertEqual(msg[34], 7)
-        #self.assertIn(52, msg.dict)
+        self.assertIn(52, msg.dict)
         
     
 class TestFix(TestCase):
