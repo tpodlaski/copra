@@ -32,7 +32,7 @@ class Message():
         """
         
         self.dict = { 8: 'FIX.4.2',
-             35: msg_type,
+             35: str(msg_type),
              49: key,
              56: 'Coinbase',
              34: seq_num }
@@ -46,8 +46,8 @@ class Message():
  
     
     def __getitem__(self, key):
-        # if key == 9:
-        #     return len(self)
+        if key == 9:
+            return len(self)
         # if key == 10:
         #     return self.check_sum()
         return self.dict[key]

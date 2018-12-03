@@ -22,7 +22,7 @@ class TestMessage(TestCase):
     def test___init__(self):
         
         msg_dict = { 8: 'FIX.4.2',
-             35: 0,
+             35: '0',
              49: TEST_KEY,
              56: 'Coinbase',
              34: 42 }
@@ -42,11 +42,14 @@ class TestMessage(TestCase):
         self.assertEqual(len(msg), 61)
         
         
-    # def test___get_item__(self):
-    #     msg = Message(TEST_KEY, 42, 0)
-    #     self.assertEqual(msg[8], 'FIX.4.2')
-    #     self.assertEqual(msg[35], '0')
-    #     self.assertEqual(msg[49], TEST_KEY)
+    def test___get_item__(self):
+        msg = Message(TEST_KEY, 42, 0)
+        self.assertEqual(msg[8], 'FIX.4.2')
+        self.assertEqual(msg[35], '0')
+        self.assertEqual(msg[49], TEST_KEY)
+        self.assertEqual(msg[56], 'Coinbase')
+        self.assertEqual(msg[34], 42)
+        self.assertEqual(msg[9], len(msg))
 
 
 class TestFix(TestCase):
