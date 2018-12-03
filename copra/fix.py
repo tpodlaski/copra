@@ -5,6 +5,7 @@
 import asyncio
 import os
 import ssl
+import time
 
 
 URL = 'fix.pro.coinbase.com:4198'
@@ -76,8 +77,33 @@ class Message():
     
     def __delitem__(self, key):
         del(self.dict[key])
+
+    
+    def __contains__(self, item):
+        if item in (9, 10):
+            return True
+        return item in self.dict
         
+
+class LoginMessage(Message):
+    """FIX login message.
+    """
+    
+    def __init__(self, key, seq_num):
+        """ Initialize the log in message.
         
+        :param str key: The API key of the client generating the message.
+        :param int seq_num: The sequence number of the message as tracked by
+                the client.
+        
+        """
+        super().__init__(key, seq_num, 'A')
+        
+        #self[52] = time.time()     #SendingTime, Time of message transmission
+        #self[98] = 0               #EncryptMethod, 0 = None/other
+        #self[108] = 30             #HeartBtInt, Heartbeat interval in seconds
+    
+    
 class Client(asyncio.Protocol):
     """Asynchronous FIX client for Coinbase Pro"""
     

@@ -8,7 +8,7 @@ import os
 
 from asynctest import TestCase, CoroutineMock
 
-from copra.fix import Message
+from copra.fix import Message, LoginMessage
 from copra.fix import Client, URL, SANDBOX_URL, CERT_FILE, SANDBOX_CERT_FILE
 
 # These are made up
@@ -104,7 +104,33 @@ class TestMessage(TestCase):
             
         with self.assertRaises(KeyError):
             del(msg[99])
+            
+            
+    def test___contains__(self):
+        msg = Message(TEST_KEY, 42, 0)
+        self.assertTrue(msg.__contains__(8))
+        self.assertTrue(msg.__contains__(9))
+        self.assertTrue(msg.__contains__(10))
+        self.assertFalse(msg.__contains__(99))
+        
+        self.assertIn(8, msg)
+        self.assertIn(9, msg)
+        self.assertIn(10, msg)
+        self.assertNotIn(99, msg)
 
+
+class TestLoginMessage(TestCase):
+    
+    def test_init(self):
+        msg = LoginMessage(TEST_KEY, 7)
+        self.assertEqual(msg[8], 'FIX.4.2')
+        self.assertEqual(msg[35], 'A')
+        self.assertEqual(msg[49], TEST_KEY)
+        self.assertEqual(msg[56], 'Coinbase')
+        self.assertEqual(msg[34], 7)
+        #self.assertIn(52, msg.dict)
+        
+    
 class TestFix(TestCase):
     
     def setUp(self):
