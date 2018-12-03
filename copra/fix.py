@@ -51,6 +51,16 @@ class Message():
         # if key == 10:
         #     return self.check_sum()
         return self.dict[key]
+
+        
+    def __setitem__(self, key, value):
+        if key in (9, 10):
+            raise KeyError('Key {} may not be manually set.'.format(key))
+        self.dict[key] = value
+        
+    
+    def __delitem__(self, key):
+        del(self.dict[key])
         
         
 class Client(asyncio.Protocol):

@@ -42,7 +42,7 @@ class TestMessage(TestCase):
         self.assertEqual(len(msg), 61)
         
         
-    def test___get_item__(self):
+    def test___getitem__(self):
         msg = Message(TEST_KEY, 42, 0)
         self.assertEqual(msg[8], 'FIX.4.2')
         self.assertEqual(msg[35], '0')
@@ -50,7 +50,34 @@ class TestMessage(TestCase):
         self.assertEqual(msg[56], 'Coinbase')
         self.assertEqual(msg[34], 42)
         self.assertEqual(msg[9], len(msg))
+        
+    def test___setitem__(self):
+        msg = Message(TEST_KEY, 42, 0)
+        self.assertEqual(msg[35], '0')
+        
+        msg[35] = 'A'
+        self.assertEqual(msg[35], 'A')
+        
+        with self.assertRaises(KeyError):
+            t = msg[99]
+        msg[99] = 'hello'
+        self.assertEqual(msg[99], 'hello')
+        
+        with self.assertRaises(KeyError):
+            msg[9] = 'nine'
+            
+        with self.assertRaises(KeyError):
+            msg[10] = 'ten'
+        
 
+    def test___delitem__(self):
+        msg = Message(TEST_KEY, 42, 0)
+        del(msg[35])
+        with self.assertRaises(KeyError):
+            t = msg[35]
+            
+        with self.assertRaises(KeyError):
+            del(msg[99])
 
 class TestFix(TestCase):
     
