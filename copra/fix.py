@@ -16,11 +16,45 @@ SANDBOX_CERT_FILE = os.path.join(os.path.dirname(__file__), 'certs',
                                       'fix-public.sandbox.pro.coinbase.com.pem')
 
 
+class Message():
+    """Base class for FIX messages.
+    """
+
+    def __init__(self, key, seq_num, msg_type):
+        """Initialize the Message object
+        
+        :param str key: The API key of the client generating the message.
+        :param int seq_num: The sequence number of the message as tracked by
+            the client.
+        :param str msg_type: The type field of the message. It /should/ be a
+            str but since many are ints, it will accept an int and convert it
+            to a str.
+        """
+        
+        self.dict = { 8: 'FIX.4.2',
+             35: msg_type,
+             49: key,
+             56: 'Coinbase',
+             34: seq_num }
+
+    def __len__(self):
+        len_ = 0
+        for key in self.dict.keys() - {8}:
+            len_ += len('{}={}'.format(key, self.dict[key])) + 1
+        return len_
+        
+    def len_old(self):
+        l = [f'{key}={value}' for key, value in self.dict.items() if key != 8]
+        s = chr(1).join(l) + chr(1)
+        print(s)
+        return len(s)
+        
+
 class Client(asyncio.Protocol):
     """Asynchronous FIX client for Coinbase Pro"""
     
     def __init__(self, loop, key, secret, passphrase, url=URL,
-                 cert_file=CERT_FILE):
+                 cert_file=CERT_FILE, auto_connect=True):
         """FIX client initialization.
         
         :param loop: The asyncio loop that the client runs in.
@@ -42,6 +76,12 @@ class Client(asyncio.Protocol):
             './certs/fix.pro.coinbase.com.pem'. Certificates for both the live
             server and sandbox server are already installed in the `certs` 
             directory. 
+            
+        :param bool auto_connect: (optional) If True, the Client will 
+            automatically add itself to its event loop (ie., open a connection 
+            if the loop is running or as soon as it starts). If False, 
+            add_as_task_to_loop() needs to be explicitly called to add the 
+            client to the loop. The default is True.
         """
         self.loop = loop
         self.key = key
@@ -52,4 +92,13 @@ class Client(asyncio.Protocol):
         self.ssl_context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
         self.ssl_context.verify_mode = ssl.CERT_REQUIRED
         self.ssl_context.load_verify_locations(cert_file)
-
+        
+        self.seq_num = 0
+        
+        
+    async def connect(self):
+        """Open a connection with FIX server.
+        """
+        host, port = self.url.split(':')
+        await self.loop.create_connection(self, host, int(port), 
+                                          ssl=self.ssl_context)

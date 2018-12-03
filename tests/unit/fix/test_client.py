@@ -6,8 +6,9 @@
 import asyncio
 import os
 
-from asynctest import TestCase
+from asynctest import TestCase, CoroutineMock
 
+from copra.fix import Message
 from copra.fix import Client, URL, SANDBOX_URL, CERT_FILE, SANDBOX_CERT_FILE
 
 # These are made up
@@ -15,10 +16,35 @@ TEST_KEY = 'a035b37f42394a6d343231f7f772b99d'
 TEST_SECRET = 'aVGe54dHHYUSudB3sJdcQx4BfQ6K5oVdcYv4eRtDN6fBHEQf5Go6BACew4G0iFjfLKJHmWY5ZEwlqxdslop4CC=='
 TEST_PASSPHRASE = 'a2f9ee4dx2b'
 
+
+class TestMessage(TestCase):
+    
+    def test___init__(self):
+        
+        msg_dict = { 8: 'FIX.4.2',
+             35: 0,
+             49: TEST_KEY,
+             56: 'Coinbase',
+             34: 42 }
+             
+        msg = Message(TEST_KEY, 42, 0)
+        self.assertEqual(msg.dict, msg_dict)
+        
+    def test___len__(self):
+        msg = Message(TEST_KEY, 42, 0)
+        self.assertEqual(len(msg), 59)
+        
+        msg = Message(TEST_KEY, 42, 'A')
+        self.assertEqual(len(msg), 59)
+        
+        msg = Message(TEST_KEY, 4200, 0)
+        self.assertEqual(len(msg), 61)
+
+
 class TestFix(TestCase):
     
     def setUp(self):
-        pass
+        self.client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
     
     def tearDown(self):
         pass
@@ -47,4 +73,14 @@ class TestFix(TestCase):
         self.assertEqual(client.secret, TEST_SECRET)
         self.assertEqual(client.passphrase, TEST_PASSPHRASE)
         self.assertEqual(client.url, URL)
+        self.assertEqual(client.seq_num, 0)
+
+
+    async def test_connect(self):
+        
+        self.loop.create_connection = CoroutineMock(name='create_connection')
+        await self.client.connect()
+        self.loop.create_connection.assert_called_with(self.client,
+                                                   'fix.pro.coinbase.com', 4198, 
+                                                   ssl=self.client.ssl_context)
         
