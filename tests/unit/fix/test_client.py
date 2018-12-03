@@ -40,8 +40,32 @@ class TestMessage(TestCase):
         
         msg = Message(TEST_KEY, 4200, 0)
         self.assertEqual(len(msg), 61)
+
+
+    def test___repr__(self):
+        msg = Message(TEST_KEY, 42, 0)
+        pairs = str(msg)[:-1].split(chr(1))
+        keys = []
+        for pair in pairs:
+            key, value = pair.split('=')
+            self.assertEqual(str(msg[int(key)]), value)
+            keys.append(key)
+        self.assertEqual(msg.dict.keys(), {int(key) for key in set(keys) - {'9', '10'}})
+        self.assertEqual(keys[0], '8')
+        self.assertEqual(keys[1], '9')
+        self.assertEqual(keys[2], '35')
+
+        
+    def test_checksum(self):
+        msg = Message(TEST_KEY, 42, 0)
+        self.assertEqual(msg.checksum(), '148')
         
         
+    def test___bytes__(self):
+        msg = Message(TEST_KEY, 42, 0)
+        self.assertEqual(bytes(msg), msg.__repr__().encode('ascii'))
+
+
     def test___getitem__(self):
         msg = Message(TEST_KEY, 42, 0)
         self.assertEqual(msg[8], 'FIX.4.2')
@@ -50,6 +74,8 @@ class TestMessage(TestCase):
         self.assertEqual(msg[56], 'Coinbase')
         self.assertEqual(msg[34], 42)
         self.assertEqual(msg[9], len(msg))
+        self.assertEqual(msg[10], msg.checksum())
+
         
     def test___setitem__(self):
         msg = Message(TEST_KEY, 42, 0)

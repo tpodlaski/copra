@@ -43,13 +43,28 @@ class Message():
         for key in self.dict.keys() - {8}:
             len_ += len('{}={}'.format(key, self.dict[key])) + 1
         return len_
+
+
+    def __repr__(self):
+        keys = [8, 9, 35] + list(self.dict.keys() - {8, 9, 25} | {10})
+        return ''.join(['{}={}{}'.format(key, self[key], chr(1)) for key in keys])
+
+
+    def __bytes__(self):
+        return self.__repr__().encode('ascii')
+        
+
+    def checksum(self):
+        s = ''.join(['{}={}{}'.format(key, self[key], chr(1)) for key in self.dict.keys() | {9}])
+        ord_sum = sum([ord(char) for char in s]) % 256
+        return str(ord_sum).zfill(3)    
  
     
     def __getitem__(self, key):
         if key == 9:
             return len(self)
-        # if key == 10:
-        #     return self.check_sum()
+        if key == 10:
+            return self.checksum()
         return self.dict[key]
 
         
