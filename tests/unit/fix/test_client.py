@@ -29,6 +29,7 @@ class TestMessage(TestCase):
              
         msg = Message(TEST_KEY, 42, 0)
         self.assertEqual(msg.dict, msg_dict)
+    
         
     def test___len__(self):
         msg = Message(TEST_KEY, 42, 0)
@@ -39,6 +40,13 @@ class TestMessage(TestCase):
         
         msg = Message(TEST_KEY, 4200, 0)
         self.assertEqual(len(msg), 61)
+        
+        
+    # def test___get_item__(self):
+    #     msg = Message(TEST_KEY, 42, 0)
+    #     self.assertEqual(msg[8], 'FIX.4.2')
+    #     self.assertEqual(msg[35], '0')
+    #     self.assertEqual(msg[49], TEST_KEY)
 
 
 class TestFix(TestCase):

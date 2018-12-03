@@ -37,19 +37,22 @@ class Message():
              56: 'Coinbase',
              34: seq_num }
 
+
     def __len__(self):
         len_ = 0
         for key in self.dict.keys() - {8}:
             len_ += len('{}={}'.format(key, self.dict[key])) + 1
         return len_
+ 
+    
+    def __getitem__(self, key):
+        # if key == 9:
+        #     return len(self)
+        # if key == 10:
+        #     return self.check_sum()
+        return self.dict[key]
         
-    def len_old(self):
-        l = [f'{key}={value}' for key, value in self.dict.items() if key != 8]
-        s = chr(1).join(l) + chr(1)
-        print(s)
-        return len(s)
         
-
 class Client(asyncio.Protocol):
     """Asynchronous FIX client for Coinbase Pro"""
     
