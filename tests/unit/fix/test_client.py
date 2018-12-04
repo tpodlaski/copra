@@ -6,7 +6,7 @@
 import asyncio
 import os
 
-from asynctest import TestCase, CoroutineMock
+from asynctest import TestCase, CoroutineMock, patch
 
 from copra.fix import Message, LoginMessage, LogoutMessage
 from copra.fix import Client, URL, SANDBOX_URL, CERT_FILE, SANDBOX_CERT_FILE
@@ -150,6 +150,7 @@ class TestFix(TestCase):
     
     def setUp(self):
         self.client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+        self.client.loop.create_connection = CoroutineMock(return_value=(None, None))
     
     def tearDown(self):
         pass
@@ -171,15 +172,22 @@ class TestFix(TestCase):
 
     async def test__init__(self):
         
-        # Default host, port
-        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
-        self.assertEqual(client.loop, self.loop)
-        self.assertEqual(client.key, TEST_KEY)
-        self.assertEqual(client.secret, TEST_SECRET)
-        self.assertEqual(client.passphrase, TEST_PASSPHRASE)
-        self.assertEqual(client.url, URL)
-        self.assertEqual(client.seq_num, 0)
-        
+        with patch('copra.fix.Client.connect') as connect_mock:
+            # Default host, port, default auto_connect
+            client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+            self.assertEqual(client.loop, self.loop)
+            self.assertEqual(client.key, TEST_KEY)
+            self.assertEqual(client.secret, TEST_SECRET)
+            self.assertEqual(client.passphrase, TEST_PASSPHRASE)
+            self.assertEqual(client.url, URL)
+            self.assertEqual(client.seq_num, 0)
+            connect_mock.assert_called()
+            
+        with patch('copra.fix.Client.connect') as connect_mock:
+            client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE,
+                                                             auto_connect=False)
+            connect_mock.assert_not_called()
+
         
     async def test___call__(self):
         self.assertEqual(self.client(), self.client)
@@ -187,7 +195,7 @@ class TestFix(TestCase):
 
     async def test_connect(self):
         
-        self.loop.create_connection = CoroutineMock(name='create_connection')
+        self.loop.create_connection = CoroutineMock(return_value=(None, None))
         await self.client.connect()
         self.loop.create_connection.assert_called_with(self.client,
                                                    'fix.pro.coinbase.com', 4198, 

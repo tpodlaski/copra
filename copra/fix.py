@@ -186,6 +186,10 @@ class Client(asyncio.Protocol):
         self.ssl_context.load_verify_locations(cert_file)
         
         self.seq_num = 0
+        
+        if auto_connect:
+            coro = self.connect()
+            self.loop.create_task(coro)
 
 
     def __call__(self):
@@ -196,5 +200,5 @@ class Client(asyncio.Protocol):
         """Open a connection with FIX server.
         """
         host, port = self.url.split(':')
-        await self.loop.create_connection(self, host, int(port), 
-                                          ssl=self.ssl_context)
+        (transport, protocol) = await self.loop.create_connection(self, host, 
+                                                int(port), ssl=self.ssl_context)
