@@ -149,7 +149,8 @@ class TestMessages(TestCase):
 class TestFix(TestCase):
     
     def setUp(self):
-        self.client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+        self.client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE,
+                                                                    SANDBOX_URL)
         self.client.loop.create_connection = CoroutineMock(return_value=(None, None))
     
     def tearDown(self):
