@@ -179,6 +179,10 @@ class TestFix(TestCase):
         self.assertEqual(client.passphrase, TEST_PASSPHRASE)
         self.assertEqual(client.url, URL)
         self.assertEqual(client.seq_num, 0)
+        
+        
+    async def test___call__(self):
+        self.assertEqual(self.client(), self.client)
 
 
     async def test_connect(self):

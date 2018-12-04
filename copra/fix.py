@@ -186,7 +186,11 @@ class Client(asyncio.Protocol):
         self.ssl_context.load_verify_locations(cert_file)
         
         self.seq_num = 0
-        
+
+
+    def __call__(self):
+        return self        
+
         
     async def connect(self):
         """Open a connection with FIX server.
