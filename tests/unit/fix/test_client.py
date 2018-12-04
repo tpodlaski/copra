@@ -122,15 +122,21 @@ class TestMessage(TestCase):
 class TestLoginMessage(TestCase):
     
     def test_init(self):
-        msg = LoginMessage(TEST_KEY, 7)
+        msg = LoginMessage(TEST_KEY, TEST_SECRET, TEST_PASSPHRASE, 7, 
+                                                 send_time='1543883345.9289815')
         self.assertEqual(msg[8], 'FIX.4.2')
         self.assertEqual(msg[35], 'A')
         self.assertEqual(msg[49], TEST_KEY)
         self.assertEqual(msg[56], 'Coinbase')
         self.assertEqual(msg[34], 7)
-        self.assertIn(52, msg.dict)
-        
-    
+        self.assertIn(52, msg)
+        self.assertEqual(msg[98], 0)
+        self.assertEqual(msg[108], 30)
+        self.assertEqual(msg[554], TEST_PASSPHRASE)
+        self.assertEqual(msg[8013], 'S')
+        self.assertEqual(msg[96], '6ps2fD4oRv/wwaXrP03ezMOZSmWt4FOEW1g2FoN2YNw=')
+
+
 class TestFix(TestCase):
     
     def setUp(self):

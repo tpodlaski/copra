@@ -3,6 +3,9 @@
 """
 
 import asyncio
+import base64
+import hashlib
+import hmac
 import os
 import ssl
 import time
@@ -89,20 +92,40 @@ class LoginMessage(Message):
     """FIX login message.
     """
     
-    def __init__(self, key, seq_num):
+    def __init__(self, key, secret, passphrase, seq_num, send_time=None):
         """ Initialize the log in message.
         
         :param str key: The API key of the client generating the message.
+        :param str secret: The API key secret.
+        :param str passphrase: The API key passphrase.
         :param int seq_num: The sequence number of the message as tracked by
                 the client.
+        :param str time: For testing purposes only
         
         """
         super().__init__(key, seq_num, 'A')
         
-        #self[52] = time.time()     #SendingTime, Time of message transmission
-        #self[98] = 0               #EncryptMethod, 0 = None/other
-        #self[108] = 30             #HeartBtInt, Heartbeat interval in seconds
-    
+        if not send_time:
+            send_time = time.time()
+        
+        self[52] = send_time       #SendingTime, Time of message transmission
+        self[98] = 0               #EncryptMethod, 0 = None/other
+        self[108] = 30             #HeartBtInt, Heartbeat interval in seconds
+        self[554] = passphrase     #Password, Client API passphrase
+        self[8013] = 'S'           #CancelOrdersOnDisconnect, 
+                                   #  Y: Cancel all open orders for the 
+                                   #     current profile
+                                   #  S: Cancel open orders placed during 
+                                   #     session
+                                   
+        #message signature
+        keys = [52, 35, 34, 49, 56]
+        s = chr(1).join([str(self[key]) for key in keys] + [passphrase]).encode('utf-8')
+        hmac_key  = base64.b64decode(secret)
+        signature = hmac.new(hmac_key, s, hashlib.sha256)
+        sign_b64  = base64.b64encode(signature.digest()).decode()
+        self[96] = sign_b64    
+
     
 class Client(asyncio.Protocol):
     """Asynchronous FIX client for Coinbase Pro"""
