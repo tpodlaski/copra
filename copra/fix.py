@@ -93,7 +93,7 @@ class LoginMessage(Message):
     """
     
     def __init__(self, key, secret, passphrase, seq_num, send_time=None):
-        """ Initialize the log in message.
+        """ Initialize the login message.
         
         :param str key: The API key of the client generating the message.
         :param str secret: The API key secret.
@@ -126,6 +126,21 @@ class LoginMessage(Message):
         sign_b64  = base64.b64encode(signature.digest()).decode()
         self[96] = sign_b64    
 
+
+class LogoutMessage(Message):
+    """FIX logout message.
+    """
+    
+    def __init__(self, key, seq_num):
+        """Initialize the LogoutMessage object
+        
+        :param str key: The API key of the client generating the message.
+        :param int seq_num: The sequence number of the message as tracked by
+            the client.
+        """
+        
+        super().__init__(key, seq_num, '5')
+    
     
 class Client(asyncio.Protocol):
     """Asynchronous FIX client for Coinbase Pro"""
