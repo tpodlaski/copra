@@ -12,7 +12,7 @@ import time
 
 
 URL = 'fix.pro.coinbase.com:4198'
-SANDBOX_URL = 'fix-public.sandbox.pro.coinbase.com'
+SANDBOX_URL = 'fix-public.sandbox.pro.coinbase.com:4198'
 
 CERT_FILE = os.path.join(os.path.dirname(__file__), 'certs', 
                                                     'fix.pro.coinbase.com.pem')
@@ -146,7 +146,7 @@ class Client(asyncio.Protocol):
     """Asynchronous FIX client for Coinbase Pro"""
     
     def __init__(self, loop, key, secret, passphrase, url=URL,
-                 cert_file=CERT_FILE, auto_connect=True):
+                                                      cert_file=CERT_FILE):
         """FIX client initialization.
         
         :param loop: The asyncio loop that the client runs in.
@@ -168,12 +168,6 @@ class Client(asyncio.Protocol):
             './certs/fix.pro.coinbase.com.pem'. Certificates for both the live
             server and sandbox server are already installed in the `certs` 
             directory. 
-            
-        :param bool auto_connect: (optional) If True, the Client will 
-            automatically add itself to its event loop (ie., open a connection 
-            if the loop is running or as soon as it starts). If False, 
-            add_as_task_to_loop() needs to be explicitly called to add the 
-            client to the loop. The default is True.
         """
         self.loop = loop
         self.key = key
@@ -186,19 +180,35 @@ class Client(asyncio.Protocol):
         self.ssl_context.load_verify_locations(cert_file)
         
         self.seq_num = 0
+
+
+    @property
+    def host(self):
+        return self.url.split(':')[0]
+
         
-        if auto_connect:
-            coro = self.connect()
-            self.loop.create_task(coro)
+    @property
+    def port(self):
+        return self.url.split(':')[1]
 
 
     def __call__(self):
         return self        
 
+ 
+    def connection_made(self, transport):
+        """Callback after connectiont to the server has been made.
+        """
         
-    async def connect(self):
+        self.transport = transport
+        #self.connected.set()
+        print(f"connection made to {self.url}")   
+
+     
+    def connect(self):
         """Open a connection with FIX server.
         """
         host, port = self.url.split(':')
-        (transport, protocol) = await self.loop.create_connection(self, host, 
+        self.coro = self.loop.create_connection(self, host, 
                                                 int(port), ssl=self.ssl_context)
+        task = self.loop.create_task(self.coro)

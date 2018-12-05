@@ -149,16 +149,15 @@ class TestMessages(TestCase):
 class TestFix(TestCase):
     
     def setUp(self):
-        self.client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE,
-                                                                    SANDBOX_URL)
-        self.client.loop.create_connection = CoroutineMock(return_value=(None, None))
-    
+        pass
+        
+        
     def tearDown(self):
         pass
     
     async def test_constants(self):
         self.assertEqual(URL, 'fix.pro.coinbase.com:4198')
-        self.assertEqual(SANDBOX_URL, 'fix-public.sandbox.pro.coinbase.com')
+        self.assertEqual(SANDBOX_URL, 'fix-public.sandbox.pro.coinbase.com:4198')
         self.assertEqual(CERT_FILE, os.path.join(os.getcwd(), 
                                     'certs', 'fix.pro.coinbase.com.pem'))
         self.assertEqual(SANDBOX_CERT_FILE, 
@@ -173,32 +172,30 @@ class TestFix(TestCase):
 
     async def test__init__(self):
         
-        with patch('copra.fix.Client.connect') as connect_mock:
-            # Default host, port, default auto_connect
-            client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
-            self.assertEqual(client.loop, self.loop)
-            self.assertEqual(client.key, TEST_KEY)
-            self.assertEqual(client.secret, TEST_SECRET)
-            self.assertEqual(client.passphrase, TEST_PASSPHRASE)
-            self.assertEqual(client.url, URL)
-            self.assertEqual(client.seq_num, 0)
-            connect_mock.assert_called()
-            
-        with patch('copra.fix.Client.connect') as connect_mock:
-            client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE,
-                                                             auto_connect=False)
-            connect_mock.assert_not_called()
+        # Default host, port, default auto_connect
+        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+        self.assertEqual(client.loop, self.loop)
+        self.assertEqual(client.key, TEST_KEY)
+        self.assertEqual(client.secret, TEST_SECRET)
+        self.assertEqual(client.passphrase, TEST_PASSPHRASE)
+        self.assertEqual(client.url, 'fix.pro.coinbase.com:4198')
+        self.assertEqual(client.host, 'fix.pro.coinbase.com')
+        self.assertEqual(client.port, '4198')
+        self.assertEqual(client.seq_num, 0)
 
-        
+
     async def test___call__(self):
-        self.assertEqual(self.client(), self.client)
+        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+        self.assertEqual(client(), client)
 
 
     async def test_connect(self):
         
-        self.loop.create_connection = CoroutineMock(return_value=(None, None))
-        await self.client.connect()
-        self.loop.create_connection.assert_called_with(self.client,
-                                                   'fix.pro.coinbase.com', 4198, 
-                                                   ssl=self.client.ssl_context)
+        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE,
+                                                                    SANDBOX_URL)
+        client.loop.create_connection = CoroutineMock(return_value=(None, None))
         
+        client.connect()
+        # self.loop.create_connection.assert_called_with(self.client,
+        #                             'fix-public.sandbox.pro.coinbase.com', 4198, 
+        #                                           ssl=self.client.ssl_context)
