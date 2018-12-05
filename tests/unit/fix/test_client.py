@@ -191,21 +191,30 @@ class TestFix(TestCase):
 
     async def test_connect(self):
         
-        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE,
-                                                                    SANDBOX_URL)
+        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
         client.loop.create_connection = CoroutineMock(return_value=(None, None))
         
         await client.connect()
         self.loop.create_connection.assert_called_with(client,
-                                          'fix-public.sandbox.pro.coinbase.com', 
-                                          4198, ssl=client.ssl_context)
+                                                   'fix.pro.coinbase.com', 4198, 
+                                                   ssl=client.ssl_context)
         self.assertTrue(client.connected.is_set())
         self.assertFalse(client.disconnected.is_set())
-        
+
     
+    async def test_send(self):
+        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+        client.transport = MagicMock()
+        client.transport.write = MagicMock()
+        
+        msg = LogoutMessage(TEST_KEY, 35)
+        await client.send(msg)
+        
+        client.transport.write.assert_called_with(bytes(msg))
+        
+  
     async def test_close(self):
-        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE,
-                                                                    SANDBOX_URL)
+        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
         self.assertTrue(client.disconnected.is_set())
     
         # Fake a connect()

@@ -229,13 +229,26 @@ class Client(asyncio.Protocol):
         self.connected.set()
         self.disconnected.clear()
         print(f"connection made to {self.url}")
+    
+    
+    async def send(self, msg):
+        """Send a message to the FIX server.
         
+        :param Message msg: The message (subclass of Message) to send.
+        """
+        self.transport.write(bytes(msg))
+        
+    
+    async def login(self):
+        """Log in to the FIX server.
+        """
+        pass
+    
         
     async def close(self):
         """Close the connection with the FIX server.
         """
         
         self.transport.close()
-        print("I AM HERE")
         print(self.disconnected.is_set())
         await self.disconnected.wait()
