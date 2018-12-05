@@ -180,7 +180,7 @@ class TestFix(TestCase):
         self.assertEqual(client.passphrase, TEST_PASSPHRASE)
         self.assertEqual(client.url, 'fix.pro.coinbase.com:4198')
         self.assertEqual(client.host, 'fix.pro.coinbase.com')
-        self.assertEqual(client.port, '4198')
+        self.assertEqual(client.port, 4198)
         self.assertEqual(client.seq_num, 0)
 
 
@@ -195,7 +195,8 @@ class TestFix(TestCase):
                                                                     SANDBOX_URL)
         client.loop.create_connection = CoroutineMock(return_value=(None, None))
         
-        client.connect()
-        # self.loop.create_connection.assert_called_with(self.client,
-        #                             'fix-public.sandbox.pro.coinbase.com', 4198, 
-        #                                           ssl=self.client.ssl_context)
+        await client.connect()
+        self.loop.create_connection.assert_called_with(client,
+                                          'fix-public.sandbox.pro.coinbase.com', 
+                                          4198, ssl=client.ssl_context)
+        self.assertTrue(client.connected.is_set())

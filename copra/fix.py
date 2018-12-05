@@ -180,6 +180,9 @@ class Client(asyncio.Protocol):
         self.ssl_context.load_verify_locations(cert_file)
         
         self.seq_num = 0
+        
+        self.connected = asyncio.Event()
+        self.disconnected = asyncio.Event()
 
 
     @property
@@ -189,7 +192,7 @@ class Client(asyncio.Protocol):
         
     @property
     def port(self):
-        return self.url.split(':')[1]
+        return int(self.url.split(':')[1])
 
 
     def __call__(self):
@@ -197,18 +200,36 @@ class Client(asyncio.Protocol):
 
  
     def connection_made(self, transport):
-        """Callback after connectiont to the server has been made.
+        """Callback after connection to the server has been made.
         """
         
-        self.transport = transport
-        #self.connected.set()
-        print(f"connection made to {self.url}")   
+        pass   
+
+    def connection_lost(self, exc):
+        """Callback after connection to the server was closed/lost.
+        """
+        
+        self.disconnected.set()
+        print(f"connection to {self.host}:{self.port} closed")
 
      
-    def connect(self):
+    async def connect(self, login=True):
         """Open a connection with FIX server.
+        
+        :param bool login: (optional) Automatically log in after the 
+            connection has been established. The default is True.
+            
         """
-        host, port = self.url.split(':')
-        self.coro = self.loop.create_connection(self, host, 
-                                                int(port), ssl=self.ssl_context)
-        task = self.loop.create_task(self.coro)
+        
+        (self.transport, _) = await self.loop.create_connection(self, self.host, 
+                                                self.port, ssl=self.ssl_context)
+        self.connected.set()
+        print(f"connection made to {self.url}")
+        
+        
+    async def close(self):
+        """Close the connection with the FIX server.
+        """
+        
+        self.transport.close()
+        await self.disconnected.wait()
