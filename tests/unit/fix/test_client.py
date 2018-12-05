@@ -6,7 +6,7 @@
 import asyncio
 import os
 
-from asynctest import TestCase, CoroutineMock, patch
+from asynctest import TestCase, CoroutineMock, MagicMock, patch
 
 from copra.fix import Message, LoginMessage, LogoutMessage
 from copra.fix import Client, URL, SANDBOX_URL, CERT_FILE, SANDBOX_CERT_FILE
@@ -200,3 +200,21 @@ class TestFix(TestCase):
                                           'fix-public.sandbox.pro.coinbase.com', 
                                           4198, ssl=client.ssl_context)
         self.assertTrue(client.connected.is_set())
+        self.assertFalse(client.disconnected.is_set())
+        
+    
+    async def test_close(self):
+        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE,
+                                                                    SANDBOX_URL)
+        self.assertTrue(client.disconnected.is_set())
+    
+        # Fake a connect()
+        client.transport = MagicMock()
+        client.transport.close = MagicMock(side_effect=client.connection_lost)
+        client.connected.set()
+        client.disconnected.clear()
+        
+        await client.close()
+        client.transport.close.assert_called()
+        self.assertFalse(client.connected.is_set())
+        self.assertTrue(client.disconnected.is_set())

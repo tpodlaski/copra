@@ -183,6 +183,7 @@ class Client(asyncio.Protocol):
         
         self.connected = asyncio.Event()
         self.disconnected = asyncio.Event()
+        self.disconnected.set()
 
 
     @property
@@ -205,11 +206,13 @@ class Client(asyncio.Protocol):
         
         pass   
 
-    def connection_lost(self, exc):
+    def connection_lost(self, exc=None):
         """Callback after connection to the server was closed/lost.
         """
         
+        self.connected.clear()
         self.disconnected.set()
+        print(self.disconnected.is_set())
         print(f"connection to {self.host}:{self.port} closed")
 
      
@@ -224,6 +227,7 @@ class Client(asyncio.Protocol):
         (self.transport, _) = await self.loop.create_connection(self, self.host, 
                                                 self.port, ssl=self.ssl_context)
         self.connected.set()
+        self.disconnected.clear()
         print(f"connection made to {self.url}")
         
         
@@ -232,4 +236,6 @@ class Client(asyncio.Protocol):
         """
         
         self.transport.close()
+        print("I AM HERE")
+        print(self.disconnected.is_set())
         await self.disconnected.wait()
