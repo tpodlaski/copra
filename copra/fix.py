@@ -257,4 +257,11 @@ class Client(asyncio.Protocol):
         msg = LoginMessage(self.key, self.secret, self.passphrase, 
                            self.seq_num, send_time)
         await self.send(msg)
-    
+        
+        
+    async def logout(self):
+        """Log out of the FIX server.
+        """
+        self.seq_num += 1
+        await self.send(LogoutMessage(self.key, self.seq_num))
+        

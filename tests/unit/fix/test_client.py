@@ -243,3 +243,17 @@ class TestFix(TestCase):
         client.transport.write.assert_called_with(bytes(msg))
         self.assertEqual(client.seq_num, 1)
         
+        
+    async def test_logout(self):
+        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+        client.transport = MagicMock()
+        client.transport.write = MagicMock()
+        
+        msg = LogoutMessage(TEST_KEY, 1)
+        
+        self.assertEqual(client.seq_num, 0)
+        await client.logout()
+        
+        client.transport.write.assert_called_with(bytes(msg))
+        self.assertEqual(client.seq_num, 1)
+        
