@@ -100,7 +100,7 @@ class LoginMessage(Message):
         :param str passphrase: The API key passphrase.
         :param int seq_num: The sequence number of the message as tracked by
                 the client.
-        :param str time: For testing purposes only
+        :param str send_time: For testing purposes only
         
         """
         super().__init__(key, seq_num, 'A')
@@ -230,7 +230,16 @@ class Client(asyncio.Protocol):
         self.disconnected.clear()
         print(f"connection made to {self.url}")
     
-    
+
+    async def close(self):
+        """Close the connection with the FIX server.
+        """
+        
+        self.transport.close()
+        print(self.disconnected.is_set())
+        await self.disconnected.wait()
+        
+        
     async def send(self, msg):
         """Send a message to the FIX server.
         
@@ -239,16 +248,13 @@ class Client(asyncio.Protocol):
         self.transport.write(bytes(msg))
         
     
-    async def login(self):
+    async def login(self, send_time=None):
         """Log in to the FIX server.
+        
+        :param str send_time: For testing purposes only
         """
-        pass
+        self.seq_num += 1
+        msg = LoginMessage(self.key, self.secret, self.passphrase, 
+                           self.seq_num, send_time)
+        await self.send(msg)
     
-        
-    async def close(self):
-        """Close the connection with the FIX server.
-        """
-        
-        self.transport.close()
-        print(self.disconnected.is_set())
-        await self.disconnected.wait()

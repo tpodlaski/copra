@@ -201,18 +201,7 @@ class TestFix(TestCase):
         self.assertTrue(client.connected.is_set())
         self.assertFalse(client.disconnected.is_set())
 
-    
-    async def test_send(self):
-        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
-        client.transport = MagicMock()
-        client.transport.write = MagicMock()
-        
-        msg = LogoutMessage(TEST_KEY, 35)
-        await client.send(msg)
-        
-        client.transport.write.assert_called_with(bytes(msg))
-        
-  
+
     async def test_close(self):
         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
         self.assertTrue(client.disconnected.is_set())
@@ -227,3 +216,30 @@ class TestFix(TestCase):
         client.transport.close.assert_called()
         self.assertFalse(client.connected.is_set())
         self.assertTrue(client.disconnected.is_set())
+        
+        
+    async def test_send(self):
+        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+        client.transport = MagicMock()
+        client.transport.write = MagicMock()
+        
+        msg = LogoutMessage(TEST_KEY, 35)
+        await client.send(msg)
+        
+        client.transport.write.assert_called_with(bytes(msg))
+
+        
+    async def test_login(self):
+        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+        client.transport = MagicMock()
+        client.transport.write = MagicMock()
+        
+        msg = LoginMessage(TEST_KEY, TEST_SECRET, TEST_PASSPHRASE, 1, 
+                                                 send_time='1543883345.9289815')
+        
+        self.assertEqual(client.seq_num, 0)
+        await client.login(send_time='1543883345.9289815')
+        
+        client.transport.write.assert_called_with(bytes(msg))
+        self.assertEqual(client.seq_num, 1)
+        
