@@ -50,8 +50,9 @@ class Message():
 
 
     def __repr__(self):
-        keys = [8, 9, 35] + list(self.dict.keys() - {8, 9, 25} | {10})
-        return ''.join(['{}={}{}'.format(key, self[key], chr(1)) for key in keys])
+        keys = [8, 9, 35] + list(self.dict.keys() - {8, 9, 35}) + [10]
+        rep = ''.join(['{}={}{}'.format(key, self[key], chr(1)) for key in keys])
+        return rep
 
 
     def __bytes__(self):
@@ -184,6 +185,10 @@ class Client(asyncio.Protocol):
         self.connected = asyncio.Event()
         self.disconnected = asyncio.Event()
         self.disconnected.set()
+        
+        self.logged_in = asyncio.Event()
+        self.logged_out = asyncio.Event()
+        self.logged_out.set()
 
 
     @property
@@ -206,16 +211,37 @@ class Client(asyncio.Protocol):
         
         pass   
 
+
     def connection_lost(self, exc=None):
         """Callback after connection to the server was closed/lost.
         """
         
         self.connected.clear()
         self.disconnected.set()
-        print(self.disconnected.is_set())
         print(f"connection to {self.host}:{self.port} closed")
 
-     
+
+    def data_received(self, data):
+        """Callback called when data is received from the FIX server.
+        
+        :param bytes data: ascii-encoded byte string of key=value pairs
+            representing the fix message.
+        """
+        data = data.decode()
+        l = [field.split('=') for field in data.split(chr(1))]
+        msg = dict([(int(pair[0]), pair[1]) for pair in l[:-1]])
+        
+        if msg[35] == 'A':            #login
+            self.logged_in.set()
+            self.logged_out.clear()
+            print(f"logged in to {self.host}:{self.port}")
+        
+        elif msg[35] == '5':            #logout
+            self.logged_out.set()
+            self.logged_in.clear()
+            print(f"logged out of {self.host}:{self.port}")    
+
+    
     async def connect(self, login=True):
         """Open a connection with FIX server.
         
@@ -236,7 +262,6 @@ class Client(asyncio.Protocol):
         """
         
         self.transport.close()
-        print(self.disconnected.is_set())
         await self.disconnected.wait()
         
         
@@ -254,9 +279,9 @@ class Client(asyncio.Protocol):
         :param str send_time: For testing purposes only
         """
         self.seq_num += 1
-        msg = LoginMessage(self.key, self.secret, self.passphrase, 
-                           self.seq_num, send_time)
-        await self.send(msg)
+        await self.send(LoginMessage(self.key, self.secret, self.passphrase, 
+                                                       self.seq_num, send_time))
+        await self.logged_in.wait()
         
         
     async def logout(self):
@@ -264,4 +289,5 @@ class Client(asyncio.Protocol):
         """
         self.seq_num += 1
         await self.send(LogoutMessage(self.key, self.seq_num))
+        await self.logged_out.wait()
         

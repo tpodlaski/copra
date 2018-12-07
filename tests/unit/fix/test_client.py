@@ -172,7 +172,7 @@ class TestFix(TestCase):
 
     async def test__init__(self):
         
-        # Default host, port, default auto_connect
+        # Default host, port
         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
         self.assertEqual(client.loop, self.loop)
         self.assertEqual(client.key, TEST_KEY)
@@ -196,8 +196,8 @@ class TestFix(TestCase):
         
         await client.connect()
         self.loop.create_connection.assert_called_with(client,
-                                                   'fix.pro.coinbase.com', 4198, 
-                                                   ssl=client.ssl_context)
+                                                  'fix.pro.coinbase.com', 4198, 
+                                                  ssl=client.ssl_context)
         self.assertTrue(client.connected.is_set())
         self.assertFalse(client.disconnected.is_set())
 
@@ -232,7 +232,8 @@ class TestFix(TestCase):
     async def test_login(self):
         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
         client.transport = MagicMock()
-        client.transport.write = MagicMock()
+        rec_msg = '35=A{}'.format(chr(1)).encode('ascii')
+        client.transport.write = MagicMock(side_effect=lambda x: client.data_received(rec_msg))
         
         msg = LoginMessage(TEST_KEY, TEST_SECRET, TEST_PASSPHRASE, 1, 
                                                  send_time='1543883345.9289815')
@@ -242,18 +243,24 @@ class TestFix(TestCase):
         
         client.transport.write.assert_called_with(bytes(msg))
         self.assertEqual(client.seq_num, 1)
+        self.assertTrue(client.logged_in.is_set())
+        self.assertFalse(client.logged_out.is_set())
         
         
     async def test_logout(self):
         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
         client.transport = MagicMock()
-        client.transport.write = MagicMock()
+        rec_msg = '35=5{}'.format(chr(1)).encode('ascii')
+        client.transport.write = MagicMock(side_effect=lambda x: client.data_received(rec_msg))
         
-        msg = LogoutMessage(TEST_KEY, 1)
-        
+        client.logged_in.set()
+        client.logged_out.clear()
+    
         self.assertEqual(client.seq_num, 0)
         await client.logout()
         
-        client.transport.write.assert_called_with(bytes(msg))
+        client.transport.write.assert_called_with(bytes(LogoutMessage(TEST_KEY, 1)))
         self.assertEqual(client.seq_num, 1)
+        self.assertFalse(client.logged_in.is_set())
+        self.assertTrue(client.logged_out.is_set())
         
