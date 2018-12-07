@@ -283,3 +283,22 @@ class TestFix(TestCase):
         self.assertFalse(client.logged_in.is_set())
         self.assertTrue(client.logged_out.is_set())
         
+        
+    async def test_heartbeat(self):
+        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+        client.transport = MagicMock()
+        client.transport.write = MagicMock()
+        
+        self.assertEqual(client.seq_num, 0)
+        await client.heartbeat()
+        
+        client.transport.write.assert_called_with(bytes(HeartbeatMessage(TEST_KEY, 1)))
+        self.assertEqual(client.seq_num, 1)
+        
+        await client.heartbeat(333)
+        
+        client.transport.write.assert_called_with(bytes(HeartbeatMessage(TEST_KEY, 2, 333)))
+        self.assertEqual(client.seq_num, 2)
+        
+        
+        

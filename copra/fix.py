@@ -311,3 +311,13 @@ class Client(asyncio.Protocol):
         await self.send(LogoutMessage(self.key, self.seq_num))
         await self.logged_out.wait()
         
+        
+    async def heartbeat(self, test_req_id=None):
+        """Send a heartbeat message
+        
+        :param str test_req_id: (optional) The test request id if there was one 
+            to initiate the heartbeat.
+        """
+        self.seq_num += 1
+        await self.send(HeartbeatMessage(self.key, self.seq_num, test_req_id))
+    
