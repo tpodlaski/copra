@@ -142,7 +142,27 @@ class LogoutMessage(Message):
         
         super().__init__(key, seq_num, '5')
     
+
+class HeartbeatMessage(Message):
+    """A simple heartbeat message.
+    """
     
+    def __init__(self, key, seq_num, test_req_id=None):
+        """Initialize the heartbeat message.
+        
+        :param str key: The API key of the client generating the message.
+        :param int seq_num: The sequence number of the message as tracked by
+            the client.
+        :param str test_req_id: (optional) The test request id if there was one 
+            to initiate the heartbeat.
+        """
+        
+        super().__init__(key, seq_num, '0')
+        
+        if test_req_id:
+            self[112] = test_req_id
+            
+            
 class Client(asyncio.Protocol):
     """Asynchronous FIX client for Coinbase Pro"""
     

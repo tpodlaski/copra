@@ -8,7 +8,7 @@ import os
 
 from asynctest import TestCase, CoroutineMock, MagicMock, patch
 
-from copra.fix import Message, LoginMessage, LogoutMessage
+from copra.fix import Message, LoginMessage, LogoutMessage, HeartbeatMessage
 from copra.fix import Client, URL, SANDBOX_URL, CERT_FILE, SANDBOX_CERT_FILE
 
 # These are made up
@@ -144,7 +144,26 @@ class TestMessages(TestCase):
         self.assertEqual(msg[49], TEST_KEY)
         self.assertEqual(msg[56], 'Coinbase')
         self.assertEqual(msg[34], 76)
-
+        
+        
+    def test_HeartbeatMessage(self):
+        msg = HeartbeatMessage(TEST_KEY, 33)
+        self.assertEqual(msg[8], 'FIX.4.2')
+        self.assertEqual(msg[35], '0')
+        self.assertEqual(msg[49], TEST_KEY)
+        self.assertEqual(msg[56], 'Coinbase')
+        self.assertEqual(msg[34], 33)
+        with self.assertRaises(KeyError):
+            msg[112]
+            
+        msg = HeartbeatMessage(TEST_KEY, 651, 2010)
+        self.assertEqual(msg[8], 'FIX.4.2')
+        self.assertEqual(msg[35], '0')
+        self.assertEqual(msg[49], TEST_KEY)
+        self.assertEqual(msg[56], 'Coinbase')
+        self.assertEqual(msg[34], 651)
+        self.assertEqual(msg[112], 2010)
+    
 
 class TestFix(TestCase):
     
