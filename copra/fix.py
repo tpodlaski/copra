@@ -275,6 +275,8 @@ class Client(asyncio.Protocol):
         self.connected.set()
         self.disconnected.clear()
         print(f"connection made to {self.url}")
+        
+        await self.login()
     
 
     async def close(self):

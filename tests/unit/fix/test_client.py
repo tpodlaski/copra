@@ -212,6 +212,7 @@ class TestFix(TestCase):
         
         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
         client.loop.create_connection = CoroutineMock(return_value=(None, None))
+        client.login = CoroutineMock()
         
         await client.connect()
         self.loop.create_connection.assert_called_with(client,
@@ -219,6 +220,7 @@ class TestFix(TestCase):
                                                   ssl=client.ssl_context)
         self.assertTrue(client.connected.is_set())
         self.assertFalse(client.disconnected.is_set())
+        client.login.assert_called()
 
 
     async def test_close(self):
