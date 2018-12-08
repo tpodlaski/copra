@@ -303,4 +303,19 @@ class TestFix(TestCase):
         self.assertEqual(client.seq_num, 2)
         
         
+    async def test_keep_alive(self):
+        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+        client.transport = MagicMock()
+        client.transport.write = MagicMock()
+        client.logged_in.set()
+        client.logged_out.clear()
+        
+        self.loop.create_task(client.keep_alive(2))
+        
+        await asyncio.sleep(10)
+        client.logged_out.set()
+        client.logged_in.clear()
+        
+        self.assertGreater(client.transport.write.call_count, 3)
+        client.transport.write.assert_any_call(bytes(HeartbeatMessage(TEST_KEY, 1)))
         

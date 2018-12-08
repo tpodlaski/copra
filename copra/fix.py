@@ -322,4 +322,21 @@ class Client(asyncio.Protocol):
         """
         self.seq_num += 1
         await self.send(HeartbeatMessage(self.key, self.seq_num, test_req_id))
+        
+        
+    async def keep_alive(self, interval=30):
+        """Keep the connection alive.
+        
+        Send a heartbeat message at a predefined interval. Runs as long as the 
+        client is logged in or until it is proactively cancelled.
+        
+        :param int interval: (optional) The interval in sec for the heartbeat.
+            The default is 30.
+        """
+        
+        while self.logged_in.is_set():
+            try:
+                await asyncio.wait_for(self.logged_out.wait(), interval)
+            except asyncio.TimeoutError:
+                await self.heartbeat()
     
