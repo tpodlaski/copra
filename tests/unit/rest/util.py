@@ -25,7 +25,7 @@ class MockRequest(CoroutineMock):
         (self.scheme, self.netloc, self.path, self.params,  self.query_str, 
          self.fragment) = urlparse(args[0])
         self.url = '{}://{}{}'.format(self.scheme, self.netloc, self.path)
-        self.query = MultiDict(parse_qsl(self.query_str))
+        self.query = MultiDict(parse_qsl(self.xquery_str))
         if 'data' in self.kwargs:
             self.data = json.loads(self.kwargs['data']) if self.kwargs['data'] else {}
         else:

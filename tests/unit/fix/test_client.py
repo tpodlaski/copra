@@ -5,6 +5,7 @@
 
 import asyncio
 import os
+import time
 
 from asynctest import TestCase, CoroutineMock, MagicMock, patch
 
@@ -17,152 +18,152 @@ TEST_SECRET = 'aVGe54dHHYUSudB3sJdcQx4BfQ6K5oVdcYv4eRtDN6fBHEQf5Go6BACew4G0iFjfL
 TEST_PASSPHRASE = 'a2f9ee4dx2b'
 
 
-class TestMessage(TestCase):
+# class TestMessage(TestCase):
     
-    def test___init__(self):
+#     def test___init__(self):
         
-        msg_dict = { 8: 'FIX.4.2',
-             35: '0',
-             49: TEST_KEY,
-             56: 'Coinbase',
-             34: 42 }
+#         msg_dict = { 8: 'FIX.4.2',
+#              35: '0',
+#              49: TEST_KEY,
+#              56: 'Coinbase',
+#              34: 42 }
              
-        msg = Message(TEST_KEY, 42, 0)
-        self.assertEqual(msg.dict, msg_dict)
+#         msg = Message(TEST_KEY, 42, 0)
+#         self.assertEqual(msg.dict, msg_dict)
     
         
-    def test___len__(self):
-        msg = Message(TEST_KEY, 42, 0)
-        self.assertEqual(len(msg), 59)
+#     def test___len__(self):
+#         msg = Message(TEST_KEY, 42, 0)
+#         self.assertEqual(len(msg), 59)
         
-        msg = Message(TEST_KEY, 42, 'A')
-        self.assertEqual(len(msg), 59)
+#         msg = Message(TEST_KEY, 42, 'A')
+#         self.assertEqual(len(msg), 59)
         
-        msg = Message(TEST_KEY, 4200, 0)
-        self.assertEqual(len(msg), 61)
+#         msg = Message(TEST_KEY, 4200, 0)
+#         self.assertEqual(len(msg), 61)
 
 
-    def test___repr__(self):
-        msg = Message(TEST_KEY, 42, 0)
-        pairs = str(msg)[:-1].split(chr(1))
-        keys = []
-        for pair in pairs:
-            key, value = pair.split('=')
-            self.assertEqual(str(msg[int(key)]), value)
-            keys.append(key)
-        self.assertEqual(msg.dict.keys(), {int(key) for key in set(keys) - {'9', '10'}})
-        self.assertEqual(keys[0], '8')
-        self.assertEqual(keys[1], '9')
-        self.assertEqual(keys[2], '35')
+#     def test___repr__(self):
+#         msg = Message(TEST_KEY, 42, 0)
+#         pairs = str(msg)[:-1].split(chr(1))
+#         keys = []
+#         for pair in pairs:
+#             key, value = pair.split('=')
+#             self.assertEqual(str(msg[int(key)]), value)
+#             keys.append(key)
+#         self.assertEqual(msg.dict.keys(), {int(key) for key in set(keys) - {'9', '10'}})
+#         self.assertEqual(keys[0], '8')
+#         self.assertEqual(keys[1], '9')
+#         self.assertEqual(keys[2], '35')
 
         
-    def test_checksum(self):
-        msg = Message(TEST_KEY, 42, 0)
-        self.assertEqual(msg.checksum(), '148')
+#     def test_checksum(self):
+#         msg = Message(TEST_KEY, 42, 0)
+#         self.assertEqual(msg.checksum(), '148')
         
         
-    def test___bytes__(self):
-        msg = Message(TEST_KEY, 42, 0)
-        self.assertEqual(bytes(msg), msg.__repr__().encode('ascii'))
+#     def test___bytes__(self):
+#         msg = Message(TEST_KEY, 42, 0)
+#         self.assertEqual(bytes(msg), msg.__repr__().encode('ascii'))
 
 
-    def test___getitem__(self):
-        msg = Message(TEST_KEY, 42, 0)
-        self.assertEqual(msg[8], 'FIX.4.2')
-        self.assertEqual(msg[35], '0')
-        self.assertEqual(msg[49], TEST_KEY)
-        self.assertEqual(msg[56], 'Coinbase')
-        self.assertEqual(msg[34], 42)
-        self.assertEqual(msg[9], len(msg))
-        self.assertEqual(msg[10], msg.checksum())
+#     def test___getitem__(self):
+#         msg = Message(TEST_KEY, 42, 0)
+#         self.assertEqual(msg[8], 'FIX.4.2')
+#         self.assertEqual(msg[35], '0')
+#         self.assertEqual(msg[49], TEST_KEY)
+#         self.assertEqual(msg[56], 'Coinbase')
+#         self.assertEqual(msg[34], 42)
+#         self.assertEqual(msg[9], len(msg))
+#         self.assertEqual(msg[10], msg.checksum())
 
         
-    def test___setitem__(self):
-        msg = Message(TEST_KEY, 42, 0)
-        self.assertEqual(msg[35], '0')
+#     def test___setitem__(self):
+#         msg = Message(TEST_KEY, 42, 0)
+#         self.assertEqual(msg[35], '0')
         
-        msg[35] = 'A'
-        self.assertEqual(msg[35], 'A')
+#         msg[35] = 'A'
+#         self.assertEqual(msg[35], 'A')
         
-        with self.assertRaises(KeyError):
-            t = msg[99]
-        msg[99] = 'hello'
-        self.assertEqual(msg[99], 'hello')
+#         with self.assertRaises(KeyError):
+#             t = msg[99]
+#         msg[99] = 'hello'
+#         self.assertEqual(msg[99], 'hello')
         
-        with self.assertRaises(KeyError):
-            msg[9] = 'nine'
+#         with self.assertRaises(KeyError):
+#             msg[9] = 'nine'
             
-        with self.assertRaises(KeyError):
-            msg[10] = 'ten'
+#         with self.assertRaises(KeyError):
+#             msg[10] = 'ten'
         
 
-    def test___delitem__(self):
-        msg = Message(TEST_KEY, 42, 0)
-        del(msg[35])
-        with self.assertRaises(KeyError):
-            t = msg[35]
+#     def test___delitem__(self):
+#         msg = Message(TEST_KEY, 42, 0)
+#         del(msg[35])
+#         with self.assertRaises(KeyError):
+#             t = msg[35]
             
-        with self.assertRaises(KeyError):
-            del(msg[99])
+#         with self.assertRaises(KeyError):
+#             del(msg[99])
             
             
-    def test___contains__(self):
-        msg = Message(TEST_KEY, 42, 0)
-        self.assertTrue(msg.__contains__(8))
-        self.assertTrue(msg.__contains__(9))
-        self.assertTrue(msg.__contains__(10))
-        self.assertFalse(msg.__contains__(99))
+#     def test___contains__(self):
+#         msg = Message(TEST_KEY, 42, 0)
+#         self.assertTrue(msg.__contains__(8))
+#         self.assertTrue(msg.__contains__(9))
+#         self.assertTrue(msg.__contains__(10))
+#         self.assertFalse(msg.__contains__(99))
         
-        self.assertIn(8, msg)
-        self.assertIn(9, msg)
-        self.assertIn(10, msg)
-        self.assertNotIn(99, msg)
+#         self.assertIn(8, msg)
+#         self.assertIn(9, msg)
+#         self.assertIn(10, msg)
+#         self.assertNotIn(99, msg)
 
 
-class TestMessages(TestCase):
+# class TestMessages(TestCase):
     
-    def test_LoginMessage(self):
-        msg = LoginMessage(TEST_KEY, TEST_SECRET, TEST_PASSPHRASE, 7, 
-                                                 send_time='1543883345.9289815')
-        self.assertEqual(msg[8], 'FIX.4.2')
-        self.assertEqual(msg[35], 'A')
-        self.assertEqual(msg[49], TEST_KEY)
-        self.assertEqual(msg[56], 'Coinbase')
-        self.assertEqual(msg[34], 7)
-        self.assertIn(52, msg)
-        self.assertEqual(msg[98], 0)
-        self.assertEqual(msg[108], 30)
-        self.assertEqual(msg[554], TEST_PASSPHRASE)
-        self.assertEqual(msg[8013], 'S')
-        self.assertEqual(msg[96], '6ps2fD4oRv/wwaXrP03ezMOZSmWt4FOEW1g2FoN2YNw=')
+#     def test_LoginMessage(self):
+#         msg = LoginMessage(TEST_KEY, TEST_SECRET, TEST_PASSPHRASE, 7, 
+#                                                  send_time='1543883345.9289815')
+#         self.assertEqual(msg[8], 'FIX.4.2')
+#         self.assertEqual(msg[35], 'A')
+#         self.assertEqual(msg[49], TEST_KEY)
+#         self.assertEqual(msg[56], 'Coinbase')
+#         self.assertEqual(msg[34], 7)
+#         self.assertIn(52, msg)
+#         self.assertEqual(msg[98], 0)
+#         self.assertEqual(msg[108], 30)
+#         self.assertEqual(msg[554], TEST_PASSPHRASE)
+#         self.assertEqual(msg[8013], 'S')
+#         self.assertEqual(msg[96], '6ps2fD4oRv/wwaXrP03ezMOZSmWt4FOEW1g2FoN2YNw=')
 
 
-    def test_LogoutMessage(self):
-        msg = LogoutMessage(TEST_KEY, 76)        
-        self.assertEqual(msg[8], 'FIX.4.2')
-        self.assertEqual(msg[35], '5')
-        self.assertEqual(msg[49], TEST_KEY)
-        self.assertEqual(msg[56], 'Coinbase')
-        self.assertEqual(msg[34], 76)
+#     def test_LogoutMessage(self):
+#         msg = LogoutMessage(TEST_KEY, 76)        
+#         self.assertEqual(msg[8], 'FIX.4.2')
+#         self.assertEqual(msg[35], '5')
+#         self.assertEqual(msg[49], TEST_KEY)
+#         self.assertEqual(msg[56], 'Coinbase')
+#         self.assertEqual(msg[34], 76)
         
         
-    def test_HeartbeatMessage(self):
-        msg = HeartbeatMessage(TEST_KEY, 33)
-        self.assertEqual(msg[8], 'FIX.4.2')
-        self.assertEqual(msg[35], '0')
-        self.assertEqual(msg[49], TEST_KEY)
-        self.assertEqual(msg[56], 'Coinbase')
-        self.assertEqual(msg[34], 33)
-        with self.assertRaises(KeyError):
-            msg[112]
+#     def test_HeartbeatMessage(self):
+#         msg = HeartbeatMessage(TEST_KEY, 33)
+#         self.assertEqual(msg[8], 'FIX.4.2')
+#         self.assertEqual(msg[35], '0')
+#         self.assertEqual(msg[49], TEST_KEY)
+#         self.assertEqual(msg[56], 'Coinbase')
+#         self.assertEqual(msg[34], 33)
+#         with self.assertRaises(KeyError):
+#             msg[112]
             
-        msg = HeartbeatMessage(TEST_KEY, 651, 2010)
-        self.assertEqual(msg[8], 'FIX.4.2')
-        self.assertEqual(msg[35], '0')
-        self.assertEqual(msg[49], TEST_KEY)
-        self.assertEqual(msg[56], 'Coinbase')
-        self.assertEqual(msg[34], 651)
-        self.assertEqual(msg[112], 2010)
+#         msg = HeartbeatMessage(TEST_KEY, 651, 2010)
+#         self.assertEqual(msg[8], 'FIX.4.2')
+#         self.assertEqual(msg[35], '0')
+#         self.assertEqual(msg[49], TEST_KEY)
+#         self.assertEqual(msg[56], 'Coinbase')
+#         self.assertEqual(msg[34], 651)
+#         self.assertEqual(msg[112], 2010)
     
 
 class TestFix(TestCase):
@@ -180,7 +181,7 @@ class TestFix(TestCase):
         self.assertEqual(CERT_FILE, os.path.join(os.getcwd(), 
                                     'certs', 'fix.pro.coinbase.com.pem'))
         self.assertEqual(SANDBOX_CERT_FILE, 
-                               os.path.join(os.getcwd(), 'certs', 
+                              os.path.join(os.getcwd(), 'certs', 
                               'fix-public.sandbox.pro.coinbase.com.pem'))
 
 
@@ -200,31 +201,113 @@ class TestFix(TestCase):
         self.assertEqual(client.url, 'fix.pro.coinbase.com:4198')
         self.assertEqual(client.host, 'fix.pro.coinbase.com')
         self.assertEqual(client.port, 4198)
+        self.assertEqual(client.max_connect_attempts, 5)
+        self.assertEqual(client.connect_timeout, 10)
+        self.assertEqual(client.reconnect, True)
         self.assertEqual(client.seq_num, 0)
+        self.assertFalse(client.connected.is_set())
+        self.assertTrue(client.disconnected.is_set())
+        self.assertFalse(client.logged_in.is_set())
+        self.assertTrue(client.logged_out.is_set())
+        self.assertIsNone(client.keep_alive_task)
+        
+        # No defaults
+        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE,
+                        url=SANDBOX_URL, cert_file=SANDBOX_CERT_FILE,
+                        max_connect_attempts=3, connect_timeout=30, reconnect=False)
+        self.assertEqual(client.loop, self.loop)
+        self.assertEqual(client.key, TEST_KEY)
+        self.assertEqual(client.secret, TEST_SECRET)
+        self.assertEqual(client.passphrase, TEST_PASSPHRASE)
+        self.assertEqual(client.url, 'fix-public.sandbox.pro.coinbase.com:4198')
+        self.assertEqual(client.host, 'fix-public.sandbox.pro.coinbase.com')
+        self.assertEqual(client.port, 4198)
+        self.assertEqual(client.max_connect_attempts, 3)
+        self.assertEqual(client.connect_timeout, 30)
+        self.assertEqual(client.reconnect, False)
+        self.assertEqual(client.seq_num, 0)
+        self.assertFalse(client.connected.is_set())
+        self.assertTrue(client.disconnected.is_set())
+        self.assertFalse(client.logged_in.is_set())
+        self.assertTrue(client.logged_out.is_set())
+        self.assertIsNone(client.keep_alive_task)
 
 
     async def test___call__(self):
         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
         self.assertEqual(client(), client)
+        
+        
+    def test_connection_lost(self):
+        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+        client.connected.set()
+        client.logged_in.set()
+        client.logged_out.clear()
+        client.disconnected.clear()
+        
+        client.connection_lost()
+        
+        self.assertFalse(client.connected.is_set())
+        self.assertFalse(client.logged_in.is_set())
+        self.assertTrue(client.logged_out.is_set())
+        self.assertTrue(client.disconnected.is_set())
 
+    async def test_connect_connect_attempts(self):
+        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE,
+                        url='example.com:1000', max_connect_attempts=3, connect_timeout=1)
+                        
+        client.loop.create_connection = CoroutineMock(side_effect=asyncio.TimeoutError)
+        await client.connect()
+        self.assertEqual(client.loop.create_connection.call_count, 3)
 
+        
+    async def test_connect_connect_timeout(self):
+        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE,
+                                 url='example.com:1000', max_connect_attempts=1)
+        start = time.time()
+        await client.connect()
+        duration = time.time() - start
+        self.assertGreater(duration, 9.5)
+        self.assertLess(duration, 10.5)
+        
+        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE,
+                                 url='example.com:1000', max_connect_attempts=1,
+                                 connect_timeout=5)
+        start = time.time()
+        await client.connect()
+        duration = time.time() - start
+        self.assertGreater(duration, 4.5)
+        self.assertLess(duration, 5.5)
+
+        
     async def test_connect(self):
         
         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
         client.loop.create_connection = CoroutineMock(return_value=(None, None))
         client.login = CoroutineMock()
+        client.keep_alive = CoroutineMock()
         
+        def test():
+            self.assertTrue(client.connected.is_set())
+            self.assertFalse(client.disconnected.is_set())
+            client.login.assert_called()
+            client.keep_alive.assert_called()
+
+        def disconnect():
+            client.disconnected.set()
+            
+        self.loop.call_later(1, test)
+        self.loop.call_later(2, disconnect)
+
         await client.connect()
         self.loop.create_connection.assert_called_with(client,
                                                   'fix.pro.coinbase.com', 4198, 
                                                   ssl=client.ssl_context)
-        self.assertTrue(client.connected.is_set())
-        self.assertFalse(client.disconnected.is_set())
-        client.login.assert_called()
 
 
     async def test_close(self):
         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+        self.assertFalse(client.connected.is_set())
         self.assertTrue(client.disconnected.is_set())
     
         # Fake a connect()
@@ -232,22 +315,26 @@ class TestFix(TestCase):
         client.transport.close = MagicMock(side_effect=client.connection_lost)
         client.connected.set()
         client.disconnected.clear()
+        client.logged_in.set()
+        client.logged_out.clear()
         
         await client.close()
         client.transport.close.assert_called()
         self.assertFalse(client.connected.is_set())
         self.assertTrue(client.disconnected.is_set())
+        self.assertFalse(client.logged_in.is_set())
+        self.assertTrue(client.logged_out.is_set())
         
         
-    async def test_send(self):
-        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
-        client.transport = MagicMock()
-        client.transport.write = MagicMock()
+    # async def test_send(self):
+    #     client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+    #     client.transport = MagicMock()
+    #     client.transport.write = MagicMock()
         
-        msg = LogoutMessage(TEST_KEY, 35)
-        await client.send(msg)
+    #     msg = LogoutMessage(TEST_KEY, 35)
+    #     await client.send(msg)
         
-        client.transport.write.assert_called_with(bytes(msg))
+    #     client.transport.write.assert_called_with(bytes(msg))
 
         
     async def test_login(self):

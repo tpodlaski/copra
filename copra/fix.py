@@ -166,8 +166,9 @@ class HeartbeatMessage(Message):
 class Client(asyncio.Protocol):
     """Asynchronous FIX client for Coinbase Pro"""
     
-    def __init__(self, loop, key, secret, passphrase, url=URL,
-                                                      cert_file=CERT_FILE):
+    def __init__(self, loop, key, secret, passphrase, url=URL, 
+                cert_file=CERT_FILE, max_connect_attempts=5, connect_timeout=10,
+                reconnect=True):
         """FIX client initialization.
         
         :param loop: The asyncio loop that the client runs in.
@@ -188,7 +189,18 @@ class Client(asyncio.Protocol):
             the Coinbase Pro FIX server. The default is
             './certs/fix.pro.coinbase.com.pem'. Certificates for both the live
             server and sandbox server are already installed in the `certs` 
-            directory. 
+            directory.
+            
+        :param int max_connect_attempts: (optional) The number of time to 
+            attempt connecting to the FIX server before giving up. The default
+            is 5.
+            
+        :param int connect_timeout: (optional) The time in seconds to wait while
+            connecting to the FIX server before timing out. The default is 10.
+        
+        :param bool reconnect: (optional) Reconnect to the FIX server if the
+            connection is lost but not explicitly closed by the client. The
+            default is True.
         """
         self.loop = loop
         self.key = key
@@ -200,6 +212,10 @@ class Client(asyncio.Protocol):
         self.ssl_context.verify_mode = ssl.CERT_REQUIRED
         self.ssl_context.load_verify_locations(cert_file)
         
+        self.max_connect_attempts = max_connect_attempts
+        self.connect_timeout = connect_timeout
+        self.reconnect = reconnect
+        
         self.seq_num = 0
         
         self.connected = asyncio.Event()
@@ -209,6 +225,8 @@ class Client(asyncio.Protocol):
         self.logged_in = asyncio.Event()
         self.logged_out = asyncio.Event()
         self.logged_out.set()
+
+        self.keep_alive_task = None
 
 
     @property
@@ -228,16 +246,17 @@ class Client(asyncio.Protocol):
     def connection_made(self, transport):
         """Callback after connection to the server has been made.
         """
-        
-        pass   
-
+        pass
 
     def connection_lost(self, exc=None):
         """Callback after connection to the server was closed/lost.
         """
-        
+        if self.keep_alive_task:
+            self.keep_alive_task.cancel()
         self.connected.clear()
+        self.logged_in.clear()
         self.disconnected.set()
+        self.logged_out.set()
         print(f"connection to {self.host}:{self.port} closed")
 
 
@@ -261,23 +280,43 @@ class Client(asyncio.Protocol):
             self.logged_in.clear()
             print(f"logged out of {self.host}:{self.port}")    
 
-    
-    async def connect(self, login=True):
+
+    async def connect(self):
         """Open a connection with FIX server.
         
-        :param bool login: (optional) Automatically log in after the 
-            connection has been established. The default is True.
-            
+        Connects to the FIX server, logs in, starts the keep alive task, and
+        waits for the client to be disconnected.
         """
         
-        (self.transport, _) = await self.loop.create_connection(self, self.host, 
-                                                self.port, ssl=self.ssl_context)
-        self.connected.set()
-        self.disconnected.clear()
-        print(f"connection made to {self.url}")
+        attempts = 0
         
+        while attempts < self.max_connect_attempts:
+            try: 
+                (self.transport, _) = await asyncio.wait_for(
+                            self.loop.create_connection(self, self.host, self.port,
+                                       ssl=self.ssl_context), self.connect_timeout)
+                                       
+                self.connected.set()
+                self.disconnected.clear()
+            
+            except asyncio.TimeoutError:
+                print("Connection to {} timed out.".format(self.url))
+                attempts += 1
+                continue
+                
+            print("connection made to {}".format(self.url))
+            break
+        
+        else:
+            print("connection to {} failed.".format(self.url))
+            return
+
         await self.login()
-    
+        
+        self.keep_alive_task = self.loop.create_task(self.keep_alive())
+        
+        await self.disconnected.wait()
+        
 
     async def close(self):
         """Close the connection with the FIX server.

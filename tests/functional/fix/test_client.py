@@ -25,6 +25,4 @@ class TestFix(TestCase):
     """Tests for copra.fix.Client"""
     
     async def test_connect(self):
-        client = Client(self.loop, KEY, SECRET, PASSPHRASE, 
-                                   url=SANDBOX_URL, auto_connect=False)
-        await client.connect()
+        pass
