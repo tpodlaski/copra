@@ -225,6 +225,8 @@ class Client(asyncio.Protocol):
         self.logged_in = asyncio.Event()
         self.logged_out = asyncio.Event()
         self.logged_out.set()
+        
+        self.is_closing = False
 
         self.keep_alive_task = None
 
@@ -288,40 +290,47 @@ class Client(asyncio.Protocol):
         waits for the client to be disconnected.
         """
         
-        attempts = 0
+        while True:
         
-        while attempts < self.max_connect_attempts:
-            try: 
-                (self.transport, _) = await asyncio.wait_for(
-                            self.loop.create_connection(self, self.host, self.port,
-                                       ssl=self.ssl_context), self.connect_timeout)
-                                       
-                self.connected.set()
-                self.disconnected.clear()
+            self.is_closing = False
             
-            except asyncio.TimeoutError:
-                print("Connection to {} timed out.".format(self.url))
-                attempts += 1
-                continue
+            attempts = 0
+            
+            while attempts < self.max_connect_attempts:
+                try: 
+                    (self.transport, _) = await asyncio.wait_for(
+                                self.loop.create_connection(self, self.host, self.port,
+                                           ssl=self.ssl_context), self.connect_timeout)
+                                           
+                    self.connected.set()
+                    self.disconnected.clear()
                 
-            print("connection made to {}".format(self.url))
-            break
+                except asyncio.TimeoutError:
+                    print("Connection to {} timed out.".format(self.url))
+                    attempts += 1
+                    continue
+                    
+                print("connection made to {}".format(self.url))
+                break
+            
+            else:
+                print("connection to {} failed.".format(self.url))
+                return
+    
+            await self.login()
+            
+            self.keep_alive_task = self.loop.create_task(self.keep_alive())
+            
+            await self.disconnected.wait()
         
-        else:
-            print("connection to {} failed.".format(self.url))
-            return
-
-        await self.login()
-        
-        self.keep_alive_task = self.loop.create_task(self.keep_alive())
-        
-        await self.disconnected.wait()
-        
+            if self.is_closing or not self.reconnect:
+                break
 
     async def close(self):
         """Close the connection with the FIX server.
         """
         
+        self.is_closing = True
         self.transport.close()
         await self.disconnected.wait()
         
