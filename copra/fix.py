@@ -272,7 +272,13 @@ class Client(asyncio.Protocol):
         l = [field.split('=') for field in data.split(chr(1))]
         msg = dict([(int(pair[0]), pair[1]) for pair in l[:-1]])
         
-        if msg[35] == 'A':            #login
+        if msg[35] == '0':              #heartbeat
+            pass
+        
+        elif msg[35] == '1':            #test
+            self.heartbeat(msg[112])
+        
+        elif msg[35] == 'A':            #login
             self.logged_in.set()
             self.logged_out.clear()
             print(f"logged in to {self.host}:{self.port}")

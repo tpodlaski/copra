@@ -254,6 +254,33 @@ class TestFix(TestCase):
         self.assertTrue(client.logged_out.is_set())
         self.assertTrue(client.disconnected.is_set())
 
+
+    async def test_data_received_logged_in(self):
+        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+        rec_msg = '35=A{}'.format(chr(1)).encode('ascii')
+        client.data_received(rec_msg)
+        self.assertTrue(client.logged_in.is_set())
+        self.assertFalse(client.logged_out.is_set())
+         
+         
+    async def test_data_received_logged_out(self):
+        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+        client.logged_in.set()
+        client.logged_out.clear()
+        rec_msg = '35=5{}'.format(chr(1)).encode('ascii')
+        client.data_received(rec_msg)
+        self.assertFalse(client.logged_in.is_set())
+        self.assertTrue(client.logged_out.is_set())
+        
+    
+    async def test_data_received_test(self):
+        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+        client.heartbeat = CoroutineMock()
+        rec_msg = '35=1{}112=999{}'.format(chr(1), chr(1)).encode('ascii')
+        client.data_received(rec_msg)
+        client.heartbeat.assert_called_with('999')
+
+
     async def test_connect_connect_attempts(self):
         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE,
                         url='example.com:1000', max_connect_attempts=3, connect_timeout=1)
