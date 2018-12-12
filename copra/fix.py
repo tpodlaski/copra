@@ -28,8 +28,10 @@ class Message():
         """Initialize the Message object
         
         :param str key: The API key of the client generating the message.
+        
         :param int seq_num: The sequence number of the message as tracked by
             the client.
+        
         :param str msg_type: The type field of the message. It /should/ be a
             str but since many are ints, it will accept an int and convert it
             to a str.
@@ -97,10 +99,14 @@ class LoginMessage(Message):
         """ Initialize the login message.
         
         :param str key: The API key of the client generating the message.
+        
         :param str secret: The API key secret.
+        
         :param str passphrase: The API key passphrase.
+        
         :param int seq_num: The sequence number of the message as tracked by
-                the client.
+            the client.
+        
         :param str send_time: For testing purposes only
         
         """
@@ -136,6 +142,7 @@ class LogoutMessage(Message):
         """Initialize the LogoutMessage object
         
         :param str key: The API key of the client generating the message.
+        
         :param int seq_num: The sequence number of the message as tracked by
             the client.
         """
@@ -151,8 +158,10 @@ class HeartbeatMessage(Message):
         """Initialize the heartbeat message.
         
         :param str key: The API key of the client generating the message.
+        
         :param int seq_num: The sequence number of the message as tracked by
             the client.
+        
         :param str test_req_id: (optional) The test request id if there was one 
             to initiate the heartbeat.
         """
@@ -163,6 +172,58 @@ class HeartbeatMessage(Message):
             self[112] = test_req_id
             
             
+class LimitOrderMessage(Message):
+    """A limit/stop limit order message.
+    """
+    
+    def __init__(self, key, seq_num, side, product_id, price, size,
+                 time_in_force='GTC', stop_price=None, client_oid=None):
+        """Initialize the limit order message.
+        
+            :param str key: The API key of the client generating the message.
+        
+            :param int seq_num: The sequence number of the message as tracked by
+                the client.
+        
+            :param str side: Either buy or sell
+        
+            :param str product_id: The product id to be bought or sold.
+            
+            :param float price: The price the order is to be executed at. This 
+                paramater may also be a string to avoid floating point issues.
+            
+            :param float size: The quantity of the cryptocurrency to buy or sell. 
+                This parameter may also be a string.
+                
+            :param str time_in_force: (optional) Time in force policies provide 
+                guarantees about the lifetime of an order. There are four 
+                policies: GTC (good till canceled), IOC (immediate or cancel), 
+                FOK (fill or kill), PO (post only). The default is GTC.
+                
+            :param float stop_price: (optional) The trigger price for stop orders. 
+                This may also be a string. The default is None.
+                
+            :param str client_oid: (optional) A self generated UUID to identify the 
+                order. The default is None.
+        """
+        
+        super().__init__(key, seq_num, 'D')
+         
+        self[22] = 1                            #22  HandlInst, Must be 1
+        self[54] = 1 if side == 'sell' else 2   #54  Side, 1 to buy or 2 to sell
+        self[55] = product_id                   #55  Symbol, E.g. BTC-USD
+        self[44] = price                        #44  Price, Limit price
+        self[38] = size                         #38  OrderQty, Order size in base units
+        self[59] = {'GTC': 1, 'IOC': 3, 'FOK': 4, 'PO': 'P'}[time_in_force] #59  TimeInForce
+        if stop_price:
+            self[40] = 4                        #40  OrdType, 4 for stop limit
+            self[99] = stop_price               #99  StopPx, Stop price for order.
+        else:
+            self[40] = 2                        #40  OrdType, 2 for limit
+        if client_oid:
+            self[11] = client_oid               #11  ClOrdID, UUID selected by client to identify the order
+
+     
 class Client(asyncio.Protocol):
     """Asynchronous FIX client for Coinbase Pro"""
     
