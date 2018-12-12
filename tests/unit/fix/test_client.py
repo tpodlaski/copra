@@ -10,7 +10,7 @@ import time
 from asynctest import TestCase, CoroutineMock, MagicMock, patch
 
 from copra.fix import Message, LoginMessage, LogoutMessage, HeartbeatMessage
-from copra.fix import LimitOrderMessage
+from copra.fix import LimitOrderMessage, MarketOrderMessage
 from copra.fix import Client, URL, SANDBOX_URL, CERT_FILE, SANDBOX_CERT_FILE
 
 # These are made up
@@ -168,106 +168,92 @@ class TestMessages(TestCase):
         
         
     def test_LimitOrderMessage(self):
+        
+        base_dict = {8: 'FIX.4.2', 35: 'D', 49: TEST_KEY, 56: 'Coinbase', 22: 1}
+        
         # Limit buy order, defaults
         msg = LimitOrderMessage(TEST_KEY, 7, 'buy', 'BTC-USD', 100, .001)
-        self.assertEqual(msg[8], 'FIX.4.2')
-        self.assertEqual(msg[35], 'D')
-        self.assertEqual(msg[49], TEST_KEY)
-        self.assertEqual(msg[56], 'Coinbase')
-        self.assertEqual(msg[34], 7)
-        self.assertEqual(msg[22], 1)
-        self.assertEqual(msg[54], 2)
-        self.assertEqual(msg[55], 'BTC-USD')
-        self.assertEqual(msg[44], 100)
-        self.assertEqual(msg[38], .001)
-        self.assertEqual(msg[59], 1)
-        self.assertEqual(msg[40], 2)
+        test_dict = {**base_dict,
+                     **{34: 7, 54: 2, 55: 'BTC-USD', 44: 100, 38: .001, 59: 1, 40: 2}} 
+        self.assertEqual(test_dict.items(), msg.dict.items())
         
         # Limit sell order, IOC time in force
         msg = LimitOrderMessage(TEST_KEY, 101, 'sell', 'LTC-USD', 50, 2, 
                                                        time_in_force='IOC')
-        self.assertEqual(msg[8], 'FIX.4.2')
-        self.assertEqual(msg[35], 'D')
-        self.assertEqual(msg[49], TEST_KEY)
-        self.assertEqual(msg[56], 'Coinbase')
-        self.assertEqual(msg[34], 101)
-        self.assertEqual(msg[22], 1)
-        self.assertEqual(msg[54], 1)
-        self.assertEqual(msg[55], 'LTC-USD')
-        self.assertEqual(msg[44], 50)
-        self.assertEqual(msg[38], 2)
-        self.assertEqual(msg[59], 3)
-        self.assertEqual(msg[40], 2)
-        
+        test_dict = {**base_dict, 
+                     **{34: 101, 54: 1, 55: 'LTC-USD', 44: 50, 38:2, 59: 3, 40:2}}
+        self.assertEqual(test_dict.items(), msg.dict.items())
+
         # Limit buy order, FOK time in force
         msg = LimitOrderMessage(TEST_KEY, 93, 'buy', 'ETH-USD', 167, 5, 
                                                     time_in_force='FOK')
-        self.assertEqual(msg[8], 'FIX.4.2')
-        self.assertEqual(msg[35], 'D')
-        self.assertEqual(msg[49], TEST_KEY)
-        self.assertEqual(msg[56], 'Coinbase')
-        self.assertEqual(msg[34], 93)
-        self.assertEqual(msg[22], 1)
-        self.assertEqual(msg[54], 2)
-        self.assertEqual(msg[55], 'ETH-USD')
-        self.assertEqual(msg[44], 167)
-        self.assertEqual(msg[38], 5)
-        self.assertEqual(msg[59], 4)
-        self.assertEqual(msg[40], 2)
+        test_dict = {**base_dict,
+                     **{34: 93, 54: 2, 55: 'ETH-USD', 44: 167, 38: 5, 59: 4, 40: 2}}
+        self.assertEqual(test_dict.items(), msg.dict.items())
         
         # Limit sell order, post only, client_oid
         msg = LimitOrderMessage(TEST_KEY, 48, 'sell', 'BTC-USD', 1000, 1,
                                        time_in_force='PO', client_oid='my_uuid')
-        self.assertEqual(msg[8], 'FIX.4.2')
-        self.assertEqual(msg[35], 'D')
-        self.assertEqual(msg[49], TEST_KEY)
-        self.assertEqual(msg[56], 'Coinbase')
-        self.assertEqual(msg[34], 48)
-        self.assertEqual(msg[22], 1)
-        self.assertEqual(msg[54], 1)
-        self.assertEqual(msg[55], 'BTC-USD')
-        self.assertEqual(msg[44], 1000)
-        self.assertEqual(msg[38], 1)
-        self.assertEqual(msg[59], 'P')
-        self.assertEqual(msg[40], 2)
-        self.assertEqual(msg[11], 'my_uuid')
+        test_dict = {**base_dict, 
+                     **{34: 48, 54: 1, 55: 'BTC-USD', 44: 1000, 38: 1, 59: 'P', 40: 2, 11: 'my_uuid'}}
+        self.assertEqual(test_dict.items(), msg.dict.items())
         
         # Stop limit buy order
         msg = LimitOrderMessage(TEST_KEY, 3, 'buy', 'LTC-USD', 50, 3,
                                                                stop_price=35)
-        self.assertEqual(msg[8], 'FIX.4.2')
-        self.assertEqual(msg[35], 'D')
-        self.assertEqual(msg[49], TEST_KEY)
-        self.assertEqual(msg[56], 'Coinbase')
-        self.assertEqual(msg[34], 3)
-        self.assertEqual(msg[22], 1)
-        self.assertEqual(msg[54], 2)
-        self.assertEqual(msg[55], 'LTC-USD')
-        self.assertEqual(msg[44], 50)
-        self.assertEqual(msg[38], 3)
-        self.assertEqual(msg[59], 1)
-        self.assertEqual(msg[40], 4)
-        self.assertEqual(msg[99], 35)
+        test_dict = {**base_dict,
+                     **{34: 3, 54: 2, 55: 'LTC-USD', 44: 50, 38: 3, 59: 1, 40: 4, 99: 35}}
+        self.assertEqual(test_dict.items(), msg.dict.items())
         
         # Stop limit sell order
         msg = LimitOrderMessage(TEST_KEY, 77, 'sell', 'ETH-USD', 15, 2.5,
                                                                   stop_price=20)
-        self.assertEqual(msg[8], 'FIX.4.2')
-        self.assertEqual(msg[35], 'D')
-        self.assertEqual(msg[49], TEST_KEY)
-        self.assertEqual(msg[56], 'Coinbase')
-        self.assertEqual(msg[34], 77)
-        self.assertEqual(msg[22], 1)
-        self.assertEqual(msg[54], 1)
-        self.assertEqual(msg[55], 'ETH-USD')
-        self.assertEqual(msg[44], 15)
-        self.assertEqual(msg[38], 2.5)
-        self.assertEqual(msg[59], 1)
-        self.assertEqual(msg[40], 4)
-        self.assertEqual(msg[99], 20)
+        test_dict = {**base_dict,
+                     **{34: 77, 54: 1, 55: 'ETH-USD', 44: 15, 38: 2.5, 59: 1, 40: 4, 99:20}}
+        self.assertEqual(test_dict.items(), msg.dict.items())
 
-    
 
+    def test_MarketOrderMessage(self):
+        
+        base_dict = {8: 'FIX.4.2', 35: 'D', 49: TEST_KEY, 56: 'Coinbase', 22: 1}
+        
+        # Market buy order, size
+        msg = MarketOrderMessage(TEST_KEY, 1202, 'buy', 'BTC-USD', .002)
+        test_dict = {**base_dict,
+                     **{34: 1202, 54: 2, 55: 'BTC-USD', 38: .002, 40: 1}}
+        self.assertEqual(test_dict.items(), msg.dict.items())
+        
+        # Market buy order, funds
+        msg = MarketOrderMessage(TEST_KEY, 231, 'buy', 'LTC-USD', funds=1050)
+        test_dict = {**base_dict,
+                     **{34: 231, 54: 2, 55: 'LTC-USD', 152: 1050, 40: 1}}
+        self.assertEqual(test_dict.items(), msg.dict.items())
+        
+        # Market sell order, size
+        msg = MarketOrderMessage(TEST_KEY, 82, 'sell', 'BTC-USD', 3.5)
+        test_dict = {**base_dict,
+                     **{34: 82, 54: 1, 55: 'BTC-USD', 38: 3.5, 40: 1}}
+        self.assertEqual(test_dict.items(), msg.dict.items())            
+        
+        # Market buy order, funds
+        msg = MarketOrderMessage(TEST_KEY, 14, 'buy', 'LTC-USD', funds=500)
+        test_dict = {**base_dict,
+                     **{34: 14, 54: 2, 55: 'LTC-USD', 152: 500, 40: 1}}
+        self.assertEqual(test_dict.items(), msg.dict.items())
+        
+        # Market sell order, funds
+        msg = MarketOrderMessage(TEST_KEY, 2, 'sell', 'ETH-USD', funds=200)
+        test_dict = {**base_dict,
+                     **{34: 2, 54: 1, 55: 'ETH-USD', 152: 200, 40: 1}}
+        self.assertEqual(test_dict.items(), msg.dict.items())
+        
+        # Stop market sell order, size, client_oid
+        msg = MarketOrderMessage(TEST_KEY, 65, 'sell', 'BTC-USD', .003,
+                                          stop_price=1500, client_oid='my_uuid')
+        test_dict = {**base_dict,
+                     **{34: 65, 54: 1, 55: 'BTC-USD', 38: .003, 40: 3, 99: 1500, 11: 'my_uuid'}}
+        self.assertEqual(test_dict.items(), msg.dict.items())
+        
 # class TestFix(TestCase):
     
 #     def setUp(self):

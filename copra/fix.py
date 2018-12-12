@@ -180,31 +180,31 @@ class LimitOrderMessage(Message):
                  time_in_force='GTC', stop_price=None, client_oid=None):
         """Initialize the limit order message.
         
-            :param str key: The API key of the client generating the message.
+        :param str key: The API key of the client generating the message.
+    
+        :param int seq_num: The sequence number of the message as tracked by
+            the client.
+    
+        :param str side: Either buy or sell
+    
+        :param str product_id: The product id to be bought or sold.
         
-            :param int seq_num: The sequence number of the message as tracked by
-                the client.
+        :param float price: The price the order is to be executed at. This 
+            paramater may also be a string to avoid floating point issues.
         
-            :param str side: Either buy or sell
-        
-            :param str product_id: The product id to be bought or sold.
+        :param float size: The quantity of the cryptocurrency to buy or sell. 
+            This parameter may also be a string.
             
-            :param float price: The price the order is to be executed at. This 
-                paramater may also be a string to avoid floating point issues.
+        :param str time_in_force: (optional) Time in force policies provide 
+            guarantees about the lifetime of an order. There are four 
+            policies: GTC (good till canceled), IOC (immediate or cancel), 
+            FOK (fill or kill), PO (post only). The default is GTC.
             
-            :param float size: The quantity of the cryptocurrency to buy or sell. 
-                This parameter may also be a string.
-                
-            :param str time_in_force: (optional) Time in force policies provide 
-                guarantees about the lifetime of an order. There are four 
-                policies: GTC (good till canceled), IOC (immediate or cancel), 
-                FOK (fill or kill), PO (post only). The default is GTC.
-                
-            :param float stop_price: (optional) The trigger price for stop orders. 
-                This may also be a string. The default is None.
-                
-            :param str client_oid: (optional) A self generated UUID to identify the 
-                order. The default is None.
+        :param float stop_price: (optional) The trigger price for stop orders. 
+            This may also be a string. The default is None.
+            
+        :param str client_oid: (optional) A self generated UUID to identify the 
+            order. The default is None.
         """
         
         super().__init__(key, seq_num, 'D')
@@ -220,6 +220,61 @@ class LimitOrderMessage(Message):
             self[99] = stop_price               #99  StopPx, Stop price for order.
         else:
             self[40] = 2                        #40  OrdType, 2 for limit
+        if client_oid:
+            self[11] = client_oid               #11  ClOrdID, UUID selected by client to identify the order
+
+
+class MarketOrderMessage(Message):
+    """A market/stop market order message.
+    """
+    
+    def __init__(self, key, seq_num, side, product_id, size=None, funds=None,
+                                           stop_price=None, client_oid=None):
+        """Initialize the market order message.
+        
+        :param str key: The API key of the client generating the message.
+    
+        :param int seq_num: The sequence number of the message as tracked by
+            the client.
+    
+        :param str side: Either buy or sell
+    
+        :param str product_id: The product id to be bought or sold.
+        
+        :param float size: The quantity of the cryptocurrency to buy or sell. 
+            Either size or funds must be set for a market order but not both.  
+            This may also be a string. The default is None. 
+
+        :param float funds: This is the amount of quote currency to be used for 
+            a purchase (buy) or the amount to be obtained from a sale (sell). 
+            Either size or funds must be set for a market order but not both. 
+            This may also be a string. The default is None.
+            
+        :param float stop_price: (optional) The trigger price for stop orders. 
+            This may also be a string. The default is None.
+            
+        :param str client_oid: (optional) A self generated UUID to identify the 
+            order. The default is None.
+        """
+ 
+        super().__init__(key, seq_num, 'D')
+         
+        self[22] = 1                            #22  HandlInst, Must be 1
+        self[54] = 1 if side == 'sell' else 2   #54  Side, 1 to buy or 2 to sell
+        self[55] = product_id                   #55  Symbol, E.g. BTC-USD
+        
+        if size:
+            self[38] = size                     #38  OrderQty, Order size in base units
+            
+        if funds:
+            self[152] = funds                   #152 CashOrderQty, Order size in quote units
+             
+        if stop_price:
+            self[40] = 3                        #40  OrdType, 3 for stop market
+            self[99] = stop_price               #99  StopPx, Stop price for order
+        else:
+            self[40] = 1                        #40  OrdType, 1 for market
+       
         if client_oid:
             self[11] = client_oid               #11  ClOrdID, UUID selected by client to identify the order
 
