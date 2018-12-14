@@ -90,7 +90,11 @@ class Message():
             return True
         return item in self.dict
         
-
+        
+    def __eq__(self, other):
+        return self.dict == other.dict
+        
+        
 class LoginMessage(Message):
     """FIX login message.
     """
@@ -509,4 +513,69 @@ class Client(asyncio.Protocol):
                 await asyncio.wait_for(self.logged_out.wait(), interval)
             except asyncio.TimeoutError:
                 await self.heartbeat()
+                
+    
+    async def market_order(self, side, product_id, size=None, funds=None,
+                                              stop_price=None, client_oid=None):
+        """Place a market order or a stop entry/loss market order.
+        
+        :param str side: Either buy or sell
+        
+        :param str product_id: The product id to be bought or sold.
+
+        :param float size: The quantity of the cryptocurrency to buy or sell. 
+            Either size or funds must be set for a market order but not both.  
+            This may also be a string. The default is None. 
+
+        :param float funds: This is the amount of quote currency to be used for 
+            a purchase (buy) or the amount to be obtained from a sale (sell). 
+            Either size or funds must be set for a market order but not both. 
+            This may also be a string. The default is None.
+
+        :param float stop_price: (optional) The trigger price for stop orders. 
+            Required if stop is set. This may also be a string. The default is 
+            None.
+            
+        :param str client_oid: (optional) A self generated UUID to identify the 
+            order. The default is None.
+            
+        :returns: A dict representing the FIX message received in response from
+            the server.
+            
+        :raises ValueError:
+        
+            * The side is not either "buy" or "sell".
+            * Neither size nor funds is set.
+            * Both size and funds are set
+        """
+
+        if side not in ('buy', 'sell'):
+            raise ValueError("Invalid side: {}. Must be either buy or sell".format(side))
+
+        if not (size or funds):
+                raise ValueError('Market orders must have size or funds set.')
+                
+        if size and funds:
+                raise ValueError("Market orders can't have both size and funds set.")
+                
+        self.seq_num += 1
+        
+    #     data = {'type': 'market', 'side': side, 'product_id': product_id, 'stp':stp}
+        
+    #     if size:
+    #         data['size'] = size
+            
+    #     if funds:
+    #         data['funds'] = funds
+            
+    #     if client_oid:
+    #         data['client_oid'] = client_oid
+            
+    #     if stop:
+    #         data['stop'] = stop
+    #         data['stop_price'] = stop_price
+            
+    #     headers, body = await self.post('/orders', data=data, auth=True)
+    #     return body
+
     
