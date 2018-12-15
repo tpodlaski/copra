@@ -538,10 +538,7 @@ class Client(asyncio.Protocol):
             
         :param str client_oid: (optional) A self generated UUID to identify the 
             order. The default is None.
-            
-        :returns: A dict representing the FIX message received in response from
-            the server.
-            
+
         :raises ValueError:
         
             * The side is not either "buy" or "sell".
@@ -562,5 +559,78 @@ class Client(asyncio.Protocol):
         
         msg = MarketOrderMessage(self.key, self.seq_num, side, product_id, size,
                                                   funds, stop_price, client_oid)
-
         await self.send(msg)
+
+
+    async def limit_order(self, side, product_id, price, size, 
+                          time_in_force='GTC', stop_price=None, client_oid=None):
+        """Place a limit order or a stop entry/loss limit order.
+        
+        :param str side: Either buy or sell
+        
+        :param str product_id: The product id to be bought or sold.
+            
+        :param float price: The price the order is to be executed at. This 
+            paramater may also be a string to avoid floating point issues.
+            
+        :param float size: The quantity of the cryptocurrency to buy or sell. 
+            This parameter may also be a string.
+            
+        :param str time_in_force: (optional) Time in force policies provide 
+            guarantees about the lifetime of an order. There are four 
+            policies: GTC (good till canceled), IOC (immediate or cancel), 
+            FOK (fill or kill), PO (post only). The default is GTC.
+        
+        :param float stop_price: (optional) The trigger price for stop orders. 
+            This may also be a string. The default is None.
+            
+        :param str client_oid: (optional) A self generated UUID to identify the 
+            order. The default is None.
+            
+        :raises ValueError:
+        
+            * The side is not either "buy" or "sell".
+            * The time_in_force is not GTC, IOC, FOK, or PO.
+            * A stop_order has post_only set to True
+        """
+
+        if side not in ('buy', 'sell'):
+            raise ValueError("Invalid side: {}. Must be either buy or sell".format(side))
+            
+        if time_in_force not in ('GTC', 'IOC', 'FOK', 'PO'):
+            raise ValueError('time_in_force must be GTC, IOC, FOK, or PO.')
+        
+        if stop_price and time_in_force == 'PO':
+            raise ValueError('Stop orders cannot be Post Only.')
+            
+        self.seq_num += 1
+        
+        msg = LimitOrderMessage(self.key, self.seq_num, side, product_id, price,
+                                size, time_in_force, stop_price, client_oid)
+        await self.send(msg)
+        
+        
+    # async def limit_order(self, side, product_id, price, size, 
+    #                       time_in_force='GTC', cancel_after=None, 
+    #                       post_only=False, client_oid=None, stp='dc',
+    #                       stop=None, stop_price=None):
+    #     """
+
+
+            
+    #     data = {'type': 'limit', 'side': side, 'product_id': product_id, 
+    #             'price': price, 'size': size, 'time_in_force': time_in_force, 
+    #             'post_only': post_only, 'stp': stp}
+                
+    #     if cancel_after:
+    #         data['cancel_after'] = cancel_after
+            
+    #     if client_oid:
+    #         data['client_oid'] = client_oid
+            
+    #     if stop:
+    #         data['stop'] = stop
+    #         data['stop_price'] = stop_price
+            
+    #     headers, body = await self.post('/orders', data=data, auth=True)
+    #     return body
