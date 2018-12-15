@@ -596,35 +596,45 @@ class TestFix(TestCase):
         with self.assertRaises(ValueError):
             resp = await client.market_order('buy', 'BTC-USD', size=.001, funds=10000)
                                                
-        # size, client_oid
+        # buy size, client_oid
         expected = MarketOrderMessage(TEST_KEY, client.seq_num+1, 'buy', 
                                             'BTC-USD', .001, client_oid='my_uuid')
-        resp = await client.market_order('buy', 'BTC_USD', .001, 
+        resp = await client.market_order('buy', 'BTC-USD', .001, 
                                                 client_oid='my_uuid')
+        self.assertEqual(client.send.call_args[0][0], expected)
         
-
-        # # Size, client_oid, stp
-        # resp = await self.auth_client.market_order('buy', 'BTC-USD', size=3,
-        #                                         client_oid='Order 66', stp='co')
-        # self.check_req(self.mock_post, '{}/orders'.format(URL),
-        #               data={'side': 'buy', 'product_id': 'BTC-USD',
-        #                   'type': 'market', 'size': 3, 'client_oid': 'Order 66', 
-        #                   'stp': 'co'},
-        #               headers=AUTH_HEADERS)
+        # buy funds, no client_oid
+        expected = MarketOrderMessage(TEST_KEY, client.seq_num+1, 'buy', 
+                                                           "LTC-USD", funds=500)
+        resp = await client.market_order('buy', 'LTC-USD', funds=500)
+        self.assertEqual(client.send.call_args[0][0], expected)
                       
-        # # Funds, no client_oid, default stp
-        # resp = await self.auth_client.market_order('buy', 'BTC-USD', funds=500)
-        # self.check_req(self.mock_post, '{}/orders'.format(URL),
-        #               data={'side': 'buy', 'product_id': 'BTC-USD',
-        #                     'type': 'market', 'funds': 500, 'stp': 'dc'},
-        #               headers=AUTH_HEADERS)
-
-        # # Funds, client_oid, stp
-        # resp = await self.auth_client.market_order('buy', 'BTC-USD', funds=300,
-        #                                      client_oid='of the Jedi', stp='cb')
-        # self.check_req(self.mock_post, '{}/orders'.format(URL),
-        #               data={'side': 'buy', 'product_id': 'BTC-USD',
-        #                   'type': 'market', 'funds': 300, 
-        #                   'client_oid': 'of the Jedi', 'stp': 'cb'},
-        #               headers=AUTH_HEADERS)
+        # sell size, no client_oid
+        expected = MarketOrderMessage(TEST_KEY, client.seq_num+1, 'sell', 
+                                                                'ETH-USD', .003)
+        resp = await client.market_order('sell', 'ETH-USD', .003)
+        self.assertEqual(client.send.call_args[0][0], expected)
         
+        # sell funds, client_oid
+        expected = MarketOrderMessage(TEST_KEY, client.seq_num+1, 'sell', 
+                                    'BTC-USD', funds=1000, client_oid='my_uuid')
+        resp = await client.market_order('sell', 'BTC-USD', funds=1000, client_oid='my_uuid')
+        self.assertEqual(client.send.call_args[0][0], expected)
+        
+        
+    async def test_market_order_stop(self):
+        
+        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+        client.send = CoroutineMock()
+        
+        # stop loss
+        expected = MarketOrderMessage(TEST_KEY, client.seq_num+1, 'sell', 
+                                           'BTC-USD', size=.002, stop_price=2.2)
+        resp = await client.market_order('sell', 'BTC-USD', .002, stop_price=2.2)
+        self.assertEqual(client.send.call_args[0][0], expected)
+                                                      
+        # stop entry
+        expected = MarketOrderMessage(TEST_KEY, client.seq_num+1, 'buy', 
+                                          'BTC-USD', size=.003, stop_price=9000)
+        resp = await client.market_order('buy', 'BTC-USD', .003, stop_price=9000)
+        self.assertEqual(client.send.call_args[0][0], expected)

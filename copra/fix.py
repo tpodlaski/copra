@@ -560,22 +560,7 @@ class Client(asyncio.Protocol):
                 
         self.seq_num += 1
         
-    #     data = {'type': 'market', 'side': side, 'product_id': product_id, 'stp':stp}
-        
-    #     if size:
-    #         data['size'] = size
-            
-    #     if funds:
-    #         data['funds'] = funds
-            
-    #     if client_oid:
-    #         data['client_oid'] = client_oid
-            
-    #     if stop:
-    #         data['stop'] = stop
-    #         data['stop_price'] = stop_price
-            
-    #     headers, body = await self.post('/orders', data=data, auth=True)
-    #     return body
+        msg = MarketOrderMessage(self.key, self.seq_num, side, product_id, size,
+                                                  funds, stop_price, client_oid)
 
-    
+        await self.send(msg)
