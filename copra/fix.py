@@ -282,6 +282,37 @@ class MarketOrderMessage(Message):
         if client_oid:
             self[11] = client_oid               #11  ClOrdID, UUID selected by client to identify the order
 
+
+class CancelMessage(Message):
+    """Message to cancel a single order.
+    """
+    
+    def __init__(self, key, seq_num, order_id=None, client_oid=None):
+        """Initialize a cancel message.
+        
+        :param str key: The API key of the client generating the message.
+    
+        :param int seq_num: The sequence number of the message as tracked by
+            the client.
+        
+        :param str order_id: (optional) The final id of the order as assigned
+            by Coinbase. Either this or client_oid must be provided.
+            
+        :param str client_oid: (optional) The user generated id for the order 
+            when it was placed. Either this or the order_id must be provided.
+            
+        .. note:: Use of the client_oid is not available after reconnecting or 
+            starting a new session. You should use the order_id obtained via the 
+            execution report once available.
+        """
+        
+        super().__init__(key, seq_num, 'F')
+        
+        if client_oid:
+            self[11] = client_oid               #11	ClOrdID	UUID selected by client for the order
+        else:
+            self[37] = order_id                 #37  OrderID, OrderID from the ExecutionReport with OrdStatus=New (39=0)
+            
      
 class Client(asyncio.Protocol):
     """Asynchronous FIX client for Coinbase Pro"""
@@ -608,29 +639,3 @@ class Client(asyncio.Protocol):
         msg = LimitOrderMessage(self.key, self.seq_num, side, product_id, price,
                                 size, time_in_force, stop_price, client_oid)
         await self.send(msg)
-        
-        
-    # async def limit_order(self, side, product_id, price, size, 
-    #                       time_in_force='GTC', cancel_after=None, 
-    #                       post_only=False, client_oid=None, stp='dc',
-    #                       stop=None, stop_price=None):
-    #     """
-
-
-            
-    #     data = {'type': 'limit', 'side': side, 'product_id': product_id, 
-    #             'price': price, 'size': size, 'time_in_force': time_in_force, 
-    #             'post_only': post_only, 'stp': stp}
-                
-    #     if cancel_after:
-    #         data['cancel_after'] = cancel_after
-            
-    #     if client_oid:
-    #         data['client_oid'] = client_oid
-            
-    #     if stop:
-    #         data['stop'] = stop
-    #         data['stop_price'] = stop_price
-            
-    #     headers, body = await self.post('/orders', data=data, auth=True)
-    #     return body

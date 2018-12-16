@@ -10,7 +10,7 @@ import time
 from asynctest import TestCase, CoroutineMock, MagicMock, patch
 
 from copra.fix import Message, LoginMessage, LogoutMessage, HeartbeatMessage
-from copra.fix import LimitOrderMessage, MarketOrderMessage
+from copra.fix import LimitOrderMessage, MarketOrderMessage, CancelMessage
 from copra.fix import Client, URL, SANDBOX_URL, CERT_FILE, SANDBOX_CERT_FILE
 
 # These are made up
@@ -263,427 +263,440 @@ class TestMessages(TestCase):
                      **{34: 65, 54: 1, 55: 'BTC-USD', 38: .003, 40: 3, 99: 1500, 11: 'my_uuid'}}
         self.assertEqual(test_dict.items(), msg.dict.items())
         
-class TestFix(TestCase):
     
-    def setUp(self):
-        pass
+    async def test_ClientMessage(self):
         
+        base_dict = {8: 'FIX.4.2', 35: 'F', 49: TEST_KEY, 56: 'Coinbase'}
         
-    def tearDown(self):
-        pass
+        test_dict = {**base_dict, **{34: 88, 37: 'cb order id'}}
+        msg = CancelMessage(TEST_KEY, 88, 'cb order id')
+        self.assertEqual(test_dict.items(), msg.dict.items())
+        
+        test_dict = {**base_dict, **{34: 105, 11: 'cl order id'}}
+        msg = CancelMessage(TEST_KEY, 105, client_oid='cl order id')
+        self.assertEqual(test_dict.items(), msg.dict.items())
+        
+# class TestFix(TestCase):
     
-    async def test_constants(self):
-        self.assertEqual(URL, 'fix.pro.coinbase.com:4198')
-        self.assertEqual(SANDBOX_URL, 'fix-public.sandbox.pro.coinbase.com:4198')
-        self.assertEqual(CERT_FILE, os.path.join(os.getcwd(), 
-                                    'certs', 'fix.pro.coinbase.com.pem'))
-        self.assertEqual(SANDBOX_CERT_FILE, 
-                              os.path.join(os.getcwd(), 'certs', 
-                              'fix-public.sandbox.pro.coinbase.com.pem'))
-
-
-    async def test_certs_exist(self):
-        self.assertTrue(os.path.isfile(CERT_FILE))
-        self.assertTrue(os.path.isfile(SANDBOX_CERT_FILE))      
-
-
-    async def test__init__(self):
-        
-        # Default host, port
-        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
-        self.assertEqual(client.loop, self.loop)
-        self.assertEqual(client.key, TEST_KEY)
-        self.assertEqual(client.secret, TEST_SECRET)
-        self.assertEqual(client.passphrase, TEST_PASSPHRASE)
-        self.assertEqual(client.url, 'fix.pro.coinbase.com:4198')
-        self.assertEqual(client.host, 'fix.pro.coinbase.com')
-        self.assertEqual(client.port, 4198)
-        self.assertEqual(client.max_connect_attempts, 5)
-        self.assertEqual(client.connect_timeout, 10)
-        self.assertEqual(client.reconnect, True)
-        self.assertEqual(client.seq_num, 0)
-        self.assertFalse(client.connected.is_set())
-        self.assertTrue(client.disconnected.is_set())
-        self.assertFalse(client.logged_in.is_set())
-        self.assertTrue(client.logged_out.is_set())
-        self.assertFalse(client.is_closing)
-        self.assertIsNone(client.keep_alive_task)
-        
-        # No defaults
-        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE,
-                        url=SANDBOX_URL, cert_file=SANDBOX_CERT_FILE,
-                        max_connect_attempts=3, connect_timeout=30, reconnect=False)
-        self.assertEqual(client.loop, self.loop)
-        self.assertEqual(client.key, TEST_KEY)
-        self.assertEqual(client.secret, TEST_SECRET)
-        self.assertEqual(client.passphrase, TEST_PASSPHRASE)
-        self.assertEqual(client.url, 'fix-public.sandbox.pro.coinbase.com:4198')
-        self.assertEqual(client.host, 'fix-public.sandbox.pro.coinbase.com')
-        self.assertEqual(client.port, 4198)
-        self.assertEqual(client.max_connect_attempts, 3)
-        self.assertEqual(client.connect_timeout, 30)
-        self.assertEqual(client.reconnect, False)
-        self.assertEqual(client.seq_num, 0)
-        self.assertFalse(client.connected.is_set())
-        self.assertTrue(client.disconnected.is_set())
-        self.assertFalse(client.logged_in.is_set())
-        self.assertTrue(client.logged_out.is_set())
-        self.assertFalse(client.is_closing)
-        self.assertIsNone(client.keep_alive_task)
-
-
-    async def test___call__(self):
-        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
-        self.assertEqual(client(), client)
+#     def setUp(self):
+#         pass
         
         
-    def test_connection_lost(self):
-        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
-        client.connected.set()
-        client.logged_in.set()
-        client.logged_out.clear()
-        client.disconnected.clear()
-        
-        client.connection_lost()
-        
-        self.assertFalse(client.connected.is_set())
-        self.assertFalse(client.logged_in.is_set())
-        self.assertTrue(client.logged_out.is_set())
-        self.assertTrue(client.disconnected.is_set())
+#     def tearDown(self):
+#         pass
+    
+#     async def test_constants(self):
+#         self.assertEqual(URL, 'fix.pro.coinbase.com:4198')
+#         self.assertEqual(SANDBOX_URL, 'fix-public.sandbox.pro.coinbase.com:4198')
+#         self.assertEqual(CERT_FILE, os.path.join(os.getcwd(), 
+#                                     'certs', 'fix.pro.coinbase.com.pem'))
+#         self.assertEqual(SANDBOX_CERT_FILE, 
+#                               os.path.join(os.getcwd(), 'certs', 
+#                               'fix-public.sandbox.pro.coinbase.com.pem'))
 
 
-    async def test_data_received_logged_in(self):
-        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
-        rec_msg = '35=A{}'.format(chr(1)).encode('ascii')
-        client.data_received(rec_msg)
-        self.assertTrue(client.logged_in.is_set())
-        self.assertFalse(client.logged_out.is_set())
+#     async def test_certs_exist(self):
+#         self.assertTrue(os.path.isfile(CERT_FILE))
+#         self.assertTrue(os.path.isfile(SANDBOX_CERT_FILE))      
+
+
+#     async def test__init__(self):
+        
+#         # Default host, port
+#         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+#         self.assertEqual(client.loop, self.loop)
+#         self.assertEqual(client.key, TEST_KEY)
+#         self.assertEqual(client.secret, TEST_SECRET)
+#         self.assertEqual(client.passphrase, TEST_PASSPHRASE)
+#         self.assertEqual(client.url, 'fix.pro.coinbase.com:4198')
+#         self.assertEqual(client.host, 'fix.pro.coinbase.com')
+#         self.assertEqual(client.port, 4198)
+#         self.assertEqual(client.max_connect_attempts, 5)
+#         self.assertEqual(client.connect_timeout, 10)
+#         self.assertEqual(client.reconnect, True)
+#         self.assertEqual(client.seq_num, 0)
+#         self.assertFalse(client.connected.is_set())
+#         self.assertTrue(client.disconnected.is_set())
+#         self.assertFalse(client.logged_in.is_set())
+#         self.assertTrue(client.logged_out.is_set())
+#         self.assertFalse(client.is_closing)
+#         self.assertIsNone(client.keep_alive_task)
+        
+#         # No defaults
+#         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE,
+#                         url=SANDBOX_URL, cert_file=SANDBOX_CERT_FILE,
+#                         max_connect_attempts=3, connect_timeout=30, reconnect=False)
+#         self.assertEqual(client.loop, self.loop)
+#         self.assertEqual(client.key, TEST_KEY)
+#         self.assertEqual(client.secret, TEST_SECRET)
+#         self.assertEqual(client.passphrase, TEST_PASSPHRASE)
+#         self.assertEqual(client.url, 'fix-public.sandbox.pro.coinbase.com:4198')
+#         self.assertEqual(client.host, 'fix-public.sandbox.pro.coinbase.com')
+#         self.assertEqual(client.port, 4198)
+#         self.assertEqual(client.max_connect_attempts, 3)
+#         self.assertEqual(client.connect_timeout, 30)
+#         self.assertEqual(client.reconnect, False)
+#         self.assertEqual(client.seq_num, 0)
+#         self.assertFalse(client.connected.is_set())
+#         self.assertTrue(client.disconnected.is_set())
+#         self.assertFalse(client.logged_in.is_set())
+#         self.assertTrue(client.logged_out.is_set())
+#         self.assertFalse(client.is_closing)
+#         self.assertIsNone(client.keep_alive_task)
+
+
+#     async def test___call__(self):
+#         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+#         self.assertEqual(client(), client)
+        
+        
+#     def test_connection_lost(self):
+#         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+#         client.connected.set()
+#         client.logged_in.set()
+#         client.logged_out.clear()
+#         client.disconnected.clear()
+        
+#         client.connection_lost()
+        
+#         self.assertFalse(client.connected.is_set())
+#         self.assertFalse(client.logged_in.is_set())
+#         self.assertTrue(client.logged_out.is_set())
+#         self.assertTrue(client.disconnected.is_set())
+
+
+#     async def test_data_received_logged_in(self):
+#         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+#         rec_msg = '35=A{}'.format(chr(1)).encode('ascii')
+#         client.data_received(rec_msg)
+#         self.assertTrue(client.logged_in.is_set())
+#         self.assertFalse(client.logged_out.is_set())
          
          
-    async def test_data_received_logged_out(self):
-        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
-        client.logged_in.set()
-        client.logged_out.clear()
-        rec_msg = '35=5{}'.format(chr(1)).encode('ascii')
-        client.data_received(rec_msg)
-        self.assertFalse(client.logged_in.is_set())
-        self.assertTrue(client.logged_out.is_set())
+#     async def test_data_received_logged_out(self):
+#         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+#         client.logged_in.set()
+#         client.logged_out.clear()
+#         rec_msg = '35=5{}'.format(chr(1)).encode('ascii')
+#         client.data_received(rec_msg)
+#         self.assertFalse(client.logged_in.is_set())
+#         self.assertTrue(client.logged_out.is_set())
         
     
-    async def test_data_received_test(self):
-        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
-        client.heartbeat = CoroutineMock()
-        rec_msg = '35=1{}112=999{}'.format(chr(1), chr(1)).encode('ascii')
-        client.data_received(rec_msg)
-        client.heartbeat.assert_called_with('999')
+#     async def test_data_received_test(self):
+#         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+#         client.heartbeat = CoroutineMock()
+#         rec_msg = '35=1{}112=999{}'.format(chr(1), chr(1)).encode('ascii')
+#         client.data_received(rec_msg)
+#         client.heartbeat.assert_called_with('999')
 
 
-    async def test_connect_connect_attempts(self):
-        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE,
-                        url='example.com:1000', max_connect_attempts=3, connect_timeout=1)
+#     async def test_connect_connect_attempts(self):
+#         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE,
+#                         url='example.com:1000', max_connect_attempts=3, connect_timeout=1)
                         
-        client.loop.create_connection = CoroutineMock(side_effect=asyncio.TimeoutError)
-        client.is_closing = True
-        await client.connect()
-        self.assertEqual(client.loop.create_connection.call_count, 3)
-        self.assertFalse(client.is_closing)
+#         client.loop.create_connection = CoroutineMock(side_effect=asyncio.TimeoutError)
+#         client.is_closing = True
+#         await client.connect()
+#         self.assertEqual(client.loop.create_connection.call_count, 3)
+#         self.assertFalse(client.is_closing)
 
         
-    async def test_connect_connect_timeout(self):
-        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE,
-                                 url='example.com:1000', max_connect_attempts=1)
-        client.is_closing = True
-        start = time.time()
-        await client.connect()
-        duration = time.time() - start
-        self.assertGreater(duration, 9.5)
-        self.assertLess(duration, 10.5)
-        self.assertFalse(client.is_closing)
+#     async def test_connect_connect_timeout(self):
+#         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE,
+#                                  url='example.com:1000', max_connect_attempts=1)
+#         client.is_closing = True
+#         start = time.time()
+#         await client.connect()
+#         duration = time.time() - start
+#         self.assertGreater(duration, 9.5)
+#         self.assertLess(duration, 10.5)
+#         self.assertFalse(client.is_closing)
         
-        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE,
-                                 url='example.com:1000', max_connect_attempts=1,
-                                 connect_timeout=5)
-        start = time.time()
-        await client.connect()
-        duration = time.time() - start
-        self.assertGreater(duration, 4.5)
-        self.assertLess(duration, 5.5)
+#         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE,
+#                                  url='example.com:1000', max_connect_attempts=1,
+#                                  connect_timeout=5)
+#         start = time.time()
+#         await client.connect()
+#         duration = time.time() - start
+#         self.assertGreater(duration, 4.5)
+#         self.assertLess(duration, 5.5)
 
         
-    async def test_connect(self):
+#     async def test_connect(self):
         
-        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE, reconnect=False)
-        client.loop.create_connection = CoroutineMock(return_value=(None, None))
-        client.login = CoroutineMock()
-        client.keep_alive = CoroutineMock()
+#         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE, reconnect=False)
+#         client.loop.create_connection = CoroutineMock(return_value=(None, None))
+#         client.login = CoroutineMock()
+#         client.keep_alive = CoroutineMock()
         
-        def test():
-            self.loop.create_connection.assert_called_with(client,
-                                                  'fix.pro.coinbase.com', 4198, 
-                                                  ssl=client.ssl_context)
-            self.assertTrue(client.connected.is_set())
-            self.assertFalse(client.disconnected.is_set())
-            client.login.assert_called()
-            client.keep_alive.assert_called()
-            self.assertFalse(client.is_closing)
+#         def test():
+#             self.loop.create_connection.assert_called_with(client,
+#                                                   'fix.pro.coinbase.com', 4198, 
+#                                                   ssl=client.ssl_context)
+#             self.assertTrue(client.connected.is_set())
+#             self.assertFalse(client.disconnected.is_set())
+#             client.login.assert_called()
+#             client.keep_alive.assert_called()
+#             self.assertFalse(client.is_closing)
             
-            client.is_closing = True
-            client.connection_lost()
+#             client.is_closing = True
+#             client.connection_lost()
 
-        self.loop.call_later(1, test)
+#         self.loop.call_later(1, test)
 
-        await client.connect()
+#         await client.connect()
         
         
-    async def test_connect_reconnect(self):
+#     async def test_connect_reconnect(self):
         
-        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
-        client.loop.create_connection = CoroutineMock(return_value=(None, None))
-        client.login = CoroutineMock()
-        client.keep_alive = CoroutineMock()
+#         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+#         client.loop.create_connection = CoroutineMock(return_value=(None, None))
+#         client.login = CoroutineMock()
+#         client.keep_alive = CoroutineMock()
 
-        def test():
-            self.loop.create_connection.assert_called_with(client,
-                                                  'fix.pro.coinbase.com', 4198, 
-                                                  ssl=client.ssl_context)
-            self.assertTrue(client.connected.is_set())
-            self.assertFalse(client.disconnected.is_set())
-            client.login.assert_called()
-            client.keep_alive.assert_called()
-            self.assertFalse(client.is_closing)
+#         def test():
+#             self.loop.create_connection.assert_called_with(client,
+#                                                   'fix.pro.coinbase.com', 4198, 
+#                                                   ssl=client.ssl_context)
+#             self.assertTrue(client.connected.is_set())
+#             self.assertFalse(client.disconnected.is_set())
+#             client.login.assert_called()
+#             client.keep_alive.assert_called()
+#             self.assertFalse(client.is_closing)
             
-            client.connection_lost()
+#             client.connection_lost()
             
-            self.loop.call_later(1, test2)
+#             self.loop.call_later(1, test2)
             
-        def test2():
-            self.loop.create_connection.assert_called_with(client,
-                                                  'fix.pro.coinbase.com', 4198, 
-                                                  ssl=client.ssl_context)
-            self.assertEqual(self.loop.create_connection.call_count, 2)
-            self.assertTrue(client.connected.is_set())
-            self.assertFalse(client.disconnected.is_set())
-            client.login.assert_called()
-            client.keep_alive.assert_called()
-            self.assertFalse(client.is_closing)
+#         def test2():
+#             self.loop.create_connection.assert_called_with(client,
+#                                                   'fix.pro.coinbase.com', 4198, 
+#                                                   ssl=client.ssl_context)
+#             self.assertEqual(self.loop.create_connection.call_count, 2)
+#             self.assertTrue(client.connected.is_set())
+#             self.assertFalse(client.disconnected.is_set())
+#             client.login.assert_called()
+#             client.keep_alive.assert_called()
+#             self.assertFalse(client.is_closing)
             
-            client.is_closing = True
-            client.connection_lost()            
+#             client.is_closing = True
+#             client.connection_lost()            
             
 
-        self.loop.call_later(1, test)        
+#         self.loop.call_later(1, test)        
 
-        await client.connect()
+#         await client.connect()
 
 
-    async def test_close(self):
-        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
-        self.assertFalse(client.connected.is_set())
-        self.assertTrue(client.disconnected.is_set())
+#     async def test_close(self):
+#         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+#         self.assertFalse(client.connected.is_set())
+#         self.assertTrue(client.disconnected.is_set())
     
-        # Fake a connect()
-        client.transport = MagicMock()
-        client.transport.close = MagicMock(side_effect=client.connection_lost)
-        client.connected.set()
-        client.disconnected.clear()
-        client.logged_in.set()
-        client.logged_out.clear()
-        client.is_closing = False
+#         # Fake a connect()
+#         client.transport = MagicMock()
+#         client.transport.close = MagicMock(side_effect=client.connection_lost)
+#         client.connected.set()
+#         client.disconnected.clear()
+#         client.logged_in.set()
+#         client.logged_out.clear()
+#         client.is_closing = False
         
-        await client.close()
-        client.transport.close.assert_called()
-        self.assertFalse(client.connected.is_set())
-        self.assertTrue(client.disconnected.is_set())
-        self.assertFalse(client.logged_in.is_set())
-        self.assertTrue(client.logged_out.is_set())
-        client.is_closing = True
+#         await client.close()
+#         client.transport.close.assert_called()
+#         self.assertFalse(client.connected.is_set())
+#         self.assertTrue(client.disconnected.is_set())
+#         self.assertFalse(client.logged_in.is_set())
+#         self.assertTrue(client.logged_out.is_set())
+#         client.is_closing = True
         
         
-    async def test_send(self):
-        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
-        client.transport = MagicMock()
-        client.transport.write = MagicMock()
+#     async def test_send(self):
+#         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+#         client.transport = MagicMock()
+#         client.transport.write = MagicMock()
         
-        msg = LogoutMessage(TEST_KEY, 35)
-        await client.send(msg)
+#         msg = LogoutMessage(TEST_KEY, 35)
+#         await client.send(msg)
         
-        client.transport.write.assert_called_with(bytes(msg))
+#         client.transport.write.assert_called_with(bytes(msg))
 
         
-    async def test_login(self):
-        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
-        client.transport = MagicMock()
-        rec_msg = '35=A{}'.format(chr(1)).encode('ascii')
-        client.transport.write = MagicMock(side_effect=lambda x: client.data_received(rec_msg))
+#     async def test_login(self):
+#         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+#         client.transport = MagicMock()
+#         rec_msg = '35=A{}'.format(chr(1)).encode('ascii')
+#         client.transport.write = MagicMock(side_effect=lambda x: client.data_received(rec_msg))
         
-        msg = LoginMessage(TEST_KEY, TEST_SECRET, TEST_PASSPHRASE, 1, 
-                                                 send_time='1543883345.9289815')
+#         msg = LoginMessage(TEST_KEY, TEST_SECRET, TEST_PASSPHRASE, 1, 
+#                                                  send_time='1543883345.9289815')
         
-        self.assertEqual(client.seq_num, 0)
-        await client.login(send_time='1543883345.9289815')
+#         self.assertEqual(client.seq_num, 0)
+#         await client.login(send_time='1543883345.9289815')
         
-        client.transport.write.assert_called_with(bytes(msg))
-        self.assertEqual(client.seq_num, 1)
-        self.assertTrue(client.logged_in.is_set())
-        self.assertFalse(client.logged_out.is_set())
+#         client.transport.write.assert_called_with(bytes(msg))
+#         self.assertEqual(client.seq_num, 1)
+#         self.assertTrue(client.logged_in.is_set())
+#         self.assertFalse(client.logged_out.is_set())
         
         
-    async def test_logout(self):
-        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
-        client.transport = MagicMock()
-        rec_msg = '35=5{}'.format(chr(1)).encode('ascii')
-        client.transport.write = MagicMock(side_effect=lambda x: client.data_received(rec_msg))
+#     async def test_logout(self):
+#         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+#         client.transport = MagicMock()
+#         rec_msg = '35=5{}'.format(chr(1)).encode('ascii')
+#         client.transport.write = MagicMock(side_effect=lambda x: client.data_received(rec_msg))
         
-        client.logged_in.set()
-        client.logged_out.clear()
+#         client.logged_in.set()
+#         client.logged_out.clear()
     
-        self.assertEqual(client.seq_num, 0)
-        await client.logout()
+#         self.assertEqual(client.seq_num, 0)
+#         await client.logout()
         
-        client.transport.write.assert_called_with(bytes(LogoutMessage(TEST_KEY, 1)))
-        self.assertEqual(client.seq_num, 1)
-        self.assertFalse(client.logged_in.is_set())
-        self.assertTrue(client.logged_out.is_set())
-        
-        
-    async def test_heartbeat(self):
-        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
-        client.transport = MagicMock()
-        client.transport.write = MagicMock()
-        
-        self.assertEqual(client.seq_num, 0)
-        await client.heartbeat()
-        
-        client.transport.write.assert_called_with(bytes(HeartbeatMessage(TEST_KEY, 1)))
-        self.assertEqual(client.seq_num, 1)
-        
-        await client.heartbeat(333)
-        
-        client.transport.write.assert_called_with(bytes(HeartbeatMessage(TEST_KEY, 2, 333)))
-        self.assertEqual(client.seq_num, 2)
+#         client.transport.write.assert_called_with(bytes(LogoutMessage(TEST_KEY, 1)))
+#         self.assertEqual(client.seq_num, 1)
+#         self.assertFalse(client.logged_in.is_set())
+#         self.assertTrue(client.logged_out.is_set())
         
         
-    async def test_keep_alive(self):
-        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
-        client.transport = MagicMock()
-        client.transport.write = MagicMock()
-        client.logged_in.set()
-        client.logged_out.clear()
+#     async def test_heartbeat(self):
+#         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+#         client.transport = MagicMock()
+#         client.transport.write = MagicMock()
         
-        self.loop.create_task(client.keep_alive(2))
+#         self.assertEqual(client.seq_num, 0)
+#         await client.heartbeat()
         
-        await asyncio.sleep(10)
-        client.logged_out.set()
-        client.logged_in.clear()
+#         client.transport.write.assert_called_with(bytes(HeartbeatMessage(TEST_KEY, 1)))
+#         self.assertEqual(client.seq_num, 1)
         
-        self.assertGreater(client.transport.write.call_count, 3)
-        client.transport.write.assert_any_call(bytes(HeartbeatMessage(TEST_KEY, 1)))
+#         await client.heartbeat(333)
+        
+#         client.transport.write.assert_called_with(bytes(HeartbeatMessage(TEST_KEY, 2, 333)))
+#         self.assertEqual(client.seq_num, 2)
+        
+        
+#     async def test_keep_alive(self):
+#         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+#         client.transport = MagicMock()
+#         client.transport.write = MagicMock()
+#         client.logged_in.set()
+#         client.logged_out.clear()
+        
+#         self.loop.create_task(client.keep_alive(2))
+        
+#         await asyncio.sleep(10)
+#         client.logged_out.set()
+#         client.logged_in.clear()
+        
+#         self.assertGreater(client.transport.write.call_count, 3)
+#         client.transport.write.assert_any_call(bytes(HeartbeatMessage(TEST_KEY, 1)))
     
-    async def test_market_order(self):
+#     async def test_market_order(self):
         
-        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
-        client.send = CoroutineMock()
+#         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+#         client.send = CoroutineMock()
         
-        # Invalid side
-        with self.assertRaises(ValueError):
-            resp = await client.market_order('dark', 'BTC-USD', .001)
+#         # Invalid side
+#         with self.assertRaises(ValueError):
+#             resp = await client.market_order('dark', 'BTC-USD', .001)
         
-        # No funds or size
-        with self.assertRaises(ValueError):
-            resp = await client.market_order('buy', 'BTC-USD')
+#         # No funds or size
+#         with self.assertRaises(ValueError):
+#             resp = await client.market_order('buy', 'BTC-USD')
             
-        # funds and size
-        with self.assertRaises(ValueError):
-            resp = await client.market_order('buy', 'BTC-USD', size=.001, funds=10000)
+#         # funds and size
+#         with self.assertRaises(ValueError):
+#             resp = await client.market_order('buy', 'BTC-USD', size=.001, funds=10000)
                                                
-        # buy size, client_oid
-        expected = MarketOrderMessage(TEST_KEY, client.seq_num+1, 'buy', 
-                                            'BTC-USD', .001, client_oid='my_uuid')
-        resp = await client.market_order('buy', 'BTC-USD', .001, 
-                                                client_oid='my_uuid')
-        self.assertEqual(client.send.call_args[0][0], expected)
+#         # buy size, client_oid
+#         expected = MarketOrderMessage(TEST_KEY, client.seq_num+1, 'buy', 
+#                                             'BTC-USD', .001, client_oid='my_uuid')
+#         resp = await client.market_order('buy', 'BTC-USD', .001, 
+#                                                 client_oid='my_uuid')
+#         self.assertEqual(client.send.call_args[0][0], expected)
         
-        # buy funds, no client_oid
-        expected = MarketOrderMessage(TEST_KEY, client.seq_num+1, 'buy', 
-                                                          "LTC-USD", funds=500)
-        resp = await client.market_order('buy', 'LTC-USD', funds=500)
-        self.assertEqual(client.send.call_args[0][0], expected)
+#         # buy funds, no client_oid
+#         expected = MarketOrderMessage(TEST_KEY, client.seq_num+1, 'buy', 
+#                                                           "LTC-USD", funds=500)
+#         resp = await client.market_order('buy', 'LTC-USD', funds=500)
+#         self.assertEqual(client.send.call_args[0][0], expected)
                       
-        # sell size, no client_oid
-        expected = MarketOrderMessage(TEST_KEY, client.seq_num+1, 'sell', 
-                                                                'ETH-USD', .003)
-        resp = await client.market_order('sell', 'ETH-USD', .003)
-        self.assertEqual(client.send.call_args[0][0], expected)
+#         # sell size, no client_oid
+#         expected = MarketOrderMessage(TEST_KEY, client.seq_num+1, 'sell', 
+#                                                                 'ETH-USD', .003)
+#         resp = await client.market_order('sell', 'ETH-USD', .003)
+#         self.assertEqual(client.send.call_args[0][0], expected)
         
-        # sell funds, client_oid
-        expected = MarketOrderMessage(TEST_KEY, client.seq_num+1, 'sell', 
-                                    'BTC-USD', funds=1000, client_oid='my_uuid')
-        resp = await client.market_order('sell', 'BTC-USD', funds=1000, client_oid='my_uuid')
-        self.assertEqual(client.send.call_args[0][0], expected)
+#         # sell funds, client_oid
+#         expected = MarketOrderMessage(TEST_KEY, client.seq_num+1, 'sell', 
+#                                     'BTC-USD', funds=1000, client_oid='my_uuid')
+#         resp = await client.market_order('sell', 'BTC-USD', funds=1000, client_oid='my_uuid')
+#         self.assertEqual(client.send.call_args[0][0], expected)
         
         
-    async def test_market_order_stop(self):
+#     async def test_market_order_stop(self):
         
-        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
-        client.send = CoroutineMock()
+#         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+#         client.send = CoroutineMock()
         
-        # stop loss
-        expected = MarketOrderMessage(TEST_KEY, client.seq_num+1, 'sell', 
-                                          'BTC-USD', size=.002, stop_price=2.2)
-        resp = await client.market_order('sell', 'BTC-USD', .002, stop_price=2.2)
-        self.assertEqual(client.send.call_args[0][0], expected)
+#         # stop loss
+#         expected = MarketOrderMessage(TEST_KEY, client.seq_num+1, 'sell', 
+#                                           'BTC-USD', size=.002, stop_price=2.2)
+#         resp = await client.market_order('sell', 'BTC-USD', .002, stop_price=2.2)
+#         self.assertEqual(client.send.call_args[0][0], expected)
                                                       
-        # stop entry
-        expected = MarketOrderMessage(TEST_KEY, client.seq_num+1, 'buy', 
-                                          'BTC-USD', size=.003, stop_price=9000)
-        resp = await client.market_order('buy', 'BTC-USD', .003, stop_price=9000)
-        self.assertEqual(client.send.call_args[0][0], expected)
+#         # stop entry
+#         expected = MarketOrderMessage(TEST_KEY, client.seq_num+1, 'buy', 
+#                                           'BTC-USD', size=.003, stop_price=9000)
+#         resp = await client.market_order('buy', 'BTC-USD', .003, stop_price=9000)
+#         self.assertEqual(client.send.call_args[0][0], expected)
     
     
-    async def test_limit_order(self):
+#     async def test_limit_order(self):
         
-        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
-        client.send = CoroutineMock()
+#         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+#         client.send = CoroutineMock()
         
-        # Invalid side
-        with self.assertRaises(ValueError):
-            resp = await client.limit_order('right', 'BTC-USD', 1, 100)
+#         # Invalid side
+#         with self.assertRaises(ValueError):
+#             resp = await client.limit_order('right', 'BTC-USD', 1, 100)
         
-        # Invalid time_in_force
-        with self.assertRaises(ValueError):
-            resp = await client.limit_order('buy', 'BTC-USD', 100, 5, time_in_force='OPP')
+#         # Invalid time_in_force
+#         with self.assertRaises(ValueError):
+#             resp = await client.limit_order('buy', 'BTC-USD', 100, 5, time_in_force='OPP')
             
-        # Buy, default time_in_force
-        expected = LimitOrderMessage(TEST_KEY, client.seq_num+1, 'buy', 'BTC-USD', 1.1, 3.4)
-        resp = await client.limit_order('buy', 'BTC-USD', 1.1, 3.4)
-        self.assertEqual(client.send.call_args[0][0], expected)
+#         # Buy, default time_in_force
+#         expected = LimitOrderMessage(TEST_KEY, client.seq_num+1, 'buy', 'BTC-USD', 1.1, 3.4)
+#         resp = await client.limit_order('buy', 'BTC-USD', 1.1, 3.4)
+#         self.assertEqual(client.send.call_args[0][0], expected)
     
-        # Sell, PO time_in_force, cust_oid
-        expected = LimitOrderMessage(TEST_KEY, client.seq_num+1, 'sell', 'LTC-USD',
-                                100, 5, time_in_force='PO', client_oid='my_uuid')
-        resp = await client.limit_order('sell', 'LTC-USD', 100, 5, 
-                                       time_in_force='PO', client_oid='my_uuid')
-        self.assertEqual(client.send.call_args[0][0], expected)
+#         # Sell, PO time_in_force, cust_oid
+#         expected = LimitOrderMessage(TEST_KEY, client.seq_num+1, 'sell', 'LTC-USD',
+#                                 100, 5, time_in_force='PO', client_oid='my_uuid')
+#         resp = await client.limit_order('sell', 'LTC-USD', 100, 5, 
+#                                       time_in_force='PO', client_oid='my_uuid')
+#         self.assertEqual(client.send.call_args[0][0], expected)
         
                         
-    async def test_limit_order_stop(self):
+#     async def test_limit_order_stop(self):
 
-        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
-        client.send = CoroutineMock()
+#         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+#         client.send = CoroutineMock()
         
-        # Stop order with PO time_in_force
-        with self.assertRaises(ValueError):
-            resp = await client.limit_order('sell', 'LTC-USD', 10, 8.5, 
-                                            time_in_force='PO', stop_price=12)
+#         # Stop order with PO time_in_force
+#         with self.assertRaises(ValueError):
+#             resp = await client.limit_order('sell', 'LTC-USD', 10, 8.5, 
+#                                             time_in_force='PO', stop_price=12)
 
-        # stop loss
-        expected = LimitOrderMessage(TEST_KEY, client.seq_num+1, 'sell', 'BTC-USD',
-                                                        3.5, .004, stop_price=4)
-        resp = await client.limit_order('sell', 'BTC-USD', 3.5, .004, stop_price=4)
-        self.assertEqual(client.send.call_args[0][0], expected)
+#         # stop loss
+#         expected = LimitOrderMessage(TEST_KEY, client.seq_num+1, 'sell', 'BTC-USD',
+#                                                         3.5, .004, stop_price=4)
+#         resp = await client.limit_order('sell', 'BTC-USD', 3.5, .004, stop_price=4)
+#         self.assertEqual(client.send.call_args[0][0], expected)
 
-        # stop entry
-        expected = LimitOrderMessage(TEST_KEY, client.seq_num+1, 'buy', 'BTC-USD',
-                                                   10000, .005, stop_price=9900)
-        resp = await client.limit_order('buy', 'BTC-USD', 10000, .005, stop_price=9900)
-        self.assertEqual(client.send.call_args[0][0], expected)
+#         # stop entry
+#         expected = LimitOrderMessage(TEST_KEY, client.seq_num+1, 'buy', 'BTC-USD',
+#                                                   10000, .005, stop_price=9900)
+#         resp = await client.limit_order('buy', 'BTC-USD', 10000, .005, stop_price=9900)
+#         self.assertEqual(client.send.call_args[0][0], expected)
