@@ -19,271 +19,272 @@ TEST_SECRET = 'aVGe54dHHYUSudB3sJdcQx4BfQ6K5oVdcYv4eRtDN6fBHEQf5Go6BACew4G0iFjfL
 TEST_PASSPHRASE = 'a2f9ee4dx2b'
 
 
-class TestMessage(TestCase):
+# class TestMessage(TestCase):
     
-    def test___init__(self):
+#     def test___init__(self):
         
-        msg_dict = { 8: 'FIX.4.2',
-             35: '0',
-             49: TEST_KEY,
-             56: 'Coinbase',
-             34: 42 }
+#         msg_dict = { 8: 'FIX.4.2',
+#              35: '0',
+#              49: TEST_KEY,
+#              56: 'Coinbase',
+#              34: 42 }
              
-        msg = Message(TEST_KEY, 42, 0)
-        self.assertEqual(msg.dict, msg_dict)
+#         msg = Message(TEST_KEY, 42, 0)
+#         self.assertEqual(msg.dict, msg_dict)
     
         
-    def test___len__(self):
-        msg = Message(TEST_KEY, 42, 0)
-        self.assertEqual(len(msg), 59)
+#     def test___len__(self):
+#         msg = Message(TEST_KEY, 42, 0)
+#         self.assertEqual(len(msg), 59)
         
-        msg = Message(TEST_KEY, 42, 'A')
-        self.assertEqual(len(msg), 59)
+#         msg = Message(TEST_KEY, 42, 'A')
+#         self.assertEqual(len(msg), 59)
         
-        msg = Message(TEST_KEY, 4200, 0)
-        self.assertEqual(len(msg), 61)
+#         msg = Message(TEST_KEY, 4200, 0)
+#         self.assertEqual(len(msg), 61)
 
 
-    def test___repr__(self):
-        msg = Message(TEST_KEY, 42, 0)
-        pairs = str(msg)[:-1].split(chr(1))
-        keys = []
-        for pair in pairs:
-            key, value = pair.split('=')
-            self.assertEqual(str(msg[int(key)]), value)
-            keys.append(key)
-        self.assertEqual(msg.dict.keys(), {int(key) for key in set(keys) - {'9', '10'}})
-        self.assertEqual(keys[0], '8')
-        self.assertEqual(keys[1], '9')
-        self.assertEqual(keys[2], '35')
+#     def test___repr__(self):
+#         msg = Message(TEST_KEY, 42, 0)
+#         pairs = str(msg)[:-1].split(chr(1))
+#         keys = []
+#         for pair in pairs:
+#             key, value = pair.split('=')
+#             self.assertEqual(str(msg[int(key)]), value)
+#             keys.append(key)
+#         self.assertEqual(msg.dict.keys(), {int(key) for key in set(keys) - {'9', '10'}})
+#         self.assertEqual(keys[0], '8')
+#         self.assertEqual(keys[1], '9')
+#         self.assertEqual(keys[2], '35')
 
         
-    def test_checksum(self):
-        msg = Message(TEST_KEY, 42, 0)
-        self.assertEqual(msg.checksum(), '148')
+#     def test_checksum(self):
+#         msg = Message(TEST_KEY, 42, 0)
+#         self.assertEqual(msg.checksum(), '148')
         
         
-    def test___bytes__(self):
-        msg = Message(TEST_KEY, 42, 0)
-        self.assertEqual(bytes(msg), msg.__repr__().encode('ascii'))
+#     def test___bytes__(self):
+#         msg = Message(TEST_KEY, 42, 0)
+#         self.assertEqual(bytes(msg), msg.__repr__().encode('ascii'))
 
 
-    def test___getitem__(self):
-        msg = Message(TEST_KEY, 42, 0)
-        self.assertEqual(msg[8], 'FIX.4.2')
-        self.assertEqual(msg[35], '0')
-        self.assertEqual(msg[49], TEST_KEY)
-        self.assertEqual(msg[56], 'Coinbase')
-        self.assertEqual(msg[34], 42)
-        self.assertEqual(msg[9], len(msg))
-        self.assertEqual(msg[10], msg.checksum())
+#     def test___getitem__(self):
+#         msg = Message(TEST_KEY, 42, 0)
+#         self.assertEqual(msg[8], 'FIX.4.2')
+#         self.assertEqual(msg[35], '0')
+#         self.assertEqual(msg[49], TEST_KEY)
+#         self.assertEqual(msg[56], 'Coinbase')
+#         self.assertEqual(msg[34], 42)
+#         self.assertEqual(msg[9], len(msg))
+#         self.assertEqual(msg[10], msg.checksum())
 
         
-    def test___setitem__(self):
-        msg = Message(TEST_KEY, 42, 0)
-        self.assertEqual(msg[35], '0')
+#     def test___setitem__(self):
+#         msg = Message(TEST_KEY, 42, 0)
+#         self.assertEqual(msg[35], '0')
         
-        msg[35] = 'A'
-        self.assertEqual(msg[35], 'A')
+#         msg[35] = 'A'
+#         self.assertEqual(msg[35], 'A')
         
-        with self.assertRaises(KeyError):
-            t = msg[99]
-        msg[99] = 'hello'
-        self.assertEqual(msg[99], 'hello')
+#         with self.assertRaises(KeyError):
+#             t = msg[99]
+#         msg[99] = 'hello'
+#         self.assertEqual(msg[99], 'hello')
         
-        with self.assertRaises(KeyError):
-            msg[9] = 'nine'
+#         with self.assertRaises(KeyError):
+#             msg[9] = 'nine'
             
-        with self.assertRaises(KeyError):
-            msg[10] = 'ten'
+#         with self.assertRaises(KeyError):
+#             msg[10] = 'ten'
         
 
-    def test___delitem__(self):
-        msg = Message(TEST_KEY, 42, 0)
-        del(msg[35])
-        with self.assertRaises(KeyError):
-            t = msg[35]
+#     def test___delitem__(self):
+#         msg = Message(TEST_KEY, 42, 0)
+#         del(msg[35])
+#         with self.assertRaises(KeyError):
+#             t = msg[35]
             
-        with self.assertRaises(KeyError):
-            del(msg[99])
+#         with self.assertRaises(KeyError):
+#             del(msg[99])
             
             
-    def test___contains__(self):
-        msg = Message(TEST_KEY, 42, 0)
-        self.assertTrue(msg.__contains__(8))
-        self.assertTrue(msg.__contains__(9))
-        self.assertTrue(msg.__contains__(10))
-        self.assertFalse(msg.__contains__(99))
+#     def test___contains__(self):
+#         msg = Message(TEST_KEY, 42, 0)
+#         self.assertTrue(msg.__contains__(8))
+#         self.assertTrue(msg.__contains__(9))
+#         self.assertTrue(msg.__contains__(10))
+#         self.assertFalse(msg.__contains__(99))
         
-        self.assertIn(8, msg)
-        self.assertIn(9, msg)
-        self.assertIn(10, msg)
-        self.assertNotIn(99, msg)
+#         self.assertIn(8, msg)
+#         self.assertIn(9, msg)
+#         self.assertIn(10, msg)
+#         self.assertNotIn(99, msg)
         
         
-    def test___eq__(self):
-        msg1 = Message(TEST_KEY, 0, 42)
-        msg2 = Message(TEST_KEY, 0, 42)
-        msg3 = Message(TEST_KEY, 0, 1972)
+#     def test___eq__(self):
+#         msg1 = Message(TEST_KEY, 0, 42)
+#         msg2 = Message(TEST_KEY, 0, 42)
+#         msg3 = Message(TEST_KEY, 0, 1972)
         
-        self.assertEqual(msg1, msg2)
-        self.assertNotEqual(msg1, msg3)
+#         self.assertEqual(msg1, msg2)
+#         self.assertNotEqual(msg1, msg3)
 
 
-class TestMessages(TestCase):
+# class TestMessages(TestCase):
     
-    def test_LoginMessage(self):
-        msg = LoginMessage(TEST_KEY, TEST_SECRET, TEST_PASSPHRASE, 7, 
-                                                 send_time='1543883345.9289815')
-        self.assertEqual(msg[8], 'FIX.4.2')
-        self.assertEqual(msg[35], 'A')
-        self.assertEqual(msg[49], TEST_KEY)
-        self.assertEqual(msg[56], 'Coinbase')
-        self.assertEqual(msg[34], 7)
-        self.assertIn(52, msg)
-        self.assertEqual(msg[98], 0)
-        self.assertEqual(msg[108], 30)
-        self.assertEqual(msg[554], TEST_PASSPHRASE)
-        self.assertEqual(msg[8013], 'S')
-        self.assertEqual(msg[96], '6ps2fD4oRv/wwaXrP03ezMOZSmWt4FOEW1g2FoN2YNw=')
+#     def test_LoginMessage(self):
+#         msg = LoginMessage(TEST_KEY, TEST_SECRET, TEST_PASSPHRASE, 7, 
+#                                                  send_time='1543883345.9289815')
+#         self.assertEqual(msg[8], 'FIX.4.2')
+#         self.assertEqual(msg[35], 'A')
+#         self.assertEqual(msg[49], TEST_KEY)
+#         self.assertEqual(msg[56], 'Coinbase')
+#         self.assertEqual(msg[34], 7)
+#         self.assertIn(52, msg)
+#         self.assertEqual(msg[98], 0)
+#         self.assertEqual(msg[108], 30)
+#         self.assertEqual(msg[554], TEST_PASSPHRASE)
+#         self.assertEqual(msg[8013], 'S')
+#         self.assertEqual(msg[96], '6ps2fD4oRv/wwaXrP03ezMOZSmWt4FOEW1g2FoN2YNw=')
 
 
-    def test_LogoutMessage(self):
-        msg = LogoutMessage(TEST_KEY, 76)        
-        self.assertEqual(msg[8], 'FIX.4.2')
-        self.assertEqual(msg[35], '5')
-        self.assertEqual(msg[49], TEST_KEY)
-        self.assertEqual(msg[56], 'Coinbase')
-        self.assertEqual(msg[34], 76)
+#     def test_LogoutMessage(self):
+#         msg = LogoutMessage(TEST_KEY, 76)        
+#         self.assertEqual(msg[8], 'FIX.4.2')
+#         self.assertEqual(msg[35], '5')
+#         self.assertEqual(msg[49], TEST_KEY)
+#         self.assertEqual(msg[56], 'Coinbase')
+#         self.assertEqual(msg[34], 76)
         
         
-    def test_HeartbeatMessage(self):
-        msg = HeartbeatMessage(TEST_KEY, 33)
-        self.assertEqual(msg[8], 'FIX.4.2')
-        self.assertEqual(msg[35], '0')
-        self.assertEqual(msg[49], TEST_KEY)
-        self.assertEqual(msg[56], 'Coinbase')
-        self.assertEqual(msg[34], 33)
-        with self.assertRaises(KeyError):
-            msg[112]
+#     def test_HeartbeatMessage(self):
+#         msg = HeartbeatMessage(TEST_KEY, 33)
+#         self.assertEqual(msg[8], 'FIX.4.2')
+#         self.assertEqual(msg[35], '0')
+#         self.assertEqual(msg[49], TEST_KEY)
+#         self.assertEqual(msg[56], 'Coinbase')
+#         self.assertEqual(msg[34], 33)
+#         with self.assertRaises(KeyError):
+#             msg[112]
             
-        msg = HeartbeatMessage(TEST_KEY, 651, 2010)
-        self.assertEqual(msg[8], 'FIX.4.2')
-        self.assertEqual(msg[35], '0')
-        self.assertEqual(msg[49], TEST_KEY)
-        self.assertEqual(msg[56], 'Coinbase')
-        self.assertEqual(msg[34], 651)
-        self.assertEqual(msg[112], 2010)
+#         msg = HeartbeatMessage(TEST_KEY, 651, 2010)
+#         self.assertEqual(msg[8], 'FIX.4.2')
+#         self.assertEqual(msg[35], '0')
+#         self.assertEqual(msg[49], TEST_KEY)
+#         self.assertEqual(msg[56], 'Coinbase')
+#         self.assertEqual(msg[34], 651)
+#         self.assertEqual(msg[112], 2010)
         
         
-    def test_LimitOrderMessage(self):
+#     def test_LimitOrderMessage(self):
         
-        base_dict = {8: 'FIX.4.2', 35: 'D', 49: TEST_KEY, 56: 'Coinbase', 22: 1}
+#         base_dict = {8: 'FIX.4.2', 35: 'D', 49: TEST_KEY, 56: 'Coinbase', 22: 1}
         
-        # Limit buy order, defaults
-        msg = LimitOrderMessage(TEST_KEY, 7, 'buy', 'BTC-USD', 100, .001)
-        test_dict = {**base_dict,
-                     **{34: 7, 54: 2, 55: 'BTC-USD', 44: 100, 38: .001, 59: 1, 40: 2}} 
-        self.assertEqual(test_dict.items(), msg.dict.items())
+#         # Limit buy order, defaults
+#         msg = LimitOrderMessage(TEST_KEY, 7, 'buy', 'BTC-USD', 100, .001)
+#         test_dict = {**base_dict,
+#                      **{34: 7, 54: 2, 55: 'BTC-USD', 44: 100, 38: .001, 59: 1, 40: 2}} 
+#         self.assertEqual(test_dict.items(), msg.dict.items())
         
-        # Limit sell order, IOC time in force
-        msg = LimitOrderMessage(TEST_KEY, 101, 'sell', 'LTC-USD', 50, 2, 
-                                                      time_in_force='IOC')
-        test_dict = {**base_dict, 
-                     **{34: 101, 54: 1, 55: 'LTC-USD', 44: 50, 38:2, 59: 3, 40:2}}
-        self.assertEqual(test_dict.items(), msg.dict.items())
+#         # Limit sell order, IOC time in force
+#         msg = LimitOrderMessage(TEST_KEY, 101, 'sell', 'LTC-USD', 50, 2, 
+#                                                       time_in_force='IOC')
+#         test_dict = {**base_dict, 
+#                      **{34: 101, 54: 1, 55: 'LTC-USD', 44: 50, 38:2, 59: 3, 40:2}}
+#         self.assertEqual(test_dict.items(), msg.dict.items())
 
-        # Limit buy order, FOK time in force
-        msg = LimitOrderMessage(TEST_KEY, 93, 'buy', 'ETH-USD', 167, 5, 
-                                                    time_in_force='FOK')
-        test_dict = {**base_dict,
-                     **{34: 93, 54: 2, 55: 'ETH-USD', 44: 167, 38: 5, 59: 4, 40: 2}}
-        self.assertEqual(test_dict.items(), msg.dict.items())
+#         # Limit buy order, FOK time in force
+#         msg = LimitOrderMessage(TEST_KEY, 93, 'buy', 'ETH-USD', 167, 5, 
+#                                                     time_in_force='FOK')
+#         test_dict = {**base_dict,
+#                      **{34: 93, 54: 2, 55: 'ETH-USD', 44: 167, 38: 5, 59: 4, 40: 2}}
+#         self.assertEqual(test_dict.items(), msg.dict.items())
         
-        # Limit sell order, post only, client_oid
-        msg = LimitOrderMessage(TEST_KEY, 48, 'sell', 'BTC-USD', 1000, 1,
-                                      time_in_force='PO', client_oid='my_uuid')
-        test_dict = {**base_dict, 
-                     **{34: 48, 54: 1, 55: 'BTC-USD', 44: 1000, 38: 1, 59: 'P', 40: 2, 11: 'my_uuid'}}
-        self.assertEqual(test_dict.items(), msg.dict.items())
+#         # Limit sell order, post only, client_oid
+#         msg = LimitOrderMessage(TEST_KEY, 48, 'sell', 'BTC-USD', 1000, 1,
+#                                       time_in_force='PO', client_oid='my_uuid')
+#         test_dict = {**base_dict, 
+#                      **{34: 48, 54: 1, 55: 'BTC-USD', 44: 1000, 38: 1, 59: 'P', 40: 2, 11: 'my_uuid'}}
+#         self.assertEqual(test_dict.items(), msg.dict.items())
         
-        # Stop limit buy order
-        msg = LimitOrderMessage(TEST_KEY, 3, 'buy', 'LTC-USD', 50, 3,
-                                                              stop_price=35)
-        test_dict = {**base_dict,
-                     **{34: 3, 54: 2, 55: 'LTC-USD', 44: 50, 38: 3, 59: 1, 40: 4, 99: 35}}
-        self.assertEqual(test_dict.items(), msg.dict.items())
+#         # Stop limit buy order
+#         msg = LimitOrderMessage(TEST_KEY, 3, 'buy', 'LTC-USD', 50, 3,
+#                                                               stop_price=35)
+#         test_dict = {**base_dict,
+#                      **{34: 3, 54: 2, 55: 'LTC-USD', 44: 50, 38: 3, 59: 1, 40: 4, 99: 35}}
+#         self.assertEqual(test_dict.items(), msg.dict.items())
         
-        # Stop limit sell order
-        msg = LimitOrderMessage(TEST_KEY, 77, 'sell', 'ETH-USD', 15, 2.5,
-                                                                  stop_price=20)
-        test_dict = {**base_dict,
-                     **{34: 77, 54: 1, 55: 'ETH-USD', 44: 15, 38: 2.5, 59: 1, 40: 4, 99:20}}
-        self.assertEqual(test_dict.items(), msg.dict.items())
+#         # Stop limit sell order
+#         msg = LimitOrderMessage(TEST_KEY, 77, 'sell', 'ETH-USD', 15, 2.5,
+#                                                                   stop_price=20)
+#         test_dict = {**base_dict,
+#                      **{34: 77, 54: 1, 55: 'ETH-USD', 44: 15, 38: 2.5, 59: 1, 40: 4, 99:20}}
+#         self.assertEqual(test_dict.items(), msg.dict.items())
 
 
-    def test_MarketOrderMessage(self):
+#     def test_MarketOrderMessage(self):
         
-        base_dict = {8: 'FIX.4.2', 35: 'D', 49: TEST_KEY, 56: 'Coinbase', 22: 1}
+#         base_dict = {8: 'FIX.4.2', 35: 'D', 49: TEST_KEY, 56: 'Coinbase', 22: 1}
         
-        # Market buy order, size
-        msg = MarketOrderMessage(TEST_KEY, 1202, 'buy', 'BTC-USD', .002)
-        test_dict = {**base_dict,
-                     **{34: 1202, 54: 2, 55: 'BTC-USD', 38: .002, 40: 1}}
-        self.assertEqual(test_dict.items(), msg.dict.items())
+#         # Market buy order, size
+#         msg = MarketOrderMessage(TEST_KEY, 1202, 'buy', 'BTC-USD', .002)
+#         test_dict = {**base_dict,
+#                      **{34: 1202, 54: 2, 55: 'BTC-USD', 38: .002, 40: 1}}
+#         self.assertEqual(test_dict.items(), msg.dict.items())
         
-        # Market buy order, funds
-        msg = MarketOrderMessage(TEST_KEY, 231, 'buy', 'LTC-USD', funds=1050)
-        test_dict = {**base_dict,
-                     **{34: 231, 54: 2, 55: 'LTC-USD', 152: 1050, 40: 1}}
-        self.assertEqual(test_dict.items(), msg.dict.items())
+#         # Market buy order, funds
+#         msg = MarketOrderMessage(TEST_KEY, 231, 'buy', 'LTC-USD', funds=1050)
+#         test_dict = {**base_dict,
+#                      **{34: 231, 54: 2, 55: 'LTC-USD', 152: 1050, 40: 1}}
+#         self.assertEqual(test_dict.items(), msg.dict.items())
         
-        # Market sell order, size
-        msg = MarketOrderMessage(TEST_KEY, 82, 'sell', 'BTC-USD', 3.5)
-        test_dict = {**base_dict,
-                     **{34: 82, 54: 1, 55: 'BTC-USD', 38: 3.5, 40: 1}}
-        self.assertEqual(test_dict.items(), msg.dict.items())            
+#         # Market sell order, size
+#         msg = MarketOrderMessage(TEST_KEY, 82, 'sell', 'BTC-USD', 3.5)
+#         test_dict = {**base_dict,
+#                      **{34: 82, 54: 1, 55: 'BTC-USD', 38: 3.5, 40: 1}}
+#         self.assertEqual(test_dict.items(), msg.dict.items())            
         
-        # Market buy order, funds
-        msg = MarketOrderMessage(TEST_KEY, 14, 'buy', 'LTC-USD', funds=500)
-        test_dict = {**base_dict,
-                     **{34: 14, 54: 2, 55: 'LTC-USD', 152: 500, 40: 1}}
-        self.assertEqual(test_dict.items(), msg.dict.items())
+#         # Market buy order, funds
+#         msg = MarketOrderMessage(TEST_KEY, 14, 'buy', 'LTC-USD', funds=500)
+#         test_dict = {**base_dict,
+#                      **{34: 14, 54: 2, 55: 'LTC-USD', 152: 500, 40: 1}}
+#         self.assertEqual(test_dict.items(), msg.dict.items())
         
-        # Market sell order, funds
-        msg = MarketOrderMessage(TEST_KEY, 2, 'sell', 'ETH-USD', funds=200)
-        test_dict = {**base_dict,
-                     **{34: 2, 54: 1, 55: 'ETH-USD', 152: 200, 40: 1}}
-        self.assertEqual(test_dict.items(), msg.dict.items())
+#         # Market sell order, funds
+#         msg = MarketOrderMessage(TEST_KEY, 2, 'sell', 'ETH-USD', funds=200)
+#         test_dict = {**base_dict,
+#                      **{34: 2, 54: 1, 55: 'ETH-USD', 152: 200, 40: 1}}
+#         self.assertEqual(test_dict.items(), msg.dict.items())
         
-        # Stop market sell order, size, client_oid
-        msg = MarketOrderMessage(TEST_KEY, 65, 'sell', 'BTC-USD', .003,
-                                          stop_price=1500, client_oid='my_uuid')
-        test_dict = {**base_dict,
-                     **{34: 65, 54: 1, 55: 'BTC-USD', 38: .003, 40: 3, 99: 1500, 11: 'my_uuid'}}
-        self.assertEqual(test_dict.items(), msg.dict.items())
+#         # Stop market sell order, size, client_oid
+#         msg = MarketOrderMessage(TEST_KEY, 65, 'sell', 'BTC-USD', .003,
+#                                           stop_price=1500, client_oid='my_uuid')
+#         test_dict = {**base_dict,
+#                      **{34: 65, 54: 1, 55: 'BTC-USD', 38: .003, 40: 3, 99: 1500, 11: 'my_uuid'}}
+#         self.assertEqual(test_dict.items(), msg.dict.items())
         
     
-    async def test_ClientMessage(self):
+#     async def test_ClientMessage(self):
         
-        base_dict = {8: 'FIX.4.2', 35: 'F', 49: TEST_KEY, 56: 'Coinbase'}
+#         base_dict = {8: 'FIX.4.2', 35: 'F', 49: TEST_KEY, 56: 'Coinbase'}
         
-        test_dict = {**base_dict, **{34: 88, 37: 'cb order id'}}
-        msg = CancelMessage(TEST_KEY, 88, 'cb order id')
-        self.assertEqual(test_dict.items(), msg.dict.items())
+#         test_dict = {**base_dict, **{34: 88, 37: 'cb order id'}}
+#         msg = CancelMessage(TEST_KEY, 88, 'cb order id')
+#         self.assertEqual(test_dict.items(), msg.dict.items())
         
-        test_dict = {**base_dict, **{34: 105, 11: 'cl order id'}}
-        msg = CancelMessage(TEST_KEY, 105, client_oid='cl order id')
-        self.assertEqual(test_dict.items(), msg.dict.items())
-        
-# class TestFix(TestCase):
+#         test_dict = {**base_dict, **{34: 105, 11: 'cl order id'}}
+#         msg = CancelMessage(TEST_KEY, 105, client_oid='cl order id')
+#         self.assertEqual(test_dict.items(), msg.dict.items())
+
+       
+class TestFix(TestCase):
     
-#     def setUp(self):
-#         pass
+    def setUp(self):
+        pass
         
         
-#     def tearDown(self):
-#         pass
+    def tearDown(self):
+        pass
     
 #     async def test_constants(self):
 #         self.assertEqual(URL, 'fix.pro.coinbase.com:4198')
@@ -700,3 +701,32 @@ class TestMessages(TestCase):
 #                                                   10000, .005, stop_price=9900)
 #         resp = await client.limit_order('buy', 'BTC-USD', 10000, .005, stop_price=9900)
 #         self.assertEqual(client.send.call_args[0][0], expected)
+
+
+    async def test_cancel(self):
+
+        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+        client.send = CoroutineMock()
+
+        # No order_id or client_oid
+        with self.assertRaises(ValueError):
+            resp = await client.cancel()
+           
+        # Both order_id and client_oid
+        with self.assertRaises(ValueError):
+            resp = await client.cancel('cb oid', 'client oid')
+            
+        # order_id
+        expected = CancelMessage(TEST_KEY, client.seq_num+1, 'cb oid')
+        resp = await client.cancel('cb oid')
+        self.assertEqual(client.send.call_args[0][0], expected)
+        
+        # client_oid
+        expected = CancelMessage(TEST_KEY, client.seq_num+1, 'cl oid')
+        resp = await client.cancel('cl oid')
+        self.assertEqual(client.send.call_args[0][0], expected)
+        
+            
+        
+            
+        

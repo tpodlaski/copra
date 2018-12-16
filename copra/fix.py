@@ -639,3 +639,35 @@ class Client(asyncio.Protocol):
         msg = LimitOrderMessage(self.key, self.seq_num, side, product_id, price,
                                 size, time_in_force, stop_price, client_oid)
         await self.send(msg)
+        
+        
+    async def cancel(self, order_id=None, client_oid=None):
+        """Cancel a previously placed order.
+
+        :param str order_id: (optional) The final id of the order as assigned
+            by Coinbase. Either this or client_oid must be provided.
+            
+        :param str client_oid: (optional) The user generated id for the order 
+            when it was placed. Either this or the order_id must be provided.
+            
+        .. note:: Use of the client_oid is not available after reconnecting or 
+            starting a new session. You should use the order_id obtained via the 
+            execution report once available.
+            
+        :raises ValueError:
+        
+            * Neither order_id nor client_oid are provided.
+            * Both order_id and client_oid are provided.
+        """
+        
+        if not (order_id or client_oid):
+            raise ValueError("Either order_id or client_oid must be provided.")
+            
+        if order_id and client_oid:
+            raise ValueError("Both order_id and client_oid cannot be set.")
+            
+        self.seq_num += 1
+        
+        msg = CancelMessage(self.key, self.seq_num, order_id, client_oid)
+        
+        await self.send(msg)
