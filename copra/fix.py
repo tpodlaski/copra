@@ -9,6 +9,7 @@ import hmac
 import os
 import ssl
 import time
+import uuid
 
 
 URL = 'fix.pro.coinbase.com:4198'
@@ -208,7 +209,8 @@ class LimitOrderMessage(Message):
             This may also be a string. The default is None.
             
         :param str client_oid: (optional) A self generated UUID to identify the 
-            order. The default is None.
+            order. The default is None. If this is not set, a client order id
+            will automatically be generated.
         """
         
         super().__init__(key, seq_num, 'D')
@@ -226,6 +228,8 @@ class LimitOrderMessage(Message):
             self[40] = 2                        #40  OrdType, 2 for limit
         if client_oid:
             self[11] = client_oid               #11  ClOrdID, UUID selected by client to identify the order
+        else:
+            self[11] = uuid.uuid4()
 
 
 class MarketOrderMessage(Message):
@@ -281,7 +285,8 @@ class MarketOrderMessage(Message):
        
         if client_oid:
             self[11] = client_oid               #11  ClOrdID, UUID selected by client to identify the order
-
+        else:
+            self[11] = uuid.uuid4()
 
 class CancelMessage(Message):
     """Message to cancel a single order.
@@ -437,7 +442,10 @@ class Client(asyncio.Protocol):
         elif msg[35] == '5':            #logout
             self.logged_out.set()
             self.logged_in.clear()
-            print(f"logged out of {self.host}:{self.port}")    
+            print(f"logged out of {self.host}:{self.port}")
+            
+        else:
+            print(msg)
 
 
     async def connect(self):
@@ -616,7 +624,8 @@ class Client(asyncio.Protocol):
             This may also be a string. The default is None.
             
         :param str client_oid: (optional) A self generated UUID to identify the 
-            order. The default is None.
+            order. The default is None. If this is not set, a client order id
+            will automatically be generated during the FIX message initialization.
             
         :raises ValueError:
         
