@@ -94,8 +94,8 @@ class Message():
         
     def __eq__(self, other):
         return self.dict == other.dict
-        
-        
+
+
 class LoginMessage(Message):
     """FIX login message.
     """
@@ -227,9 +227,9 @@ class LimitOrderMessage(Message):
         else:
             self[40] = 2                        #40  OrdType, 2 for limit
         if client_oid:
-            self[11] = client_oid               #11  ClOrdID, UUID selected by client to identify the order
+            self[11] = str(client_oid)          #11  ClOrdID, UUID selected by client to identify the order
         else:
-            self[11] = uuid.uuid4()
+            self[11] = str(uuid.uuid4())
 
 
 class MarketOrderMessage(Message):
@@ -284,9 +284,10 @@ class MarketOrderMessage(Message):
             self[40] = 1                        #40  OrdType, 1 for market
        
         if client_oid:
-            self[11] = client_oid               #11  ClOrdID, UUID selected by client to identify the order
+            self[11] = str(client_oid)          #11  ClOrdID, UUID selected by client to identify the order
         else:
-            self[11] = uuid.uuid4()
+            self[11] = str(uuid.uuid4())
+
 
 class CancelMessage(Message):
     """Message to cancel a single order.
@@ -385,6 +386,8 @@ class Client(asyncio.Protocol):
         self.is_closing = False
 
         self.keep_alive_task = None
+        
+        self.order_fut = {}
 
 
     @property
@@ -428,7 +431,17 @@ class Client(asyncio.Protocol):
         l = [field.split('=') for field in data.split(chr(1))]
         msg = dict([(int(pair[0]), pair[1]) for pair in l[:-1]])
         
-        if msg[35] == '0':              #heartbeat
+        if msg[35] == '8':              #execution report
+            
+            #ExcecType new or rejected
+            if msg[150] == '0' or msg[150] == '8':
+                try:
+                    self.order_fut[msg[11]].set_result(msg)
+                except KeyError:
+                    # log error message here
+                    pass
+        
+        elif msg[35] == '0':              #heartbeat
             pass
         
         elif msg[35] == '1':            #test
@@ -598,7 +611,14 @@ class Client(asyncio.Protocol):
         
         msg = MarketOrderMessage(self.key, self.seq_num, side, product_id, size,
                                                   funds, stop_price, client_oid)
+                                                  
+        self.order_fut[msg[11]] = asyncio.Future()
+
         await self.send(msg)
+        
+        resp = await self.order_fut[msg[11]]
+        del self.order_fut[msg[11]]
+        return resp
 
 
     async def limit_order(self, side, product_id, price, size, 
@@ -647,7 +667,14 @@ class Client(asyncio.Protocol):
         
         msg = LimitOrderMessage(self.key, self.seq_num, side, product_id, price,
                                 size, time_in_force, stop_price, client_oid)
+        
+        self.order_fut[msg[11]] = asyncio.Future()
+
         await self.send(msg)
+        
+        resp = await self.order_fut[msg[11]]
+        del self.order_fut[msg[11]]
+        return resp
         
         
     async def cancel(self, order_id=None, client_oid=None):
