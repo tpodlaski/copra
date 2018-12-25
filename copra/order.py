@@ -46,7 +46,7 @@ class Order:
         msg[11] = order.client_oid
         
         order.side = side
-        msg[54] = '1' if side == 'sell' else '2'
+        msg[54] = '2' if side == 'sell' else '1'
         
         order.product_id = product_id
         msg[55] = product_id

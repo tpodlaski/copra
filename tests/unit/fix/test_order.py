@@ -33,7 +33,7 @@ class TestOrder(TestCase):
         self.assertEqual(order.product_id, 'BTC-USD')
         self.assertFalse(order.received.is_set())
     
-        expected_msg = Message(TEST_KEY, 1, 'D', {22: '1', 54: '2', 55: 'BTC-USD'})
+        expected_msg = Message(TEST_KEY, 1, 'D', {22: '1', 54: '1', 55: 'BTC-USD'})
         expected_msg[11] = msg[11]
         self.assertEqual(msg, expected_msg)
 
@@ -59,7 +59,7 @@ class TestOrder(TestCase):
         self.assertEqual(order.price, Decimal('1.14'))
         self.assertEqual(order.time_in_force, 'GTC')
         
-        expected_msg = Message(TEST_KEY, 3, 'D', {22: '1', 40: '2', 38: '3.1', 44: '1.14', 54: '2', 55: 'BTC-USD', 59: '1'})
+        expected_msg = Message(TEST_KEY, 3, 'D', {22: '1', 40: '2', 38: '3.1', 44: '1.14', 54: '1', 55: 'BTC-USD', 59: '1'})
         expected_msg[11] = msg[11]
         self.assertEqual(msg, expected_msg)
         
@@ -74,7 +74,7 @@ class TestOrder(TestCase):
         self.assertEqual(order.price, Decimal('100'))
         self.assertEqual(order.time_in_force, 'PO')        
 
-        expected_msg = Message(TEST_KEY, 4, 'D', {22: '1', 40: '2', 38: '5', 44: '100', 54: '1', 55: 'LTC-USD', 59: 'P'})
+        expected_msg = Message(TEST_KEY, 4, 'D', {22: '1', 40: '2', 38: '5', 44: '100', 54: '2', 55: 'LTC-USD', 59: 'P'})
         expected_msg[11] = msg[11]
         self.assertEqual(msg, expected_msg)
         
@@ -98,7 +98,7 @@ class TestOrder(TestCase):
         self.assertEqual(order.stop_price, Decimal('4'))
 
         expected_msg = Message(TEST_KEY, 6, 'D', {22: '1', 40: '4', 38: '0.001', 
-                           44: '3.5', 54: '1', 55: 'BTC-USD', 59: '1', 99: '4'})
+                           44: '3.5', 54: '2', 55: 'BTC-USD', 59: '1', 99: '4'})
         expected_msg[11] = msg[11]
         self.assertEqual(msg, expected_msg)
         
@@ -116,7 +116,7 @@ class TestOrder(TestCase):
         self.assertEqual(order.stop_price, Decimal('9900'))
 
         expected_msg = Message(TEST_KEY, 7, 'D', {22: '1', 40: '4', 38: '0.005', 
-                      44: '10000', 54: '2', 55: 'BTC-USD', 59: '1', 99: '9900'})
+                      44: '10000', 54: '1', 55: 'BTC-USD', 59: '1', 99: '9900'})
         expected_msg[11] = msg[11]
         self.assertEqual(msg, expected_msg)
         
@@ -145,7 +145,7 @@ class TestOrder(TestCase):
         self.assertEqual(order.size, Decimal('.001'))
         self.assertFalse(order.received.is_set())
         
-        expected_msg = Message(TEST_KEY, 5, 'D', {22: '1', 40: '1', 38: .001, 54: '2', 55: 'BTC-USD'})
+        expected_msg = Message(TEST_KEY, 5, 'D', {22: '1', 40: '1', 38: .001, 54: '1', 55: 'BTC-USD'})
         expected_msg[11] = msg[11]
         self.assertEqual(msg, expected_msg)
         
@@ -160,7 +160,7 @@ class TestOrder(TestCase):
         self.assertEqual(order.funds, Decimal('500'))
         self.assertFalse(order.received.is_set())
         
-        expected_msg = Message(TEST_KEY, 6, 'D', {22: '1', 40: '1', 152: 500, 54: '2', 55: 'LTC-USD'})
+        expected_msg = Message(TEST_KEY, 6, 'D', {22: '1', 40: '1', 152: 500, 54: '1', 55: 'LTC-USD'})
         expected_msg[11] = msg[11]
         self.assertEqual(msg, expected_msg)
         
@@ -175,7 +175,7 @@ class TestOrder(TestCase):
         self.assertEqual(order.size, Decimal('.003'))
         self.assertFalse(order.received.is_set())
         
-        expected_msg = Message(TEST_KEY, 7, 'D', {22: '1', 40: '1', 38: .003, 54: '1', 55: 'ETH-USD'})
+        expected_msg = Message(TEST_KEY, 7, 'D', {22: '1', 40: '1', 38: .003, 54: '2', 55: 'ETH-USD'})
         expected_msg[11] = msg[11]
         self.assertEqual(msg, expected_msg)
 
@@ -190,7 +190,7 @@ class TestOrder(TestCase):
         self.assertEqual(order.funds, Decimal('1000'))
         self.assertFalse(order.received.is_set())
         
-        expected_msg = Message(TEST_KEY, 8, 'D', {22: '1', 40: '1', 152: 1000, 54: '1', 55: 'BTC-USD'})
+        expected_msg = Message(TEST_KEY, 8, 'D', {22: '1', 40: '1', 152: 1000, 54: '2', 55: 'BTC-USD'})
         expected_msg[11] = msg[11]
         self.assertEqual(msg, expected_msg)
         
@@ -206,7 +206,7 @@ class TestOrder(TestCase):
         self.assertEqual(order.stop_price, Decimal('2.2'))
         self.assertFalse(order.received.is_set())
         
-        expected_msg = Message(TEST_KEY, 9, 'D', {22: '1', 40: '3', 38: .002, 54: '1', 55: 'BTC-USD', 99: 2.2})
+        expected_msg = Message(TEST_KEY, 9, 'D', {22: '1', 40: '3', 38: .002, 54: '2', 55: 'BTC-USD', 99: 2.2})
         expected_msg[11] = msg[11]
         self.assertEqual(msg, expected_msg)
 
@@ -222,7 +222,7 @@ class TestOrder(TestCase):
         self.assertEqual(order.stop_price, Decimal('9000'))
         self.assertFalse(order.received.is_set())
         
-        expected_msg = Message(TEST_KEY, 10, 'D', {22: '1', 40: '3', 38: .004, 54: '2', 55: 'BTC-USD', 99: 9000})
+        expected_msg = Message(TEST_KEY, 10, 'D', {22: '1', 40: '3', 38: .004, 54: '1', 55: 'BTC-USD', 99: 9000})
         expected_msg[11] = msg[11]
         self.assertEqual(msg, expected_msg)
         

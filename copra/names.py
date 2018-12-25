@@ -481,7 +481,7 @@ VALUES = {
                'E': 'pending replace'
               },
           40: {'1': 'market', '2': 'limit', '3': 'stop market', '4': 'stop limit'}, 
-          54: {'1': 'sell', '2': 'buy'},
+          54: {'1': 'buy', '2': 'sell'},
           59: {'1':	'Good Till Cancel',
                '3':	'Immediate or Cancel',
                '4':	'Fill or Kill',

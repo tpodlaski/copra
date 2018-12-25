@@ -376,7 +376,7 @@ class TestFix(TestCase):
         self.assertEqual(order.time_in_force, 'GTC')
         
         expected_msg = Message(TEST_KEY, client.seq_num, 'D', {22: '1', 40: '2',
-                        38: '3.1', 44: '1.14', 54: '2', 55: 'BTC-USD', 59: '1'})
+                        38: '3.1', 44: '1.14', 54: '1', 55: 'BTC-USD', 59: '1'})
         actual_msg = client.send.call_args[0][0]
         expected_msg[11] = actual_msg[11]
         self.assertEqual(actual_msg, expected_msg)
@@ -393,7 +393,7 @@ class TestFix(TestCase):
         self.assertEqual(order.time_in_force, 'PO')        
 
         expected_msg = Message(TEST_KEY, client.seq_num, 'D', {22: '1', 40: '2', 
-                          38: '5', 44: '100', 54: '1', 55: 'LTC-USD', 59: 'P'})
+                          38: '5', 44: '100', 54: '2', 55: 'LTC-USD', 59: 'P'})
         actual_msg = client.send.call_args[0][0]
         expected_msg[11] = actual_msg[11]
         self.assertEqual(actual_msg, expected_msg)
@@ -416,7 +416,7 @@ class TestFix(TestCase):
         self.assertEqual(order.stop_price, Decimal('4'))
 
         expected_msg = Message(TEST_KEY, client.seq_num, 'D', {22: '1', 40: '4', 
-              38: '0.001', 44: '3.5', 54: '1', 55: 'BTC-USD', 59: '1', 99: '4'})
+              38: '0.001', 44: '3.5', 54: '2', 55: 'BTC-USD', 59: '1', 99: '4'})
         actual_msg = client.send.call_args[0][0]
         expected_msg[11] = actual_msg[11]
         self.assertEqual(actual_msg, expected_msg)
@@ -434,7 +434,7 @@ class TestFix(TestCase):
         self.assertEqual(order.stop_price, Decimal('9900'))
 
         expected_msg = Message(TEST_KEY, client.seq_num, 'D', {22: '1', 40: '4', 
-                              38: '0.005', 44: '10000', 54: '2', 55: 'BTC-USD',
+                              38: '0.005', 44: '10000', 54: '1', 55: 'BTC-USD',
                                                           59: '1', 99: '9900'})
         actual_msg = client.send.call_args[0][0]
         expected_msg[11] = actual_msg[11]
@@ -468,7 +468,7 @@ class TestFix(TestCase):
         self.assertEqual(order.product_id, 'BTC-USD')
         self.assertEqual(order.size, Decimal('.001'))
         
-        expected_msg = Message(TEST_KEY, client.seq_num, 'D', {22: '1', 40: '1', 38: .001, 54: '2', 55: 'BTC-USD'})
+        expected_msg = Message(TEST_KEY, client.seq_num, 'D', {22: '1', 40: '1', 38: .001, 54: '1', 55: 'BTC-USD'})
         actual_msg = client.send.call_args[0][0]
         expected_msg[11] = actual_msg[11]
         self.assertEqual(actual_msg, expected_msg)
@@ -484,7 +484,7 @@ class TestFix(TestCase):
         self.assertEqual(order.product_id, 'LTC-USD')
         self.assertEqual(order.funds, Decimal('500'))
         
-        expected_msg = Message(TEST_KEY, client.seq_num, 'D', {22: '1', 40: '1', 152: 500, 54: '2', 55: 'LTC-USD'})
+        expected_msg = Message(TEST_KEY, client.seq_num, 'D', {22: '1', 40: '1', 152: 500, 54: '1', 55: 'LTC-USD'})
         actual_msg = client.send.call_args[0][0]
         expected_msg[11] = actual_msg[11]
         self.assertEqual(actual_msg, expected_msg)
@@ -500,7 +500,7 @@ class TestFix(TestCase):
         self.assertEqual(order.product_id, 'ETH-USD')
         self.assertEqual(order.size, Decimal('.003'))
         
-        expected_msg = Message(TEST_KEY, client.seq_num, 'D', {22: '1', 40: '1', 38: .003, 54: '1', 55: 'ETH-USD'})
+        expected_msg = Message(TEST_KEY, client.seq_num, 'D', {22: '1', 40: '1', 38: .003, 54: '2', 55: 'ETH-USD'})
         actual_msg = client.send.call_args[0][0]
         expected_msg[11] = actual_msg[11]
         self.assertEqual(actual_msg, expected_msg)
@@ -516,7 +516,7 @@ class TestFix(TestCase):
         self.assertEqual(order.product_id, 'BTC-USD')
         self.assertEqual(order.funds, Decimal('1000'))
         
-        expected_msg = Message(TEST_KEY, client.seq_num, 'D', {22: '1', 40: '1', 152: 1000, 54: '1', 55: 'BTC-USD'})
+        expected_msg = Message(TEST_KEY, client.seq_num, 'D', {22: '1', 40: '1', 152: 1000, 54: '2', 55: 'BTC-USD'})
         actual_msg = client.send.call_args[0][0]
         expected_msg[11] = actual_msg[11]
         self.assertEqual(actual_msg, expected_msg)
@@ -533,7 +533,7 @@ class TestFix(TestCase):
         self.assertEqual(order.size, Decimal('.002'))
         self.assertEqual(order.stop_price, Decimal('2.2'))
         
-        expected_msg = Message(TEST_KEY, client.seq_num, 'D', {22: '1', 40: '3', 38: .002, 54: '1', 55: 'BTC-USD', 99: 2.2})
+        expected_msg = Message(TEST_KEY, client.seq_num, 'D', {22: '1', 40: '3', 38: .002, 54: '2', 55: 'BTC-USD', 99: 2.2})
         actual_msg = client.send.call_args[0][0]
         expected_msg[11] = actual_msg[11]
         self.assertEqual(actual_msg, expected_msg)
@@ -550,7 +550,7 @@ class TestFix(TestCase):
         self.assertEqual(order.size, Decimal('.004'))
         self.assertEqual(order.stop_price, Decimal('9000'))
         
-        expected_msg = Message(TEST_KEY, client.seq_num, 'D', {22: '1', 40: '3', 38: .004, 54: '2', 55: 'BTC-USD', 99: 9000})
+        expected_msg = Message(TEST_KEY, client.seq_num, 'D', {22: '1', 40: '3', 38: .004, 54: '1', 55: 'BTC-USD', 99: 9000})
         actual_msg = client.send.call_args[0][0]
         expected_msg[11] = actual_msg[11]
         self.assertEqual(actual_msg, expected_msg)
