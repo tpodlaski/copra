@@ -8,7 +8,7 @@ from decimal import Decimal
 from asynctest import TestCase
 
 from copra.message import Message
-from copra.order2 import Order
+from copra.order import Order
 
 
 # These are made up
