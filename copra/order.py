@@ -202,7 +202,13 @@ class Order:
         
         self.status = VALUES[39][msg[39]]
         
-        if msg[150] == '0':
+        if msg[150] == '0':         # ExecType new
             self.id = msg[37]
             self.received.set()
+            
+        elif msg[150] == '8':       # ExecType rejected 
+            self.id = msg[37]
+            self.reject_reason = msg[58]
+            self.received.set()
+            self.done.set()
         

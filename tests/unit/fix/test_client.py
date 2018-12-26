@@ -153,27 +153,7 @@ class TestFix(TestCase):
         client.data_received(bytes(resp_msg))
         client.heartbeat.assert_called_with('999')
 
-    
-    async def test_data_received_exec_report_new(self):
-        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
-        client.send = MagicMock()
-        self.assertEqual(len(client.orders), 0)
-        order, _ = Order.market_order(TEST_KEY, client.seq_num, 'buy', 'BTC-USD', .001)
-        client.orders[order.client_oid] = order
-        self.assertIsNone(order.id)
-        self.assertFalse(order.received.is_set())
-        self.assertFalse(order.done.is_set())
-        
-        assigned_id = str(uuid.uuid4())
-        msg = Message(TEST_KEY, 2, 8, {11: order.client_oid, 37: assigned_id, 39: '0', 150: '0'})
-        client.data_received(bytes(msg))
-        
-        self.assertIn(assigned_id, client.orders)
-        self.assertEqual(order.id, assigned_id)
-        self.assertTrue(order.received.is_set())
-        self.assertFalse(order.done.is_set())
 
-        
     def test_data_received_exec_report(self):
         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
         order, _ = Order.market_order(TEST_KEY, 1, 'buy', 'BTC-USD', .001)
@@ -184,8 +164,54 @@ class TestFix(TestCase):
         client.data_received(bytes(msg))
         order.fix_update.assert_called_with(msg)
         
+    
+    async def test_data_received_exec_report_new(self):
+        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+        client.send = MagicMock()
+        self.assertEqual(len(client.orders), 0)
+        order, _ = Order.market_order(TEST_KEY, client.seq_num, 'buy', 'BTC-USD', .001)
+        client.orders[order.client_oid] = order
+        self.assertIsNone(order.id)
+        self.assertIsNone(order.status)
+        self.assertFalse(order.received.is_set())
+        self.assertFalse(order.done.is_set())
+        
+        assigned_id = str(uuid.uuid4())
+        msg = Message(TEST_KEY, 2, 8, {11: order.client_oid, 37: assigned_id, 39: '0', 150: '0'})
+        client.data_received(bytes(msg))
+        
+        self.assertIn(assigned_id, client.orders)
+        self.assertEqual(order.id, assigned_id)
+        self.assertEqual(order.status, 'new')
+        self.assertTrue(order.received.is_set())
+        self.assertFalse(order.done.is_set())
 
+
+    async def test_data_received_exec_report_rejected(self):
+        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+        client.send = MagicMock()
+        self.assertEqual(len(client.orders), 0)
+        order, _ = Order.market_order(TEST_KEY, client.seq_num, 'buy', 'BTC-USD', .001)
+        client.orders[order.client_oid] = order
+        self.assertIsNone(order.id)
+        self.assertIsNone(order.status)
+        self.assertFalse(order.received.is_set())
+        self.assertFalse(order.done.is_set())
+        
+        assigned_id = str(uuid.uuid4())
+        msg = Message(TEST_KEY, 2, 8, {11: order.client_oid, 37: assigned_id, 39: '8', 150: '8', 58: 'TOO LATE'})
+        client.data_received(bytes(msg))
+        
+        self.assertIn(assigned_id, client.orders)
+        self.assertEqual(order.id, assigned_id)
+        self.assertEqual(order.status, 'rejected')
+        self.assertEqual(order.reject_reason, 'TOO LATE')
+        self.assertTrue(order.received.is_set())
+        self.assertTrue(order.done.is_set())
+        
+        
     def test_send(self):
+        
         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
         client.transport = MagicMock()
         client.transport.write = MagicMock()

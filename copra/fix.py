@@ -144,7 +144,7 @@ class Client:
                 
                 order = self.orders[order_id]
                 
-                if msg[150] == '0':     # ExcecType new
+                if msg[150] == '0' or msg[150] == '8':     # ExcecType new or rejected
                     del self.orders[order_id]
                     self.orders[msg[37]] = order
                     
