@@ -55,6 +55,7 @@ class Order:
         order.id = None
         order.status = None
         order.received = asyncio.Event()
+        order.done = asyncio.Event()
         
         return order, msg
 
