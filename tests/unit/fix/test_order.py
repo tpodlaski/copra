@@ -4,6 +4,7 @@
 """
 
 from decimal import Decimal
+import uuid
 
 from asynctest import TestCase
 
@@ -31,6 +32,8 @@ class TestOrder(TestCase):
         self.assertIsInstance(order.client_oid, str)
         self.assertEqual(order.side, 'buy')
         self.assertEqual(order.product_id, 'BTC-USD')
+        self.assertIsNone(order.id)
+        self.assertIsNone(order.status)
         self.assertFalse(order.received.is_set())
     
         expected_msg = Message(TEST_KEY, 1, 'D', {22: '1', 54: '1', 55: 'BTC-USD'})
@@ -58,7 +61,7 @@ class TestOrder(TestCase):
         self.assertEqual(order.size, Decimal('3.1'))
         self.assertEqual(order.price, Decimal('1.14'))
         self.assertEqual(order.time_in_force, 'GTC')
-        
+
         expected_msg = Message(TEST_KEY, 3, 'D', {22: '1', 40: '2', 38: '3.1', 44: '1.14', 54: '1', 55: 'BTC-USD', 59: '1'})
         expected_msg[11] = msg[11]
         self.assertEqual(msg, expected_msg)
@@ -226,11 +229,17 @@ class TestOrder(TestCase):
         expected_msg[11] = msg[11]
         self.assertEqual(msg, expected_msg)
         
+    
+    def test_fix_update_new(self):
+        order, _ = Order.market_order(TEST_KEY, 1, 'buy', 'BTC-USD', .001)
+        self.assertIsNone(order.id)
+        self.assertIsNone(order.status)
+        self.assertFalse(order.received.is_set())
+
+        assigned_id = str(uuid.uuid4())
+        msg = Message(TEST_KEY, 2, 8, {37: assigned_id, 39: '0', 150: '0'})
+        order.fix_update(msg)
         
-    # def test_received_new(self):
-    #     order = Order()
-    #     self.assertFalse(order.received.is_set())
-    #     msg = Message(TEST_KEY, 69, 8, {150: 0})
-    #     order.fix_update(msg)
-    #     self.assertTrue(order.received.is_set())
-      
+        self.assertEqual(order.id, assigned_id)
+        self.assertEqual(order.status, 'new')
+        self.assertTrue(order.received.is_set())

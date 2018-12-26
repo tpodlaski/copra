@@ -1,0 +1,465 @@
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Market buy order, size    market_order('buy', 'BTC-USD', .001)
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+FIX Message 8 [Execution Report]
+        8 [BeginString]:  FIX.4.2
+        9 [BodyLength]:  297
+        35 [MsgType]:  8 <Execution Report>
+        11 [ClOrdID]:  28342555-0df4-407a-9a7f-b234589ca26b
+        17 [ExecID]:  7c0f1ae6-da35-429a-971d-c9719050b3d7
+        20 [ExecTransType]:  0 <new>
+        34 [MsgSeqNum]:  2
+        37 [OrderID]:  20ef63d3-c839-4072-9d12-cebb060e3391
+        38 [OrderQty]:  0.00100000
+        39 [OrdStatus]:  0 <new>
+        49 [SenderCompID]:  Coinbase
+        52 [SendingTime]:  20181226-00:04:44.086
+        54 [Side]:  1 <buy>
+        55 [Symbol]:  BTC-USD
+        56 [TargetCompID]:  388fb8d162b1df07a566ecb17442e685
+        60 [TransactTime]:  20181226-00:04:44.077
+        150 [ExecType]:  0 <new>
+        152 [CashOrderQty]:  6.5000000000000000
+        10 [CheckSum]:  178
+ 
+
+FIX Message 8 [Execution Report]
+        8 [BeginString]:  FIX.4.2
+        9 [BodyLength]:  288
+        35 [MsgType]:  8 <Execution Report>
+        17 [ExecID]:  32500e3d-a97a-4d71-885a-a677d34c1c98
+        20 [ExecTransType]:  0 <new>
+        31 [LastPx]:  6500.00000000
+        32 [LastShares]:  0.00100000
+        34 [MsgSeqNum]:  3
+        37 [OrderID]:  20ef63d3-c839-4072-9d12-cebb060e3391
+        39 [OrdStatus]:  1 <partially filled>
+        44 [Price]:  6500.00000000
+        49 [SenderCompID]:  Coinbase
+        52 [SendingTime]:  20181226-00:04:44.087
+        54 [Side]:  1 <buy>
+        55 [Symbol]:  BTC-USD
+        56 [TargetCompID]:  388fb8d162b1df07a566ecb17442e685
+        60 [TransactTime]:  20181226-00:04:44.077
+        150 [ExecType]:  1 <fill>
+        1003 [TradeID]:  2186931
+        1057 [AggressorIndicator]:  Y <taker>
+        10 [CheckSum]:  206
+ 
+
+FIX Message 8 [Execution Report]
+        8 [BeginString]:  FIX.4.2
+        9 [BodyLength]:  240
+        35 [MsgType]:  8 <Execution Report>
+        17 [ExecID]:  cb6c1927-0392-45a1-977a-84eec1fc1026
+        20 [ExecTransType]:  0 <new>
+        34 [MsgSeqNum]:  4
+        37 [OrderID]:  20ef63d3-c839-4072-9d12-cebb060e3391
+        38 [OrderQty]:  0.00000000
+        39 [OrdStatus]:  3 <done>
+        49 [SenderCompID]:  Coinbase
+        52 [SendingTime]:  20181226-00:04:44.088
+        54 [Side]:  1 <buy>
+        55 [Symbol]:  BTC-USD
+        56 [TargetCompID]:  388fb8d162b1df07a566ecb17442e685
+        60 [TransactTime]:  20181226-00:04:44.077
+        150 [ExecType]:  3 <done>
+        151 [LeavesQty]:  0
+        10 [CheckSum]:  188
+ 
+================================================================================
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Market buy order, funds    market_order('buy', 'LTC-USD', funds=500)
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+FIX Message 8 [Execution Report]
+        8 [BeginString]:  FIX.4.2
+        9 [BodyLength]:  285
+        35 [MsgType]:  8 <Execution Report>
+        11 [ClOrdID]:  82b61d67-dc30-453f-89c2-9d5c441a2800
+        17 [ExecID]:  1f5cb51e-78ef-405d-85f9-47dd8c4e307e
+        20 [ExecTransType]:  0 <new>
+        34 [MsgSeqNum]:  2
+        37 [OrderID]:  233ef978-1343-4720-bb05-cd6a1172b830
+        39 [OrdStatus]:  0 <new>
+        49 [SenderCompID]:  Coinbase
+        52 [SendingTime]:  20181226-00:19:33.973
+        54 [Side]:  1 <buy>
+        55 [Symbol]:  LTC-USD
+        56 [TargetCompID]:  388fb8d162b1df07a566ecb17442e685
+        60 [TransactTime]:  20181226-00:19:33.968
+        150 [ExecType]:  0 <new>
+        152 [CashOrderQty]:  498.5036180472000000
+        10 [CheckSum]:  224
+ 
+
+FIX Message 8 [Execution Report]
+        8 [BeginString]:  FIX.4.2
+        9 [BodyLength]:  291
+        35 [MsgType]:  8 <Execution Report>
+        17 [ExecID]:  01626e24-4515-4882-ae63-3e73b6930539
+        20 [ExecTransType]:  0 <new>
+        31 [LastPx]:  293196.03000000
+        32 [LastShares]:  0.00170024
+        34 [MsgSeqNum]:  3
+        37 [OrderID]:  233ef978-1343-4720-bb05-cd6a1172b830
+        39 [OrdStatus]:  1 <partially filled>
+        44 [Price]:  293196.03000000
+        49 [SenderCompID]:  Coinbase
+        52 [SendingTime]:  20181226-00:19:33.974
+        54 [Side]:  1 <buy>
+        55 [Symbol]:  LTC-USD
+        56 [TargetCompID]:  388fb8d162b1df07a566ecb17442e685
+        60 [TransactTime]:  20181226-00:19:33.968
+        150 [ExecType]:  1 <fill>
+        1003 [TradeID]:  140506
+        1057 [AggressorIndicator]:  Y <taker>
+        10 [CheckSum]:  076
+ 
+
+FIX Message 8 [Execution Report]
+        8 [BeginString]:  FIX.4.2
+        9 [BodyLength]:  226
+        35 [MsgType]:  8 <Execution Report>
+        17 [ExecID]:  1e1c5b45-046f-4bda-823f-ebd467f19b1f
+        20 [ExecTransType]:  0 <new>
+        34 [MsgSeqNum]:  4
+        37 [OrderID]:  233ef978-1343-4720-bb05-cd6a1172b830
+        39 [OrdStatus]:  3 <done>
+        49 [SenderCompID]:  Coinbase
+        52 [SendingTime]:  20181226-00:19:33.975
+        54 [Side]:  1 <buy>
+        55 [Symbol]:  LTC-USD
+        56 [TargetCompID]:  388fb8d162b1df07a566ecb17442e685
+        60 [TransactTime]:  20181226-00:19:33.968
+        150 [ExecType]:  3 <done>
+        151 [LeavesQty]:  0
+        10 [CheckSum]:  178
+        
+================================================================================
+     
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Market sell order, size   market_order('sell', 'BTC-USD', .001)
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+FIX Message 8 [Execution Report]
+        8 [BeginString]:  FIX.4.2
+        9 [BodyLength]:  274
+        35 [MsgType]:  8 <Execution Report>
+        11 [ClOrdID]:  bbef9275-d21d-4371-9206-21deb8699b0e
+        17 [ExecID]:  4bdd4cc0-e954-4e29-baa0-45f7f1a7677f
+        20 [ExecTransType]:  0 <new>
+        34 [MsgSeqNum]:  2
+        37 [OrderID]:  cb372e8d-b171-4790-b985-5f3943f134ea
+        38 [OrderQty]:  0.00100000
+        39 [OrdStatus]:  0 <new>
+        49 [SenderCompID]:  Coinbase
+        52 [SendingTime]:  20181226-00:25:27.600
+        54 [Side]:  2 <sell>
+        55 [Symbol]:  BTC-USD
+        56 [TargetCompID]:  388fb8d162b1df07a566ecb17442e685
+        60 [TransactTime]:  20181226-00:25:27.595
+        150 [ExecType]:  0 <new>
+        10 [CheckSum]:  128
+ 
+
+FIX Message 8 [Execution Report]
+        8 [BeginString]:  FIX.4.2
+        9 [BodyLength]:  288
+        35 [MsgType]:  8 <Execution Report>
+        17 [ExecID]:  1c48ae46-a05c-481d-a6cb-a92d0ec43fb3
+        20 [ExecTransType]:  0 <new>
+        31 [LastPx]:  5808.88000000
+        32 [LastShares]:  0.00100000
+        34 [MsgSeqNum]:  3
+        37 [OrderID]:  cb372e8d-b171-4790-b985-5f3943f134ea
+        39 [OrdStatus]:  1 <partially filled>
+        44 [Price]:  5808.88000000
+        49 [SenderCompID]:  Coinbase
+        52 [SendingTime]:  20181226-00:25:27.600
+        54 [Side]:  2 <sell>
+        55 [Symbol]:  BTC-USD
+        56 [TargetCompID]:  388fb8d162b1df07a566ecb17442e685
+        60 [TransactTime]:  20181226-00:25:27.595
+        150 [ExecType]:  1 <fill>
+        1003 [TradeID]:  2186932
+        1057 [AggressorIndicator]:  Y <taker>
+        10 [CheckSum]:  245
+ 
+
+FIX Message 8 [Execution Report]
+        8 [BeginString]:  FIX.4.2
+        9 [BodyLength]:  240
+        35 [MsgType]:  8 <Execution Report>
+        17 [ExecID]:  9377c73b-1422-445f-a900-98a5282da589
+        20 [ExecTransType]:  0 <new>
+        34 [MsgSeqNum]:  4
+        37 [OrderID]:  cb372e8d-b171-4790-b985-5f3943f134ea
+        38 [OrderQty]:  0.00000000
+        39 [OrdStatus]:  3 <done>
+        49 [SenderCompID]:  Coinbase
+        52 [SendingTime]:  20181226-00:25:27.601
+        54 [Side]:  2 <sell>
+        55 [Symbol]:  BTC-USD
+        56 [TargetCompID]:  388fb8d162b1df07a566ecb17442e685
+        60 [TransactTime]:  20181226-00:25:27.595
+        150 [ExecType]:  3 <done>
+        151 [LeavesQty]:  0
+        10 [CheckSum]:  083
+        
+================================================================================
+ 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Market sell order, funds   market_order('sell', 'BTC-USD', funds=1000)
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+FIX Message 8 [Execution Report]
+        8 [BeginString]:  FIX.4.2
+        9 [BodyLength]:  299
+        35 [MsgType]:  8 <Execution Report>
+        11 [ClOrdID]:  c9d1a466-f05d-48ce-bd41-505199679043
+        17 [ExecID]:  a6c094e5-0cea-43a0-a5e9-7baf5e1c1fb5
+        20 [ExecTransType]:  0 <new>
+        34 [MsgSeqNum]:  2
+        37 [OrderID]:  f136e09a-8ce6-42e6-8e49-60b806dc4b30
+        38 [OrderQty]:  0.17215022
+        39 [OrdStatus]:  0 <new>
+        49 [SenderCompID]:  Coinbase
+        52 [SendingTime]:  20181226-00:32:19.419
+        54 [Side]:  2 <sell>
+        55 [Symbol]:  BTC-USD
+        56 [TargetCompID]:  388fb8d162b1df07a566ecb17442e685
+        60 [TransactTime]:  20181226-00:32:19.413
+        150 [ExecType]:  0 <new>
+        152 [CashOrderQty]:  999.9999699536000000
+        10 [CheckSum]:  169
+ 
+
+FIX Message 8 [Execution Report]
+        8 [BeginString]:  FIX.4.2
+        9 [BodyLength]:  288
+        35 [MsgType]:  8 <Execution Report>
+        17 [ExecID]:  34c1c2ca-d8fd-4bb1-a08a-8fa6e04cab1f
+        20 [ExecTransType]:  0 <new>
+        31 [LastPx]:  5808.88000000
+        32 [LastShares]:  0.17215022
+        34 [MsgSeqNum]:  3
+        37 [OrderID]:  f136e09a-8ce6-42e6-8e49-60b806dc4b30
+        39 [OrdStatus]:  1 <partially filled>
+        44 [Price]:  5808.88000000
+        49 [SenderCompID]:  Coinbase
+        52 [SendingTime]:  20181226-00:32:19.420
+        54 [Side]:  2 <sell>
+        55 [Symbol]:  BTC-USD
+        56 [TargetCompID]:  388fb8d162b1df07a566ecb17442e685
+        60 [TransactTime]:  20181226-00:32:19.413
+        150 [ExecType]:  1 <fill>
+        1003 [TradeID]:  2186934
+        1057 [AggressorIndicator]:  Y <taker>
+        10 [CheckSum]:  176
+ 
+
+FIX Message 8 [Execution Report]
+        8 [BeginString]:  FIX.4.2
+        9 [BodyLength]:  241
+        35 [MsgType]:  8 <Execution Report>
+        17 [ExecID]:  2999140b-396e-4746-98ef-38a3fec8b08e
+        20 [ExecTransType]:  0 <new>
+        34 [MsgSeqNum]:  4
+        37 [OrderID]:  f136e09a-8ce6-42e6-8e49-60b806dc4b30
+        38 [OrderQty]:  19.71745461
+        39 [OrdStatus]:  3 <done>
+        49 [SenderCompID]:  Coinbase
+        52 [SendingTime]:  20181226-00:32:19.421
+        54 [Side]:  2 <sell>
+        55 [Symbol]:  BTC-USD
+        56 [TargetCompID]:  388fb8d162b1df07a566ecb17442e685
+        60 [TransactTime]:  20181226-00:32:19.413
+        150 [ExecType]:  3 <done>
+        151 [LeavesQty]:  0
+        10 [CheckSum]:  114      
+================================================================================
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Market stop loss  market_order('sell', 'BTC-USD', .002, stop_price=2.2)
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+FIX Message 8 [Execution Report]
+        8 [BeginString]:  FIX.4.2
+        9 [BodyLength]:  288
+        35 [MsgType]:  8 <Execution Report>
+        11 [ClOrdID]:  a7e6baf0-9b2a-4f9a-b72a-5458cfffadaf
+        17 [ExecID]:  9a1bec6f-ed5a-49dc-88c6-c7877a65026c
+        20 [ExecTransType]:  0 <new>
+        34 [MsgSeqNum]:  2
+        37 [OrderID]:  d3b59237-a54e-407e-b2f3-931ac840aca9
+        38 [OrderQty]:  0.00200000
+        39 [OrdStatus]:  7 <stopped>
+        49 [SenderCompID]:  Coinbase
+        52 [SendingTime]:  20181226-00:35:39.312
+        54 [Side]:  2 <sell>
+        55 [Symbol]:  BTC-USD
+        56 [TargetCompID]:  388fb8d162b1df07a566ecb17442e685
+        60 [TransactTime]:  20181226-00:35:39.306
+        99 [StopPx]:  2.20000000
+        150 [ExecType]:  7 <stopped>
+        10 [CheckSum]:  252
+        
+================================================================================
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Market stop entry  market_order('buy', 'BTC-USD', .001, stop_price=9000)
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+FIX Message 8 [Execution Report]
+        8 [BeginString]:  FIX.4.2
+        9 [BodyLength]:  320
+        35 [MsgType]:  8 <Execution Report>
+        11 [ClOrdID]:  9920cf98-6ec1-4d1f-bfb0-d59a13972968
+        17 [ExecID]:  8a3816c8-be7f-4811-bfd2-7fef0f1c9694
+        20 [ExecTransType]:  0 <new>
+        34 [MsgSeqNum]:  2
+        37 [OrderID]:  51cba8ac-a15e-4923-9623-604cbdceb26f
+        38 [OrderQty]:  0.00100000
+        39 [OrdStatus]:  7 <stopped>
+        49 [SenderCompID]:  Coinbase
+        52 [SendingTime]:  20181226-00:37:56.825
+        54 [Side]:  1 <buy>
+        55 [Symbol]:  BTC-USD
+        56 [TargetCompID]:  388fb8d162b1df07a566ecb17442e685
+        60 [TransactTime]:  20181226-00:37:56.822
+        99 [StopPx]:  9000.00000000
+        150 [ExecType]:  7 <stopped>
+        152 [CashOrderQty]:  1517984.9884287000000000
+        10 [CheckSum]:  245
+        
+================================================================================
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Market buy order, size insufficient funds   market_order('buy', 'BTC-USD', 100)
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+FIX Message 8 [Execution Report]
+        8 [BeginString]:  FIX.4.2
+        9 [BodyLength]:  304
+        35 [MsgType]:  8 <Execution Report>
+        11 [ClOrdID]:  ec9f762a-29c0-4180-a338-d0ac7d100483
+        17 [ExecID]:  02162529-798c-4bbb-adec-b5c2b9536e33
+        20 [ExecTransType]:  0 <new>
+        34 [MsgSeqNum]:  2
+        37 [OrderID]:  19e1f5f5-7db9-419a-a5f1-3179b211dc3e
+        38 [OrderQty]:  100000
+        39 [OrdStatus]:  8 <rejected>
+        49 [SenderCompID]:  Coinbase
+        52 [SendingTime]:  20181226-00:48:58.730
+        54 [Side]:  1 <buy>
+        55 [Symbol]:  BTC-USD
+        56 [TargetCompID]:  388fb8d162b1df07a566ecb17442e685
+        58 [Text]:  Invalid OrderQty: 100000
+        60 [TransactTime]:  20181226-00:48:58.730
+        103 [OrdRejReason]:  0
+        150 [ExecType]:  8 <rejected>
+        10 [CheckSum]:  204
+        
+================================================================================
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Limit buy, default time_in_force    client.limit_order('buy', 'BTC-USD', .001, 1.14)
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+FIX Message 8 [Execution Report]
+        8 [BeginString]:  FIX.4.2
+        9 [BodyLength]:  288
+        35 [MsgType]:  8 <Execution Report>
+        11 [ClOrdID]:  66c452a5-b62c-48e3-843e-3ddf5ac97ad6
+        17 [ExecID]:  aa8ae807-35d7-464f-b5a3-da578ee22635
+        20 [ExecTransType]:  0 <new>
+        34 [MsgSeqNum]:  2
+        37 [OrderID]:  7ac683ae-01f3-4248-85d2-2115af47d2d4
+        38 [OrderQty]:  0.00100000
+        39 [OrdStatus]:  0 <new>
+        44 [Price]:  1.14000000
+        49 [SenderCompID]:  Coinbase
+        52 [SendingTime]:  20181226-00:59:11.136
+        54 [Side]:  1 <buy>
+        55 [Symbol]:  BTC-USD
+        56 [TargetCompID]:  388fb8d162b1df07a566ecb17442e685
+        60 [TransactTime]:  20181226-00:59:11.129
+        150 [ExecType]:  0 <new>
+        10 [CheckSum]:  254
+        
+================================================================================
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Limit sell, PO time_in_force    limit_order('sell', 'BTC-USD', 1, 100000, time_in_force='PO')
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+FIX Message 8 [Execution Report]
+        8 [BeginString]:  FIX.4.2
+        9 [BodyLength]:  293
+        35 [MsgType]:  8 <Execution Report>
+        11 [ClOrdID]:  7fec353a-101c-45b7-99bd-e5b60a45f515
+        17 [ExecID]:  b3d66131-f708-47da-8ae7-bd792d7da03c
+        20 [ExecTransType]:  0 <new>
+        34 [MsgSeqNum]:  2
+        37 [OrderID]:  01e01605-4541-4c98-a31c-90183ff89bc6
+        38 [OrderQty]:  1.00000000
+        39 [OrdStatus]:  0 <new>
+        44 [Price]:  100000.00000000
+        49 [SenderCompID]:  Coinbase
+        52 [SendingTime]:  20181226-01:04:58.234
+        54 [Side]:  2 <sell>
+        55 [Symbol]:  BTC-USD
+        56 [TargetCompID]:  388fb8d162b1df07a566ecb17442e685
+        60 [TransactTime]:  20181226-01:04:58.226
+        150 [ExecType]:  0 <new>
+        10 [CheckSum]:  121
+
+================================================================================
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Limit stop loss   limit_order('sell', 'BTC-USD', .001, 3.5, stop_price=4)
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+FIX Message 8 [Execution Report]
+        8 [BeginString]:  FIX.4.2
+        9 [BodyLength]:  302
+        35 [MsgType]:  8 <Execution Report>
+        11 [ClOrdID]:  ed6d9ee4-1f77-4e6d-83b1-20e1d5a40d98
+        17 [ExecID]:  ce22913b-05ec-417d-8603-7e348f5775ce
+        20 [ExecTransType]:  0 <new>
+        34 [MsgSeqNum]:  2
+        37 [OrderID]:  42b392d9-708d-4145-8a4d-62758396244d
+        38 [OrderQty]:  0.00100000
+        39 [OrdStatus]:  7 <stopped>
+        44 [Price]:  3.50000000
+        49 [SenderCompID]:  Coinbase
+        52 [SendingTime]:  20181226-01:12:23.922
+        54 [Side]:  2 <sell>
+        55 [Symbol]:  BTC-USD
+        56 [TargetCompID]:  388fb8d162b1df07a566ecb17442e685
+        60 [TransactTime]:  20181226-01:12:23.917
+        99 [StopPx]:  4.00000000
+        150 [ExecType]:  7 <stopped>
+        10 [CheckSum]:  138
+
+================================================================================
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Limit stop entry    limit_order('buy', 'BTC-USD', .005, 100000, stop_price=99900)
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+FIX Message 8 [Execution Report]
+        8 [BeginString]:  FIX.4.2
+        9 [BodyLength]:  311
+        35 [MsgType]:  8 <Execution Report>
+        11 [ClOrdID]:  70958827-2d01-48c9-ab86-099e16fadff7
+        17 [ExecID]:  75026fb1-98d8-4640-80e1-96604ebcfd16
+        20 [ExecTransType]:  0 <new>
+        34 [MsgSeqNum]:  2
+        37 [OrderID]:  8935e17e-85ef-4b23-b816-406c27fef77e
+        38 [OrderQty]:  0.00500000
+        39 [OrdStatus]:  7 <stopped>
+        44 [Price]:  100000.00000000
+        49 [SenderCompID]:  Coinbase
+        52 [SendingTime]:  20181226-01:18:44.776
+        54 [Side]:  1 <buy>
+        55 [Symbol]:  BTC-USD
+        56 [TargetCompID]:  388fb8d162b1df07a566ecb17442e685
+        60 [TransactTime]:  20181226-01:18:44.771
+        99 [StopPx]:  99900.00000000
+        150 [ExecType]:  7 <stopped>
+        10 [CheckSum]:  171
+
+================================================================================

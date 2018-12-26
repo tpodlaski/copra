@@ -131,12 +131,24 @@ class Client:
         """
         msg = Message.from_formatted(data)
 
-        if msg[35] == '8':              #execution report
+        if msg[35] == '8':              # execution report
         
-            print(msg, '\n')
+            #print(msg, '\n')
             
             try:
-                self.orders[msg[11]].fix_update(msg)
+                order_id = msg[11]      # new or rejected order - use client_oid
+            except KeyError:
+                order_id = msg[37]      # not a new or rejected order - use oid 
+            
+            try:
+                
+                order = self.orders[order_id]
+                
+                if msg[150] == '0':     # ExcecType new
+                    del self.orders[order_id]
+                    self.orders[msg[37]] = order
+                    
+                order.fix_update(msg)
                 
             except KeyError:
                 # log error message here
@@ -326,7 +338,7 @@ class Client:
         self.orders[order.client_oid] = order
         self.send(msg)
        
-        # Wait for the order to be received #
+        await order.received.wait()
         
         return order
         
@@ -365,7 +377,7 @@ class Client:
         self.orders[order.client_oid] = order
         self.send(msg)
        
-        # Wait for the order to be received #
+        await order.received.wait()
         
         return order
         

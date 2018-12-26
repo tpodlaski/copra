@@ -7,6 +7,7 @@ from decimal import Decimal
 import uuid
 
 from copra.message import Message
+from copra.names import VALUES
 
 class Order:
     """Base order class.
@@ -51,6 +52,8 @@ class Order:
         order.product_id = product_id
         msg[55] = product_id
         
+        order.id = None
+        order.status = None
         order.received = asyncio.Event()
         
         return order, msg
@@ -194,8 +197,11 @@ class Order:
             
         return (order, msg)
     
-    def fix_update(self,  msg):
-        pass
+    def fix_update(self, msg):
         
-    #     if msg[150] == '0':         #ExcecType new
-    #         self.received.set()
+        self.status = VALUES[39][msg[39]]
+        
+        if msg[150] == '0':
+            self.id = msg[37]
+            self.received.set()
+        
