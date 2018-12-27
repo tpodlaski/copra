@@ -321,4 +321,17 @@ class TestOrder(TestCase):
         self.assertEqual(order.filled_size, Decimal('.75'))
         self.assertEqual(order._executed_value, Decimal('2250.375'))
         self.assertEqual(order.executed_value, Decimal('2250.38'))
+
+        
+    def test_fix_update_done(self):
+        order, _ = Order.market_order(TEST_KEY, 1, 'buy', 'BTC-USD', 1)
+        self.assertIsNone(order.status)
+        self.assertFalse(order.done.is_set())
+        
+        msg = Message(TEST_KEY, 1, 8, {39: 3, 150: 3})
+        order.fix_update(msg)
+        
+        self.assertEqual(order.status, 'done')
+        self.assertTrue(order.done.is_set())
+        
         

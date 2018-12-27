@@ -225,3 +225,6 @@ class Order:
             price = Decimal(msg[31])  
             self.filled_size += size
             self._executed_value += size * price
+            
+        elif msg[150] == '3':       # ExecType done
+            self.done.set()

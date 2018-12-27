@@ -241,7 +241,29 @@ class TestFix(TestCase):
             self.assertEqual(order._executed_value, Decimal('2250.375'))
             self.assertEqual(order.executed_value, Decimal('2250.38'))
             
+
+    async def test_data_received_exec_report_done(self):
+        def receive_order(self, msg):
+            assigned_id = str(uuid.uuid4())
+            rec_msg = Message(TEST_KEY, 2, 8, {11: msg[11], 37: assigned_id,
+                                                             39: '0', 150: '0'})
+            self.data_received(bytes(rec_msg))
+
+        with patch.object(Client, 'send', autospec=True, side_effect=receive_order):
+            
+            client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+            order = await client.market_order('buy', 'BTC-USD', 1)
+            
+            self.assertEqual(order.status, 'new')
+            self.assertFalse(order.done.is_set())
+            
+            msg = Message(TEST_KEY, 1, 8, {39: 3, 150: 3, 37: order.id})
+            client.data_received(bytes(msg))
+            
+            self.assertEqual(order.status, 'done')
+            self.assertTrue(order.done.is_set())
         
+            
     def test_send(self):
         
         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
