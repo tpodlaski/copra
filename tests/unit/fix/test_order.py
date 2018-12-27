@@ -334,4 +334,15 @@ class TestOrder(TestCase):
         self.assertEqual(order.status, 'done')
         self.assertTrue(order.done.is_set())
         
+    
+    def test_fix_update_canceled(self):
+        order, _ = Order.limit_order(TEST_KEY, 1, 'buy', 'BTC-USD', 1, 10)
+        self.assertIsNone(order.status)
+        self.assertFalse(order.done.is_set())
+        
+        msg = Message(TEST_KEY, 1, 8, {39: 4, 150: 4})
+        order.fix_update(msg)
+        
+        self.assertEqual(order.status, 'canceled')
+        self.assertTrue(order.done.is_set())
         

@@ -228,3 +228,7 @@ class Order:
             
         elif msg[150] == '3':       # ExecType done
             self.done.set()
+            
+        elif msg[150] == '4':       # ExecType canceled
+            self.done.set()
+            

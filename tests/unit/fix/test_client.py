@@ -263,6 +263,28 @@ class TestFix(TestCase):
             self.assertEqual(order.status, 'done')
             self.assertTrue(order.done.is_set())
         
+
+    async def test_data_received_exec_report_canceled(self):
+        def receive_order(self, msg):
+            assigned_id = str(uuid.uuid4())
+            rec_msg = Message(TEST_KEY, 2, 8, {11: msg[11], 37: assigned_id,
+                                                             39: '0', 150: '0'})
+            self.data_received(bytes(rec_msg))
+
+        with patch.object(Client, 'send', autospec=True, side_effect=receive_order):
+            
+            client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+            order = await client.market_order('buy', 'BTC-USD', 1)
+            
+            self.assertEqual(order.status, 'new')
+            self.assertFalse(order.done.is_set())
+            
+            msg = Message(TEST_KEY, 1, 8, {39: 4, 150: 4, 37: order.id})
+            client.data_received(bytes(msg))
+            
+            self.assertEqual(order.status, 'canceled')
+            self.assertTrue(order.done.is_set())
+
             
     def test_send(self):
         
