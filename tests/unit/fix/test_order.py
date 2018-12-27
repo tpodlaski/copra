@@ -34,6 +34,9 @@ class TestOrder(TestCase):
         self.assertEqual(order.product_id, 'BTC-USD')
         self.assertIsNone(order.id)
         self.assertIsNone(order.status)
+        self.assertEqual(order.filled_size, Decimal('0'))
+        self.assertEqual(order._executed_value, Decimal('0'))
+        self.assertEqual(order.executed_value, Decimal('0'))
         self.assertFalse(order.received.is_set())
         self.assertFalse(order.done.is_set())
     
@@ -41,6 +44,26 @@ class TestOrder(TestCase):
         expected_msg[11] = msg[11]
         self.assertEqual(msg, expected_msg)
 
+    def test_executed_value(self):
+        order, _ = Order._create(TEST_KEY, 1, 'buy', 'BTC-USD')
+        self.assertEqual(order._executed_value, Decimal('0'))
+        self.assertEqual(order.executed_value, Decimal('0'))
+        
+        order._executed_value = Decimal('75.36')
+        self.assertEqual(order.executed_value, Decimal('75.36'))
+        
+        order._executed_value = Decimal('1000')
+        self.assertEqual(order.executed_value, Decimal('1000'))
+        
+        order._executed_value = Decimal('999.9')
+        self.assertEqual(order.executed_value, Decimal('999.9'))
+        
+        order._executed_value = Decimal('1.234')
+        self.assertEqual(order.executed_value, Decimal('1.24'))
+        
+        order._executed_value = Decimal('123.456')
+        self.assertEqual(order.executed_value, Decimal('123.46'))
+        
 
     def test_limit_order(self):
         
@@ -278,4 +301,24 @@ class TestOrder(TestCase):
         self.assertEqual(order.reject_reason, 'TOO LATE')
         self.assertTrue(order.received.is_set())
         self.assertTrue(order.done.is_set())
+        
+        
+    def test_fix_update_fill(self):
+        order, _ = Order.market_order(TEST_KEY, 1, 'buy', 'BTC-USD', 1)
+        
+        msg = Message(TEST_KEY, 1, 8, {39: 1, 150: 1, 31: 3000, 32: .5})
+        order.fix_update(msg)
+        
+        self.assertEqual(order.status, 'partially filled')
+        self.assertEqual(order.filled_size, Decimal('.5'))
+        self.assertEqual(order._executed_value, Decimal('1500'))
+        self.assertEqual(order.executed_value, Decimal('1500'))
+        
+        msg = Message(TEST_KEY, 2, 8, {39: 1, 150: 1, 31: 3001.50, 32: .25})
+        order.fix_update(msg)
+        
+        self.assertEqual(order.status, 'partially filled')
+        self.assertEqual(order.filled_size, Decimal('.75'))
+        self.assertEqual(order._executed_value, Decimal('2250.375'))
+        self.assertEqual(order.executed_value, Decimal('2250.38'))
         

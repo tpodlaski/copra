@@ -3,7 +3,7 @@
 """
 
 import asyncio
-from decimal import Decimal
+from decimal import Decimal, ROUND_CEILING
 import uuid
 
 from copra.message import Message
@@ -54,6 +54,8 @@ class Order:
         
         order.id = None
         order.status = None
+        order.filled_size = Decimal('0')
+        order._executed_value = Decimal('0')
         order.received = asyncio.Event()
         order.done = asyncio.Event()
         
@@ -198,6 +200,12 @@ class Order:
             
         return (order, msg)
     
+    
+    @property
+    def executed_value(self):
+        return Decimal(self._executed_value).quantize(Decimal('0.01'), rounding=ROUND_CEILING)
+
+    
     def fix_update(self, msg):
         
         self.status = VALUES[39][msg[39]]
@@ -211,4 +219,9 @@ class Order:
             self.reject_reason = msg[58]
             self.received.set()
             self.done.set()
-        
+            
+        elif msg[150] == '1':       # ExecType fill
+            size = Decimal(msg[32])
+            price = Decimal(msg[31])  
+            self.filled_size += size
+            self._executed_value += size * price
