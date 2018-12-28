@@ -6,6 +6,7 @@ import asyncio
 import base64
 import hashlib
 import hmac
+import logging
 import os
 import re
 import ssl
@@ -14,6 +15,7 @@ import time
 from copra.message import Message
 from copra.order import Order
 
+logger = logging.getLogger(__name__)
 
 URL = 'fix.pro.coinbase.com:4198'
 SANDBOX_URL = 'fix-public.sandbox.pro.coinbase.com:4198'
@@ -121,7 +123,8 @@ class Client:
         self.logged_in.clear()
         self.disconnected.set()
         self.logged_out.set()
-        print(f"connection to {self.host}:{self.port} closed")
+        logger.info("connection to {self.host}:{self.port} closed".format(
+                                                          self.host, self.port))
         
         
     def data_received(self, data):
@@ -134,8 +137,8 @@ class Client:
             
             msg = Message.from_formatted(f_msg)
     
-            #print(msg, '\n')
-            
+            logger.debug(msg)
+    
             if msg[35] == '8':              # execution report
             
                 try:
@@ -166,12 +169,24 @@ class Client:
             elif msg[35] == 'A':            #login
                 self.logged_in.set()
                 self.logged_out.clear()
-                print(f"logged in to {self.host}:{self.port}")
+                logger.info(f"logged in to {self.host}:{self.port}")
             
             elif msg[35] == '5':            #logout
                 self.logged_out.set()
                 self.logged_in.clear()
-                print(f"logged out of {self.host}:{self.port}")
+                logger.info(f"logged out of {self.host}:{self.port}")
+                
+            elif msg[35] == '9':            #cancel order reject
+                logger.warning("Order {} cancel failed.".format(msg[37]))
+            
+            elif msg[35] == '3':            #reject
+                reason = ''
+                if 58 in msg:
+                    reasson = ' ' + msg[38] + '.'
+                logger.warning("Message rejected.{}".format(reason))
+            
+            else:
+                logger.warning("Uncaught message:\n{}".format(msg))
             
         
     def send(self, msg):
@@ -205,15 +220,15 @@ class Client:
                     self.disconnected.clear()
                 
                 except asyncio.TimeoutError:
-                    print("Connection to {} timed out.".format(self.url))
+                    logger.warn("Connection to {} timed out.".format(self.url))
                     attempts += 1
                     continue
                     
-                print("connection made to {}".format(self.url))
+                logger.info("connection made to {}".format(self.url))
                 break
             
             else:
-                print("connection to {} failed.".format(self.url))
+                logger.error("connection to {} failed.".format(self.url))
                 return
     
             await self.login()

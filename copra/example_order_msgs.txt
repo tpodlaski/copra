@@ -463,3 +463,22 @@ FIX Message 8 [Execution Report]
         10 [CheckSum]:  171
 
 ================================================================================
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Order cancel reject
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+FIX Message 9 [Order Cancel Reject]
+        
+        8 [BeginString]:  FIX.4.2
+        9 [BodyLength]:  134
+        35 [MsgType]:  9 <Order Cancel Reject>
+        34 [MsgSeqNum]:  5
+        37 [OrderID]:  97e55fc9-7659-4400-97c0-433928786609
+        39 [OrdStatus]:  3 <done>
+        49 [SenderCompID]:  Coinbase
+        52 [SendingTime]:  20181228-14:36:10.562
+        56 [TargetCompID]:  388fb8d162b1df07a566ecb17442e685
+        434 [CxlRejResponseTo]:  1
+        10 [CheckSum]:  124
+================================================================================
+
