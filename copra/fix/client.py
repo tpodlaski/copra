@@ -12,8 +12,8 @@ import re
 import ssl
 import time
 
-from copra.message import Message
-from copra.order import Order
+from copra.fix.message import Message
+from copra.fix.order import Order
 
 logger = logging.getLogger(__name__)
 
@@ -123,8 +123,7 @@ class Client:
         self.logged_in.clear()
         self.disconnected.set()
         self.logged_out.set()
-        logger.info("connection to {self.host}:{self.port} closed".format(
-                                                          self.host, self.port))
+        logger.info("connection to {}:{} closed".format(self.host, self.port))
         
         
     def data_received(self, data):
@@ -220,7 +219,7 @@ class Client:
                     self.disconnected.clear()
                 
                 except asyncio.TimeoutError:
-                    logger.warn("Connection to {} timed out.".format(self.url))
+                    logger.warning("Connection to {} timed out.".format(self.url))
                     attempts += 1
                     continue
                     

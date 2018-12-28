@@ -12,9 +12,9 @@ import uuid
 
 from asynctest import TestCase, CoroutineMock, MagicMock, patch
 
-from copra.fix import Client, URL, SANDBOX_URL, CERT_FILE, SANDBOX_CERT_FILE
-from copra.message import Message
-from copra.order import Order
+from copra.fix.client import Client, URL, SANDBOX_URL, CERT_FILE, SANDBOX_CERT_FILE
+from copra.fix.message import Message
+from copra.fix.order import Order
 
 # These are made up
 TEST_KEY = 'a035b37f42394a6d343231f7f772b99d'
@@ -36,9 +36,9 @@ class TestFix(TestCase):
         self.assertEqual(URL, 'fix.pro.coinbase.com:4198')
         self.assertEqual(SANDBOX_URL, 'fix-public.sandbox.pro.coinbase.com:4198')
         self.assertEqual(CERT_FILE, os.path.join(os.getcwd(), 
-                                    'certs', 'fix.pro.coinbase.com.pem'))
+                                    'fix/certs', 'fix.pro.coinbase.com.pem'))
         self.assertEqual(SANDBOX_CERT_FILE, 
-                              os.path.join(os.getcwd(), 'certs', 
+                              os.path.join(os.getcwd(), 'fix/certs', 
                               'fix-public.sandbox.pro.coinbase.com.pem'))
                               
                               
@@ -287,8 +287,9 @@ class TestFix(TestCase):
 
 
     async def test_data_received_multiple_messages(self):
+        ret_msg = Message(TEST_KEY, 1, 8, {11: 'my order id', 37: '0', 150: '0'})
 
-        with patch('fix.Message.from_formatted') as patched:
+        with patch('copra.fix.message.Message.from_formatted', return_value=ret_msg) as patched:
             client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
             msg1 = Message(TEST_KEY, 1, 8, {11: 'my order id', 37: '0', 150: '0'})
             msg2 = Message(TEST_KEY, 2, 8, {11: 'my order id', 37: '3', 150: '3'})

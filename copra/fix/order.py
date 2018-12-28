@@ -6,8 +6,8 @@ import asyncio
 from decimal import Decimal, ROUND_CEILING
 import uuid
 
-from copra.message import Message
-from copra.names import VALUES
+from copra.fix.message import Message
+from copra.fix.names import VALUES
 
 class Order:
     """Base order class.

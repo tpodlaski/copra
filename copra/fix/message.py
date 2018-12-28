@@ -2,7 +2,7 @@
 """FIX message class for the Coinbase Pro platform.
 """
 
-from names import TYPES, TAGS, VALUES
+from copra.fix.names import TYPES, TAGS, VALUES
 
 class Message:
     """FIX message class.

@@ -8,8 +8,8 @@ import uuid
 
 from asynctest import TestCase
 
-from copra.message import Message
-from copra.order import Order
+from copra.fix.message import Message
+from copra.fix.order import Order
 
 
 # These are made up

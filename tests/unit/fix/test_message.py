@@ -5,7 +5,7 @@
 
 from asynctest import TestCase
 
-from copra.message import Message
+from copra.fix.message import Message
 
 # These are made up
 TEST_KEY = 'a035b37f42394a6d343231f7f772b99d'
