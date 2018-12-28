@@ -32,7 +32,7 @@ class Message:
         new_msg = cls(key, seq_num, msg_type, msg_dict)
 
         if new_msg[10] != checksum:
-            print('*************\n', msg_dict, '\n', new_msg, '\n***************\n')
+            #print('*************\n', msg.replace(chr(1), '|'), '\n', msg_dict, '\n', new_msg, '\n***************\n')
             raise ValueError('Checksum of the message is incorrect.')
         return new_msg
         

@@ -285,6 +285,16 @@ class TestFix(TestCase):
             self.assertEqual(order.status, 'canceled')
             self.assertTrue(order.done.is_set())
 
+
+    async def test_data_received_multiple_messages(self):
+
+        with patch('fix.Message.from_formatted') as patched:
+            client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+            msg1 = Message(TEST_KEY, 1, 8, {11: 'my order id', 37: '0', 150: '0'})
+            msg2 = Message(TEST_KEY, 2, 8, {11: 'my order id', 37: '3', 150: '3'})
+            combo = repr(msg1) + repr(msg2)
+            client.data_received(combo.encode('ascii'))
+            self.assertEqual(patched.call_count, 2)
             
     def test_send(self):
         
@@ -759,21 +769,23 @@ class TestFix(TestCase):
             self.assertEqual(actual_msg, expected_msg)
         
         
-    # async def test_cancel(self):
+    async def test_cancel(self):
 
-    #     client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
-    #     client.send = CoroutineMock()
-
-    #     order = await client.limit_order('buy', 'BTC-USD', 3.1, 1.14)
-    #     order.id = 'a_fake_order_id'
+        def receive_order(self, msg):
+            if 11 in msg:
+                assigned_id = str(uuid.uuid4())
+                rec_msg = Message(TEST_KEY, 2, 8, {11: msg[11], 37: assigned_id,
+                                                             39: '0', 150: '0'})
+                self.data_received(bytes(rec_msg))
         
-    #     with self.assertRaises(KeyError):
-    #         await client.cancel(order.id)
+        with patch.object(Client, 'send', autospec=True, side_effect=receive_order):
+                  
+            client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+
+            order = await client.limit_order('buy', 'BTC-USD', 3.1, 1.14)
+
+            await client.cancel(order.id)
             
-    #     client.orders[order.id] = order
-        
-    #     await client.cancel(order.id)
-        
-    #     expected_msg = Message(TEST_KEY, client.seq_num, 'F', {37: order.id})
-    #     actual_msg = client.send.call_args[0][0]
-    #     self.assertEqual(actual_msg, expected_msg)
+            expected_msg = Message(TEST_KEY, client.seq_num, 'F', {37: order.id})
+            actual_msg = client.send.call_args[0][1]
+            self.assertEqual(actual_msg, expected_msg)

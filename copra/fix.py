@@ -7,11 +7,12 @@ import base64
 import hashlib
 import hmac
 import os
+import re
 import ssl
 import time
 
-from message import Message
-from .order import Order
+from copra.message import Message
+from copra.order import Order
 
 
 URL = 'fix.pro.coinbase.com:4198'
@@ -129,46 +130,48 @@ class Client:
         :param bytes data: ascii-encoded byte string of key=value pairs
             representing the fix message.
         """
-        msg = Message.from_formatted(data)
-
-        if msg[35] == '8':              # execution report
-        
+        for f_msg in re.split(r'8=FIX\.4\.2.', data.decode('ascii'))[1:]:
+            
+            msg = Message.from_formatted(f_msg)
+    
             #print(msg, '\n')
             
-            try:
-                order_id = msg[11]      # new or rejected order - use client_oid
-            except KeyError:
-                order_id = msg[37]      # not a new or rejected order - use oid 
+            if msg[35] == '8':              # execution report
             
-            try:
+                try:
+                    order_id = msg[11]      # new or rejected order - use client_oid
+                except KeyError:
+                    order_id = msg[37]      # not a new or rejected order - use oid 
                 
-                order = self.orders[order_id]
-                
-                if msg[150] == '0' or msg[150] == '8':     # ExcecType new or rejected
-                    del self.orders[order_id]
-                    self.orders[msg[37]] = order
+                try:
                     
-                order.fix_update(msg)
-                
-            except KeyError:
-                # log error message here
+                    order = self.orders[order_id]
+                    
+                    if msg[150] == '0' or msg[150] == '8':     # ExcecType new or rejected
+                        del self.orders[order_id]
+                        self.orders[msg[37]] = order
+                        
+                    order.fix_update(msg)
+                    
+                except KeyError:
+                    # log error message here
+                    pass
+                    
+            elif msg[35] == '0':            #heartbeat
                 pass
-                
-        elif msg[35] == '0':            #heartbeat
-            pass
-        
-        elif msg[35] == '1':            #test
-            self.heartbeat(msg[112])
-        
-        elif msg[35] == 'A':            #login
-            self.logged_in.set()
-            self.logged_out.clear()
-            print(f"logged in to {self.host}:{self.port}")
-        
-        elif msg[35] == '5':            #logout
-            self.logged_out.set()
-            self.logged_in.clear()
-            print(f"logged out of {self.host}:{self.port}")
+            
+            elif msg[35] == '1':            #test
+                self.heartbeat(msg[112])
+            
+            elif msg[35] == 'A':            #login
+                self.logged_in.set()
+                self.logged_out.clear()
+                print(f"logged in to {self.host}:{self.port}")
+            
+            elif msg[35] == '5':            #logout
+                self.logged_out.set()
+                self.logged_in.clear()
+                print(f"logged out of {self.host}:{self.port}")
             
         
     def send(self, msg):
