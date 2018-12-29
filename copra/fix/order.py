@@ -240,7 +240,7 @@ class Order:
         if self.stop_price:
             str_ += ' <stop: ${}>'.format(self.stop_price)
         
-        str_ = '{:<76} [{}]\n'.format(str_, self.status[0].upper())
+        str_ = '{:<76} [{}]\n'.format(str_, self.status[0].upper() if self.status else 'None')
         
         if not (self.status == 'new' or self.status == 'stopped' or self.status == 'rejected'):
             str_ += '-' * 80 + '\n'
@@ -250,7 +250,10 @@ class Order:
                                             self.executed_value, self.avg_price)
         
         str_ += '-' * 80 + '\n'
-        str_ += '{:>80}'.format('ID: ' + self.id)
+        if self.id:
+            str_ += '{:>80}'.format('ID: ' + self.id)
+        else:
+            str_ += '{:>80}'.format('Client OID: ' + self.client_oid)
         
         return str_
         
