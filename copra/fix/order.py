@@ -203,8 +203,8 @@ class Order:
             msg[152] = str(order.funds)
             
         return (order, msg)
-    
-    
+
+
     @property
     def executed_value(self):
         return self._executed_value.quantize(Decimal('0.01'), rounding=ROUND_CEILING)
@@ -235,27 +235,22 @@ class Order:
         else:
             size_price = '{} {} @ ${}'.format(self.size, self.product_id, self.price)
             
-        stop = ''
+        str_ = '{} {} {}'.format(self.type.upper(), self.side.upper(), size_price)
         if self.stop_price:
-            stop = '<stop: ${}>'.format(self.stop_price)
-            
-        status = '[{}]'.format(self.status)
+            str_ += ' <stop: ${}>'.format(self.stop_price)
         
-        str_ = '{} {}  {}  {}'.format(self.type.upper(), self.side.upper(), size_price, stop)
-        spacer = 80 - len(str_) - len(status)
-        str_ += ' ' * spacer + status + '\n'
+        str_ = '{:<76} [{}]\n'.format(str_, self.status[0].upper())
+        
+        if not (self.status == 'new' or self.status == 'stopped' or self.status == 'rejected'):
+            str_ += '-' * 80 + '\n'
+            str_ += '     Filled: {:<11.8}\tRemaining: {:<11.8}\n'.format(self.filled_size, self.remaining.normalize())
+            str_ += ' Exec Value: ${:<10}\tAvg Price: ${}\n'.format(self.executed_value, self.avg_price)
         
         str_ += '-' * 80 + '\n'
-        str_ += ' Size: {} filled / {} remaining\n'.format(self.filled_size.normalize(), self.remaining.normalize())
-        # str_ += ' Filled Size: {: >11.8}  Executed Value: ${}   Avg Price: ${}\n'.format(self.filled_size.normalize(), self.executed_value, self.avg_price)
-        # str_ += '   Remaining: {: >11.8}'.format(self.remaining.normalize())
-        # # str_ = '{} {}  ::  {}{}\n'.format(self.type.upper(), self.side.upper(), size_price, stop)
-        # str_ += 'Filled Size: {}   Executed Value: ${}   Remaining: {}{}\n'.format(
-        #               self.filled_size, self.executed_value, '$' if (self.type == 'market' or self.type == 'stop market') and self.funds else '',
-        #               self.remaining)
-        # str_ += '   Order ID: {}    [{}]'.format(self.id, self.status)
+        str_ += '{:>80}'.format('ID: ' + self.id)
+        
         return str_
-
+        
    
     def fix_update(self, msg):
         
