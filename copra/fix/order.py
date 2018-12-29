@@ -56,6 +56,7 @@ class Order:
         order.status = None
         order.filled_size = Decimal('0')
         order._executed_value = Decimal('0')
+        order.last_fill = Decimal('0')
         order.received = asyncio.Event()
         order.done = asyncio.Event()
         
@@ -243,8 +244,10 @@ class Order:
         
         if not (self.status == 'new' or self.status == 'stopped' or self.status == 'rejected'):
             str_ += '-' * 80 + '\n'
-            str_ += '     Filled: {:<11.8}\tRemaining: {:<11.8}\n'.format(self.filled_size, self.remaining.normalize())
-            str_ += ' Exec Value: ${:<10}\tAvg Price: ${}\n'.format(self.executed_value, self.avg_price)
+            str_ += '     Filled: {:<11.8}\tRemaining: {:<11.8}\tLast: {:<11.8}\n'.format(
+                   self.filled_size, self.remaining.normalize(), self.last_fill)
+            str_ += ' Exec Value: ${:<10}\tAvg Price: ${}\n'.format(
+                                            self.executed_value, self.avg_price)
         
         str_ += '-' * 80 + '\n'
         str_ += '{:>80}'.format('ID: ' + self.id)
@@ -271,6 +274,7 @@ class Order:
             price = Decimal(msg[31])  
             self.filled_size += size
             self._executed_value += size * price
+            self.last_fill = size
             
         elif msg[150] == '3':       # ExecType done
             self.done.set()
