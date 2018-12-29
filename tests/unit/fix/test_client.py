@@ -112,7 +112,7 @@ class TestFix(TestCase):
         
     
     def test_connection_lost(self):
-        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
+        client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE, reconnect=False)
         
         client.connected.set()
         client.logged_in.set()
@@ -208,6 +208,7 @@ class TestFix(TestCase):
         self.assertEqual(order.reject_reason, 'TOO LATE')
         self.assertTrue(order.received.is_set())
         self.assertTrue(order.done.is_set())
+        
         
     async def test_data_received_exec_report_fill(self):
         def receive_order(self, msg):
@@ -316,23 +317,17 @@ class TestFix(TestCase):
         client.login = CoroutineMock()
         client.keep_alive = CoroutineMock()
         
-        def test():
-            self.loop.create_connection.assert_called_with(client,
-                                                  'fix.pro.coinbase.com', 4198, 
-                                                  ssl=client.ssl_context)
-            self.assertTrue(client.connected.is_set())
-            self.assertFalse(client.disconnected.is_set())
-            client.login.assert_called()
-            client.keep_alive.assert_called()
-            self.assertFalse(client.is_closing)
-            
-            client.is_closing = True
-            client.connection_lost()
-
-        self.loop.call_later(1, test)
-
         await client.connect()
-
+        
+        self.loop.create_connection.assert_called_with(client,
+                                              'fix.pro.coinbase.com', 4198, 
+                                              ssl=client.ssl_context)
+        self.assertTrue(client.connected.is_set())
+        self.assertFalse(client.disconnected.is_set())
+        client.login.assert_called()
+        client.keep_alive.assert_called()
+        self.assertFalse(client.is_closing)
+            
 
     async def test_connect_connect_attempts(self):
         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE,
@@ -372,38 +367,30 @@ class TestFix(TestCase):
         client.login = CoroutineMock()
         client.keep_alive = CoroutineMock()
 
-        def test():
-            self.loop.create_connection.assert_called_with(client,
-                                                  'fix.pro.coinbase.com', 4198, 
-                                                  ssl=client.ssl_context)
-            self.assertTrue(client.connected.is_set())
-            self.assertFalse(client.disconnected.is_set())
-            client.login.assert_called()
-            client.keep_alive.assert_called()
-            self.assertFalse(client.is_closing)
-            
-            client.connection_lost()
-            
-            self.loop.call_later(1, test2)
-            
-        def test2():
-            self.loop.create_connection.assert_called_with(client,
-                                                  'fix.pro.coinbase.com', 4198, 
-                                                  ssl=client.ssl_context)
-            self.assertEqual(self.loop.create_connection.call_count, 2)
-            self.assertTrue(client.connected.is_set())
-            self.assertFalse(client.disconnected.is_set())
-            client.login.assert_called()
-            client.keep_alive.assert_called()
-            self.assertFalse(client.is_closing)
-            
-            client.is_closing = True
-            client.connection_lost()            
-            
-
-        self.loop.call_later(1, test)        
-
         await client.connect()
+
+        self.loop.create_connection.assert_called_with(client,
+                                              'fix.pro.coinbase.com', 4198, 
+                                              ssl=client.ssl_context)
+        self.assertTrue(client.connected.is_set())
+        self.assertFalse(client.disconnected.is_set())
+        client.login.assert_called()
+        client.keep_alive.assert_called()
+        self.assertFalse(client.is_closing)
+        
+        client.connection_lost()
+            
+        await asyncio.sleep(1)
+
+        self.loop.create_connection.assert_called_with(client,
+                                              'fix.pro.coinbase.com', 4198, 
+                                              ssl=client.ssl_context)
+        self.assertEqual(self.loop.create_connection.call_count, 2)
+        self.assertTrue(client.connected.is_set())
+        self.assertFalse(client.disconnected.is_set())
+        client.login.assert_called()
+        client.keep_alive.assert_called()
+        self.assertFalse(client.is_closing)
 
 
     async def test_close(self):
@@ -785,6 +772,8 @@ class TestFix(TestCase):
 
             order = await client.limit_order('buy', 'BTC-USD', 3.1, 1.14)
 
+            order.done.set()
+    
             await client.cancel(order.id)
             
             expected_msg = Message(TEST_KEY, client.seq_num, 'F', {37: order.id})

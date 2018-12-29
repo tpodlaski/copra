@@ -124,7 +124,15 @@ class Client:
         self.logged_in.clear()
         self.disconnected.set()
         self.logged_out.set()
-        logger.info("connection to {}:{} closed".format(self.host, self.port))
+        
+        if self.is_closing:
+            logger.info("connection to {}:{} closed".format(self.host, 
+                                                                     self.port))
+        else:
+            logger.warning("connection to {}:{} unexpectedly closed".format(
+                                                          self.host, self.port))
+            if self.reconnect:
+                self.loop.create_task(self.connect())
         
         
     def data_received(self, data):
@@ -156,7 +164,7 @@ class Client:
                         
                     order.fix_update(msg)
                     
-                    logging.info('\n\n{}'.format(order))
+                    logging.info('\n{}\n'.format(order))
                     
                 except KeyError:
                     # log error message here
@@ -202,45 +210,37 @@ class Client:
     async def connect(self):
         """Open a connection with FIX server.
         
-        Connects to the FIX server, logs in, starts the keep alive task, and
-        waits for the client to be disconnected.
+        Connects to the FIX server, logs in, starts the keep alive task.
         """
         
-        while True:
+        self.is_closing = False
         
-            self.is_closing = False
+        attempts = 0
+        
+        while attempts < self.max_connect_attempts:
+            try: 
+                (self.transport, _) = await asyncio.wait_for(
+                            self.loop.create_connection(self, self.host, self.port,
+                                       ssl=self.ssl_context), self.connect_timeout)
+                                       
+                self.connected.set()
+                self.disconnected.clear()
             
-            attempts = 0
-            
-            while attempts < self.max_connect_attempts:
-                try: 
-                    (self.transport, _) = await asyncio.wait_for(
-                                self.loop.create_connection(self, self.host, self.port,
-                                           ssl=self.ssl_context), self.connect_timeout)
-                                           
-                    self.connected.set()
-                    self.disconnected.clear()
+            except asyncio.TimeoutError:
+                logger.warning("Connection to {} timed out.".format(self.url))
+                attempts += 1
+                continue
                 
-                except asyncio.TimeoutError:
-                    logger.warning("Connection to {} timed out.".format(self.url))
-                    attempts += 1
-                    continue
-                    
-                logger.info("connection made to {}".format(self.url))
-                break
-            
-            else:
-                logger.error("connection to {} failed.".format(self.url))
-                return
-    
-            await self.login()
-            
-            self.keep_alive_task = self.loop.create_task(self.keep_alive())
-            
-            await self.disconnected.wait()
+            logger.info("connection made to {}".format(self.url))
+            break
         
-            if self.is_closing or not self.reconnect:
-                break
+        else:
+            logger.error("connection to {} failed.".format(self.url))
+            return
+
+        await self.login()
+        
+        self.keep_alive_task = self.loop.create_task(self.keep_alive())
             
             
     async def close(self):
@@ -415,3 +415,5 @@ class Client:
         
         order = self.orders[order_id]
         self.send(Message(self.key, self.seq_num, 'F', {37: order.id}))
+        
+        await order.done.wait()
