@@ -64,7 +64,50 @@ class TestOrder(TestCase):
         order._executed_value = Decimal('123.456')
         self.assertEqual(order.executed_value, Decimal('123.46'))
         
+    
+    def test_remaining(self):
+        order, _ = Order.market_order(TEST_KEY, 1, 'buy', 'BTC-USD', 1.75)
+        self.assertEqual(order.size, Decimal('1.75'))
+        self.assertEqual(order.filled_size, Decimal('0'))
+        self.assertEqual(order.remaining, Decimal('1.75'))
+        order.filled_size = Decimal('.8')
+        self.assertEqual(order.remaining, Decimal('0.95'))
+        order.filled_size = Decimal('1.75')
+        self.assertEqual(order.remaining, 0)
+        
+        order, _ = Order.market_order(TEST_KEY, 2, 'buy', 'BTC-USD', 1.80, stop_price=3000)
+        order.filled_size = Decimal('.55')
+        self.assertEqual(order.remaining, Decimal('1.25'))
+        order.filled_size = Decimal('1.8')
+        self.assertEqual(order.remaining, 0)
+        
+        order, _ = Order.market_order(TEST_KEY, 3, 'buy', 'BTC-USD', funds=500.75)
+        self.assertEqual(order.funds, Decimal('500.75'))
+        self.assertEqual(order.filled_size, Decimal('0'))
+        self.assertEqual(order.remaining, Decimal('500.75'))
+        order._executed_value = Decimal('200.30')
+        self.assertEqual(order.remaining, Decimal('300.45'))
+        order._executed_value = Decimal('500.75')
+        self.assertEqual(order.remaining, 0)
+        
+        order, _ = Order.limit_order(TEST_KEY, 4, 'sell', 'BTC-USD', 5.83, 2500)
+        self.assertEqual(order.size, Decimal('5.83'))
+        self.assertEqual(order.filled_size, Decimal('0'))
+        self.assertEqual(order.remaining, Decimal('5.83'))
+        order.filled_size = Decimal('3.21')
+        self.assertEqual(order.remaining, Decimal('2.62'))
+        order.filled_size = Decimal('5.83')
+        self.assertEqual(order.remaining, 0)
 
+        
+    def test_avg_price(self):
+        order, _ = Order.market_order(TEST_KEY, 1, 'buy', 'BTC-USD', 4)
+        self.assertEqual(order.avg_price, 0)
+        order.filled_size = Decimal('2')
+        order._executed_value = Decimal('3200.50')
+        self.assertEqual(order.avg_price, Decimal('1600.25'))
+
+        
     def test_limit_order(self):
         
         # Invalid side

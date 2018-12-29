@@ -119,6 +119,7 @@ class Order:
             
         else:
             order.type = 'limit'
+            order.stop_price = None
             msg[40] = '2'
             
         order.size = Decimal(str(size))
@@ -188,14 +189,17 @@ class Order:
             
         else:
             order.type = 'market'
+            order.stop_price = None
             msg[40] = '1'
         
         if size:
             order.size = Decimal(str(size))
+            order.funds = None
             msg[38] = str(order.size)
             
         if funds:
             order.funds = Decimal(str(funds))
+            order.size = None
             msg[152] = str(order.funds)
             
         return (order, msg)
@@ -203,9 +207,56 @@ class Order:
     
     @property
     def executed_value(self):
-        return Decimal(self._executed_value).quantize(Decimal('0.01'), rounding=ROUND_CEILING)
+        return self._executed_value.quantize(Decimal('0.01'), rounding=ROUND_CEILING)
+
+
+    @property
+    def remaining(self):
+        if (self.type == 'market' or self.type == 'stop market') and self.funds:
+            return self.funds - self.executed_value
+        return self.size - self.filled_size
+    
+        
+    @property
+    def avg_price(self):
+        if not self.filled_size:
+            avg = Decimal('0')
+        else:
+            avg = self.executed_value / self.filled_size
+        return avg.quantize(Decimal('0.01'), rounding=ROUND_CEILING)
 
     
+    def __str__(self):
+        if self.type == 'market' or self.type == 'stop market':
+            if self.size:
+                size_price = '{} {}'.format(self.size, self.product_id)
+            else:
+                size_price = '${} {}'.format(self.funds, self.product_id)
+        else:
+            size_price = '{} {} @ ${}'.format(self.size, self.product_id, self.price)
+            
+        stop = ''
+        if self.stop_price:
+            stop = '<stop: ${}>'.format(self.stop_price)
+            
+        status = '[{}]'.format(self.status)
+        
+        str_ = '{} {}  {}  {}'.format(self.type.upper(), self.side.upper(), size_price, stop)
+        spacer = 80 - len(str_) - len(status)
+        str_ += ' ' * spacer + status + '\n'
+        
+        str_ += '-' * 80 + '\n'
+        str_ += ' Size: {} filled / {} remaining\n'.format(self.filled_size.normalize(), self.remaining.normalize())
+        # str_ += ' Filled Size: {: >11.8}  Executed Value: ${}   Avg Price: ${}\n'.format(self.filled_size.normalize(), self.executed_value, self.avg_price)
+        # str_ += '   Remaining: {: >11.8}'.format(self.remaining.normalize())
+        # # str_ = '{} {}  ::  {}{}\n'.format(self.type.upper(), self.side.upper(), size_price, stop)
+        # str_ += 'Filled Size: {}   Executed Value: ${}   Remaining: {}{}\n'.format(
+        #               self.filled_size, self.executed_value, '$' if (self.type == 'market' or self.type == 'stop market') and self.funds else '',
+        #               self.remaining)
+        # str_ += '   Order ID: {}    [{}]'.format(self.id, self.status)
+        return str_
+
+   
     def fix_update(self, msg):
         
         self.status = VALUES[39][msg[39]]

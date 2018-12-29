@@ -13,6 +13,7 @@ import ssl
 import time
 
 from copra.fix.message import Message
+from copra.fix.names import VALUES
 from copra.fix.order import Order
 
 logger = logging.getLogger(__name__)
@@ -154,6 +155,8 @@ class Client:
                         self.orders[msg[37]] = order
                         
                     order.fix_update(msg)
+                    
+                    logging.info('\n\n{}'.format(order))
                     
                 except KeyError:
                     # log error message here
