@@ -146,7 +146,8 @@ class Client:
             msg = Message.from_formatted(f_msg)
     
             logger.debug(msg)
-    
+            #print(msg)
+
             if msg[35] == '8':              # execution report
             
                 try:
@@ -155,10 +156,9 @@ class Client:
                     order_id = msg[37]      # not a new or rejected order - use oid 
                 
                 try:
-                    
                     order = self.orders[order_id]
-                    
-                    if msg[150] == '0' or msg[150] == '8':     # ExcecType new or rejected
+
+                    if msg[150] == '0' or msg[150] == '7' or msg[150] == '8':     # ExcecType new, rejected or stopped
                         del self.orders[order_id]
                         self.orders[msg[37]] = order
                         
@@ -319,6 +319,10 @@ class Client:
                 await asyncio.wait_for(self.logged_out.wait(), interval)
             except asyncio.TimeoutError:
                 await self.heartbeat()
+            except asyncio.CancelledError:
+                self.keep_alive_task = None
+                raise
+        self.keep_alive_task = None
 
 
     async def limit_order(self, side, product_id, size, price, 

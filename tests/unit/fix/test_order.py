@@ -327,7 +327,25 @@ class TestOrder(TestCase):
         self.assertTrue(order.received.is_set())
         self.assertFalse(order.done.is_set())
         
+
+    def test_fix_update_stopped(self):
+        order, _ = Order.market_order(TEST_KEY, 1, 'buy', 'BTC-USD', .001, 
+                                                               stop_price=10000)
+        self.assertIsNone(order.id)
+        self.assertIsNone(order.status)
+        self.assertFalse(order.received.is_set())
+        self.assertFalse(order.done.is_set())
+
+        assigned_id = str(uuid.uuid4())
+        msg = Message(TEST_KEY, 2, 8, {37: assigned_id, 39: '7', 150: '7'})
+        order.fix_update(msg)
         
+        self.assertEqual(order.id, assigned_id)
+        self.assertEqual(order.status, 'stopped')
+        self.assertTrue(order.received.is_set())
+        self.assertFalse(order.done.is_set())
+        
+                
     def test_fix_update_rejected(self):
         order, _ = Order.market_order(TEST_KEY, 1, 'buy', 'BTC-USD', .001)
         self.assertIsNone(order.id)

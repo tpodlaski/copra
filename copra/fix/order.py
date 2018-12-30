@@ -234,9 +234,11 @@ class Order:
             else:
                 size_price = '${} {}'.format(self.funds, self.product_id)
         else:
-            size_price = '{} {} @ ${}'.format(self.size, self.product_id, self.price)
-            
+            size_price = '{} {} @ ${:.2f}'.format(self.size, self.product_id, self.price )
+
         str_ = '{} {} {}'.format(self.type.upper(), self.side.upper(), size_price)
+        if self.type == 'limit' or self.type == 'stop limit':
+            str_ += ' ({})'.format(self.time_in_force)
         if self.stop_price:
             str_ += ' <stop: ${}>'.format(self.stop_price)
         
@@ -248,7 +250,10 @@ class Order:
                    self.filled_size, self.remaining.normalize(), self.last_fill)
             str_ += ' Exec Value: ${:<10}\tAvg Price: ${}\n'.format(
                                             self.executed_value, self.avg_price)
-        
+        if self.status == 'rejected':
+            str_ += '-' * 80 + '\n'
+            str_ += 'Reject Reason: {}\n'.format(self.reject_reason)
+            
         str_ += '-' * 80 + '\n'
         if self.id:
             str_ += '{:>80}'.format('ID: ' + self.id)
@@ -262,7 +267,7 @@ class Order:
         
         self.status = VALUES[39][msg[39]]
         
-        if msg[150] == '0':         # ExecType new
+        if msg[150] == '0' or msg[150] == '7': # ExecType new or stopped
             self.id = msg[37]
             self.received.set()
             
