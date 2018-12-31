@@ -146,9 +146,9 @@ class TestFix(TestCase):
         self.assertFalse(client.logged_in.is_set())
         
         
-    async def test_data_received_test(self):
+    def test_data_received_test(self):
         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
-        client.heartbeat = CoroutineMock()
+        client.heartbeat = MagicMock()
         resp_msg = Message(TEST_KEY, 45, '1', {112: '999'})
         client.data_received(bytes(resp_msg))
         client.heartbeat.assert_called_with('999')
@@ -445,14 +445,14 @@ class TestFix(TestCase):
         self.assertTrue(client.logged_out.is_set())
     
     
-    async def test_heartbeat(self):
+    def test_heartbeat(self):
         client = Client(self.loop, TEST_KEY, TEST_SECRET, TEST_PASSPHRASE)
         client.send = MagicMock()
 
-        await client.heartbeat()
+        client.heartbeat()
         client.send.assert_called_with(Message(TEST_KEY, 1, '0'))
 
-        await client.heartbeat(333)
+        client.heartbeat(333)
         
         client.send.assert_called_with(Message(TEST_KEY, 2, '0', {112: 333}))
         

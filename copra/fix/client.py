@@ -293,7 +293,7 @@ class Client:
         await self.logged_out.wait()
         
         
-    async def heartbeat(self, test_req_id=None):
+    def heartbeat(self, test_req_id=None):
         """Send a heartbeat message
         
         :param str test_req_id: (optional) The test request id if there was one 
@@ -318,7 +318,7 @@ class Client:
             try:
                 await asyncio.wait_for(self.logged_out.wait(), interval)
             except asyncio.TimeoutError:
-                await self.heartbeat()
+                self.heartbeat()
             except asyncio.CancelledError:
                 self.keep_alive_task = None
                 raise
