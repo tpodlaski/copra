@@ -274,7 +274,7 @@ class Client(WebSocketClientFactory):
             self.protocol.sendMessage(msg)
 
     def unsubscribe(self, channels):
-        """Unsubscribe from the given channels.
+        """Unsubscribe from the given channels. 
         
         :param channels: The channels to subscribe to.
         :type channels: Channel or list of Channels
