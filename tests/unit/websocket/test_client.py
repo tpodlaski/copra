@@ -7,8 +7,8 @@ import asyncio
 import json
 import unittest
 
-from copra.websocket.channel import Channel
-from copra.websocket.client import ClientProtocol, Client, SANDBOX_FEED_URL
+from copra.websocket import Channel, Client, SANDBOX_FEED_URL
+from copra.websocket.client import ClientProtocol
 
 
 class TestClientProtocol(unittest.TestCase):
