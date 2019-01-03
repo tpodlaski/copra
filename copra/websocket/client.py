@@ -268,7 +268,8 @@ class Client(WebSocketClientFactory):
         :param reason: Close reason as sent by the WebSocket peer.
         :type reason: str or None
         """
-        self.connected = False
+        self.connected.clear()
+        self.disconnected.set()
 
         msg = '{} connection to {} {}closed. {}'
         expected = 'unexpectedly ' if self.closing is False else ''

@@ -261,3 +261,27 @@ class TestClient(TestCase):
         self.assertFalse(client.closing)
         client.protocol.sendMessage.assert_called_with(msg)
         
+    def test_on_close(self):
+        channel1 = Channel('heartbeat', ['BTC-USD', 'LTC-USD', 'LTC-EUR'])
+        client = Client(self.loop, [channel1], auto_connect=False)
+        client.add_as_task_to_loop = MagicMock()
+        client.connected.set()
+        client.disconnected.clear()
+        client.closing = True
+        
+        client.on_close(True, None, None)
+        self.assertFalse(client.connected.is_set())
+        self.assertTrue(client.disconnected.is_set())
+        self.assertTrue(client.closing)
+        client.add_as_task_to_loop.assert_not_called()
+        
+        client.connected.set()
+        client.disconnected.clear()
+        client.closing = False
+        
+        client.on_close(True, None, None)
+        self.assertFalse(client.connected.is_set())
+        self.assertTrue(client.disconnected.is_set())
+        self.assertFalse(client.closing)
+        client.add_as_task_to_loop.assert_called_once()
+        
