@@ -247,7 +247,8 @@ class Client(WebSocketClientFactory):
         The WebSocket is open. This method sends the subscription message to
         the server.
         """
-        self.connected = True
+        self.connected.set()
+        self.disconnected.clear()
         self.closing = False
         logger.info('{} connected to {}'.format(self.name, self.url))
         msg = self._get_subscribe_message(self.channels.values())

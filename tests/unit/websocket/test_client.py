@@ -242,5 +242,22 @@ class TestClient(TestCase):
         
         url = urlparse(FEED_URL)
         client.loop.create_connection.assert_called_with(client, url.hostname, url.port, ssl=True)
+
         
-    
+    def test_on_open(self):
+        channel1 = Channel('heartbeat', ['BTC-USD', 'LTC-USD', 'LTC-EUR'])
+        channel2 = Channel('level2', ['LTC-USD'])
+        client = Client(self.loop, [channel1, channel2], auto_connect=False)
+        client.protocol.sendMessage = MagicMock()
+        self.assertFalse(client.connected.is_set())
+        self.assertTrue(client.disconnected.is_set())
+        self.assertFalse(client.closing)
+        
+        msg = client._get_subscribe_message(client.channels.values())
+        client.on_open()
+        
+        self.assertTrue(client.connected.is_set())
+        self.assertFalse(client.disconnected.is_set())
+        self.assertFalse(client.closing)
+        client.protocol.sendMessage.assert_called_with(msg)
+        
