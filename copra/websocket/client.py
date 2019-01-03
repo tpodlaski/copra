@@ -117,9 +117,14 @@ class Client(WebSocketClientFactory):
         :raises ValueError: If auth is True and key, secret, and passphrase are
             not provided.
         """
-        self.connected = False
 
         self.loop = loop
+        
+        self.connected = asyncio.Event()
+        self.disconnected = asyncio.Event()
+        self.disconnected.set()
+        self.closing = False
+        
         if not isinstance(channels, list):
             channels = [channels]
 
@@ -142,11 +147,11 @@ class Client(WebSocketClientFactory):
         self.name = name
 
         super().__init__(self.feed_url)
-
+        
         if self.auto_connect:
             self.add_as_task_to_loop()
 
-    def _get_subscribe_message(self, channels, unsubscribe=False):
+    def _get_subscribe_message(self, channels, unsubscribe=False, timestamp=None):
         """Create and return the subscription message for the provided channels.
         
         :param channels: List of channels to be subscribed to.
@@ -163,7 +168,8 @@ class Client(WebSocketClientFactory):
                'channels': [channel._as_dict() for channel in channels]}
 
         if self.auth:
-            timestamp = str(time.time())
+            if not timestamp:
+                timestamp = str(time.time())
             message = timestamp + 'GET' + '/users/self/verify'
             message = message.encode('ascii')
             hmac_key = base64.b64decode(self.secret)
@@ -200,7 +206,7 @@ class Client(WebSocketClientFactory):
                 self.channels[channel.name] = channel
                 sub_channels.append(channel)
 
-        if self.connected:
+        if self.connected.is_set():
             msg = self._get_subscribe_message(sub_channels)
             self.protocol.sendMessage(msg)
 
@@ -219,7 +225,7 @@ class Client(WebSocketClientFactory):
                 if not self.channels[channel.name]:
                     del self.channels[channel.name]
 
-        if self.connected:
+        if self.connected.is_set():
             msg = self._get_subscribe_message(channels, unsubscribe=True)
             self.protocol.sendMessage(msg)
 

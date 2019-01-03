@@ -5,38 +5,44 @@
 
 import asyncio
 import json
-import unittest
+from urllib.parse import urlparse
 
-from copra.websocket import Channel, Client, SANDBOX_FEED_URL
+from asynctest import TestCase, patch, CoroutineMock, MagicMock
+
+from copra.websocket import Channel, Client, FEED_URL, SANDBOX_FEED_URL
 from copra.websocket.client import ClientProtocol
 
+# These are made up
+TEST_KEY = 'a035b37f42394a6d343231f7f772b99d'
+TEST_SECRET = 'aVGe54dHHYUSudB3sJdcQx4BfQ6K5oVdcYv4eRtDN6fBHEQf5Go6BACew4G0iFjfLKJHmWY5ZEwlqxdslop4CC=='
+TEST_PASSPHRASE = 'a2f9ee4dx2b'
 
-class TestClientProtocol(unittest.TestCase):
-    """Tests for cbprotk.websocket.ClientProtocol"""
+
+# class TestClientProtocol(unittest.TestCase):
+#     """Tests for cbprotk.websocket.ClientProtocol"""
+
+#     def setUp(self):
+#         """Set up test fixtures, if any."""
+
+#     def tearDown(self):
+#         """Tear down test fixtures, if any."""
+
+#     def test__init__(self):
+#         pass
+    
+#     def test___call__(self):
+#         prot = ClientProtocol()
+#         self.assertIs(prot(), prot)    
+    
+
+class TestClient(TestCase):
+    """Tests for copra.websocket.client.Client"""
 
     def setUp(self):
-        """Set up test fixtures, if any."""
-
-    def tearDown(self):
-        """Tear down test fixtures, if any."""
-
-    def test__init__(self):
         pass
-    
-    def test___call__(self):
-        prot = ClientProtocol()
-        self.assertIs(prot(), prot)    
-    
-
-class TestClient(unittest.TestCase):
-    """Tests for cbprotk.websocket.ClientProtocol"""
-
-    def setUp(self):
-        asyncio.set_event_loop(asyncio.new_event_loop())
-        self.loop = asyncio.get_event_loop()
 
     def tearDown(self):
-        self.loop.close()
+        pass
 
     def test__init__(self):
         channel1 = Channel('heartbeat', ['BTC-USD', 'LTC-USD'])
@@ -93,29 +99,80 @@ class TestClient(unittest.TestCase):
                             passphrase='MyPassphrase', auto_connect=False)
                             
         #auth, key, secret, passphrase
-        client = Client(self.loop, channel1, auth=True, key='MyKey', 
-                        secret='MySecret', passphrase='MyPassphrase', auto_connect=False)
+        client = Client(self.loop, channel1, auth=True, key=TEST_KEY, 
+                        secret=TEST_SECRET, passphrase=TEST_PASSPHRASE, 
+                        auto_connect=False, auto_reconnect=False)
+        self.assertEqual(client.loop, self.loop)
+        self.assertEqual(client._initial_channels, [channel1])
+        self.assertEqual(client.feed_url, FEED_URL)
+        self.assertEqual(client.channels, {channel1.name: channel1})
         self.assertTrue(client.auth)
-        self.assertEqual(client.key, 'MyKey')
-        self.assertEqual(client.secret, 'MySecret')
-        self.assertEqual(client.passphrase, 'MyPassphrase')
+        self.assertEqual(client.key, TEST_KEY)
+        self.assertEqual(client.secret, TEST_SECRET)
+        self.assertEqual(client.passphrase, TEST_PASSPHRASE)
+        self.assertFalse(client.auto_connect)
+        self.assertFalse(client.auto_reconnect)
+        self.assertEqual(client.name, 'WebSocket Client')
+        self.assertFalse(client.connected.is_set())
+        self.assertTrue(client.disconnected.is_set())
+        self.assertFalse(client.closing)
+        
+        #noauth, auto_connect, name
+        with patch('copra.websocket.client.Client.add_as_task_to_loop') as mock_attl:
+            client = Client(self.loop, channel1, name="Custom Name")
+            self.assertEqual(client.loop, self.loop)
+            self.assertEqual(client._initial_channels, [channel1])
+            self.assertEqual(client.feed_url, FEED_URL)
+            self.assertEqual(client.channels, {channel1.name: channel1})
+            self.assertFalse(client.auth)
+            self.assertTrue(client.auto_connect)
+            self.assertTrue(client.auto_reconnect)
+            self.assertEqual(client.name, 'Custom Name')
+            self.assertFalse(client.connected.is_set())
+            self.assertTrue(client.disconnected.is_set())
+            self.assertFalse(client.closing)
+            mock_attl.assert_called_once()
+        
                         
     def test__get_subscribe_message(self):
         channel1 = Channel('heartbeat', ['BTC-USD', 'LTC-USD'])
         channel2 = Channel('level2', ['LTC-USD'])
         
         client = Client(self.loop, [channel1, channel2], auto_connect=False)
+        #subscribe
         msg = json.loads(client._get_subscribe_message(client.channels.values()).decode('utf8'))
-        self.assertIn('type', msg)
+        self.assertEqual(len(msg), 2)
         self.assertEqual(msg['type'], 'subscribe')
-        self.assertIn('channels', msg)
         self.assertIn(channel1._as_dict(), msg['channels'])
         self.assertIn(channel2._as_dict(), msg['channels'])
-        
+        #unsubscribe
+        msg = json.loads(client._get_subscribe_message([channel1], unsubscribe=True).decode('utf8'))
+        self.assertEqual(len(msg), 2)
+        self.assertEqual(msg['type'], 'unsubscribe')
+        self.assertIn(channel1._as_dict(), msg['channels'])
+        self.assertFalse(channel2._as_dict() in  msg['channels'])
+
+        #authorized
+        client = Client(self.loop, channel1, auth=True, key=TEST_KEY, 
+                        secret=TEST_SECRET, passphrase=TEST_PASSPHRASE, 
+                        auto_connect=False, auto_reconnect=False)
+                        
+        msg = json.loads(client._get_subscribe_message(client.channels.values(), 
+                                 timestamp='1546384260.0321212').decode('utf8'))
+        self.assertEqual(len(msg), 6)
+        self.assertEqual(msg['type'], 'subscribe')
+        self.assertIn(channel1._as_dict(), msg['channels'])
+        self.assertEqual(msg['key'], TEST_KEY)
+        self.assertEqual(msg['passphrase'], TEST_PASSPHRASE)
+        self.assertEqual(msg['timestamp'], '1546384260.0321212')
+        self.assertEqual(msg['signature'], 'KQq/poDCHjDDRURkQOc+QZi16c6cio9Yo/nF1+kts84=')
+
+                        
     def test_subscribe(self):
         channel1 = Channel('heartbeat', ['BTC-USD', 'LTC-USD'])
         channel2 = Channel('level2', ['LTC-USD'])
         channel3 = Channel('heartbeat', ['BTC-USD', 'BTC-EUR'])
+        channel4 = Channel('heartbeat', ['ETH-USD'])
         
         client = Client(self.loop, [channel1], auto_connect=False)
         
@@ -128,9 +185,18 @@ class TestClient(unittest.TestCase):
         self.assertEqual(client.channels[channel2.name], channel2)
         
         client.subscribe(channel3)
-        
+    
         self.assertIn(channel3.name, client.channels)
         self.assertEqual(client.channels[channel3.name], channel1 + channel3)
+        
+        client.protocol.sendMessage = MagicMock()
+        client.connected.set()
+        
+        client.subscribe(channel4)
+ 
+        msg = client._get_subscribe_message([channel4])
+        client.protocol.sendMessage.assert_called_with(msg)
+
         
     def test_unsubscribe(self):
         channel1 = Channel('heartbeat', ['BTC-USD', 'LTC-USD', 'LTC-EUR'])
@@ -152,25 +218,29 @@ class TestClient(unittest.TestCase):
         self.assertEqual(client.channels[channel4.name], Channel('heartbeat', ['LTC-USD']))
         
         client.unsubscribe(channel3)
-        
         self.assertIn(channel3.name, client.channels)
         self.assertEqual(client.channels[channel3.name], Channel('heartbeat', ['LTC-USD']))
         
         client.unsubscribe(channel2)
-        
         self.assertNotIn(channel2.name, client.channels)
         
+        client.protocol.sendMessage = MagicMock()
+        client.connected.set()
+        
         client.unsubscribe(channel5)
-        
         self.assertEqual(client.channels, {})
+        msg = client._get_subscribe_message([channel5], unsubscribe=True)
+        client.protocol.sendMessage.assert_called_with(msg)
+
+    
+    def test_add_as_task_to_loop(self):
+        channel1 = Channel('heartbeat', ['BTC-USD', 'LTC-USD'])
+        client = Client(self.loop, channel1, auto_connect=False)
         
+        client.loop.create_connection = CoroutineMock(return_value=CoroutineMock())
+        client.add_as_task_to_loop()
         
+        url = urlparse(FEED_URL)
+        client.loop.create_connection.assert_called_with(client, url.hostname, url.port, ssl=True)
         
-        
-        
-        
-        
-        
-        
-        
-        
+    
