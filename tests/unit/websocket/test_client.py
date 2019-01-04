@@ -18,22 +18,38 @@ TEST_SECRET = 'aVGe54dHHYUSudB3sJdcQx4BfQ6K5oVdcYv4eRtDN6fBHEQf5Go6BACew4G0iFjfL
 TEST_PASSPHRASE = 'a2f9ee4dx2b'
 
 
-# class TestClientProtocol(unittest.TestCase):
-#     """Tests for cbprotk.websocket.ClientProtocol"""
+class TestClientProtocol(TestCase):
+    """Tests for cbprotk.websocket.ClientProtocol"""
 
-#     def setUp(self):
-#         """Set up test fixtures, if any."""
+    def setUp(self):
+        self.protocol = ClientProtocol()
+        self.protocol.factory = MagicMock()
 
-#     def tearDown(self):
-#         """Tear down test fixtures, if any."""
+    def tearDown(self):
+        """Tear down test fixtures, if any."""
 
-#     def test__init__(self):
-#         pass
+    def test___call__(self):
+        self.assertIs(self.protocol(), self.protocol)
+        
+    def test_onOpen(self):
+        self.protocol.onOpen()
+        self.protocol.factory.on_open.assert_called_once()
     
-#     def test___call__(self):
-#         prot = ClientProtocol()
-#         self.assertIs(prot(), prot)    
-    
+    def test_onClose(self):
+        self.protocol.onClose(True, 200, 'OK')
+        self.protocol.factory.on_close.assert_called_with(True, 200, 'OK')
+        
+    def test_onMessage(self):
+        msg_dict = {'type': 'test', 'another_key': 200}
+        msg = json.dumps(msg_dict).encode('utf8')
+        self.protocol.onMessage(msg, True)
+        self.protocol.factory.on_message.assert_called_with(msg_dict)
+        
+        msg_dict = {'type': 'error', 'message': 404, 'reason': 'testing'}
+        msg = json.dumps(msg_dict).encode('utf8')
+        self.protocol.onMessage(msg, True)
+        self.protocol.factory.on_error.called_with(404, 'testing')
+        
 
 class TestClient(TestCase):
     """Tests for copra.websocket.client.Client"""
@@ -260,7 +276,8 @@ class TestClient(TestCase):
         self.assertFalse(client.disconnected.is_set())
         self.assertFalse(client.closing)
         client.protocol.sendMessage.assert_called_with(msg)
-        
+
+       
     def test_on_close(self):
         channel1 = Channel('heartbeat', ['BTC-USD', 'LTC-USD', 'LTC-EUR'])
         client = Client(self.loop, [channel1], auto_connect=False)
@@ -284,4 +301,17 @@ class TestClient(TestCase):
         self.assertTrue(client.disconnected.is_set())
         self.assertFalse(client.closing)
         client.add_as_task_to_loop.assert_called_once()
+        
+        
+    async def test_close(self):
+        channel1 = Channel('heartbeat', ['BTC-USD', 'LTC-USD', 'LTC-EUR'])
+        client = Client(self.loop, [channel1], auto_connect=False)
+        client.protocol.sendClose = MagicMock(side_effect=lambda: client.disconnected.set())
+        client.disconnected.clear()
+        self.assertFalse(client.closing)
+        
+        await client.close()
+        self.assertTrue(client.closing)
+        client.protocol.sendClose.assert_called_once()
+        
         

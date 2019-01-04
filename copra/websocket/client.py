@@ -305,7 +305,7 @@ class Client(WebSocketClientFactory):
         """
         self.closing = True
         self.protocol.sendClose()
-
+        await self.disconnected.wait()
 
 if __name__ == '__main__':
     # A sanity check.
