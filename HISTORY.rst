@@ -53,6 +53,16 @@ History
 ------------------
 * Added REST client.
 
+1.2.0 (2019-01-04)
+------------------
+* Created copra.rest package and moved old copra.rest module to
+  copra.rest.client.
+* Created copra.websocket package and moved old copra.websocket module to
+  copra.websocket.client.
+* Add imports to copra.rest.__init__ and copra.websocket.__init__ so that
+  classes and attributes can still be imported as they were before.
+* Rewrote and completed unit tests from copra.websocket.
+
 1.1.2 (2018-12-01)
 ------------------
 * Updated documentation formatting.
