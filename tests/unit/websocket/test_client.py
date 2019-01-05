@@ -32,7 +32,7 @@ class TestClientProtocol(TestCase):
     def test___call__(self):
         self.assertIs(self.protocol(), self.protocol)
         
-    @skipUnless(sys.version_info > (2, 5), 'MagicMock.assert_called_once not implemented.')
+    @skipUnless(sys.version_info >= (2, 6), 'MagicMock.assert_called_once not implemented.')
     def test_onOpen(self):
         self.protocol.onOpen()
         self.protocol.factory.on_open.assert_called_once()
@@ -135,7 +135,7 @@ class TestClient(TestCase):
         self.assertTrue(client.disconnected.is_set())
         self.assertFalse(client.closing)
 
-    @skipUnless(sys.version_info > (2, 5), 'MagicMock.assert_called_once not implemented.')
+    @skipUnless(sys.version_info >= (2, 6), 'MagicMock.assert_called_once not implemented.')
     def test__init__auto_connect(self):
         channel1 = Channel('heartbeat', ['BTC-USD', 'LTC-USD'])
     
@@ -298,7 +298,7 @@ class TestClient(TestCase):
         self.assertTrue(client.closing)
         client.add_as_task_to_loop.assert_not_called()
     
-    @skipUnless(sys.version_info > (2, 5), 'MagicMock.assert_called_once not implemented.')
+    @skipUnless(sys.version_info >= (2, 6), 'MagicMock.assert_called_once not implemented.')
     def test_on_close_unexpected(self):
         channel1 = Channel('heartbeat', ['BTC-USD', 'LTC-USD', 'LTC-EUR'])
         client = Client(self.loop, [channel1], auto_connect=False)
@@ -315,7 +315,7 @@ class TestClient(TestCase):
         client.add_as_task_to_loop.assert_called_once()
         
         
-    @skipUnless(sys.version_info > (2, 5), 'MagicMock.assert_called_once not implemented.')   
+    @skipUnless(sys.version_info >= (2, 6), 'MagicMock.assert_called_once not implemented. ')   
     async def test_close(self):
         channel1 = Channel('heartbeat', ['BTC-USD', 'LTC-USD', 'LTC-EUR'])
         client = Client(self.loop, [channel1], auto_connect=False)

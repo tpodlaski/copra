@@ -67,15 +67,8 @@ History
   classes and attributes can still be imported as they were before.
 * Rewrote and completed unit tests from copra.websocket.
 
-1.2.1 (2019-01-04)
+1.2.4 (2019-01-05)
 ------------------
-* Fixed bug in copra.rest.client unit test.
-
-1.2.2 (2019-01-04)
-------------------
-* Removed assert_called_once calls from MagicMock objects in the copra.websocket
-  unit tests to maintain Python 3.5 compatibility.
-  
-1.2.3 (2019-01-04)
-------------------
-* Removed tests incompatible with Python 3.5 from copra.websocket unit tests.
+* Updated copra.websocket.client unit tests to ignore those that are 
+  incompatible with Python 3.5 due to Mock methods that were not yet 
+  implemented.
