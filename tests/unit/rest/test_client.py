@@ -13,7 +13,8 @@ import aiohttp
 from asynctest import CoroutineMock
 from multidict import MultiDict
 
-from copra.rest import APIRequestError, Client, URL, HEADERS
+from copra.rest import APIRequestError, Client, URL
+from copra.rest.client import HEADERS
 from tests.unit.rest.util import MockTestCase
 
 # These are made up
@@ -741,7 +742,7 @@ class TestRest(MockTestCase):
         with self.assertRaises(ValueError):
             resp = await self.client.cancel_all()
             
-        # No product_id
+        # No product_idx
         resp = await self.auth_client.cancel_all()
         self.check_req(self.mock_del, '{}/orders'.format(URL), headers=AUTH_HEADERS)
         

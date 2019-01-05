@@ -33,7 +33,8 @@ from uuid import uuid4
 from asynctest import TestCase, skipUnless, expectedFailure
 from dateutil import parser
 
-from copra.rest import APIRequestError, Client, SANDBOX_URL, USER_AGENT
+from copra.rest import APIRequestError, Client, SANDBOX_URL
+from copra.rest.client import USER_AGENT
 
 KEY = os.getenv('KEY')
 SECRET = os.getenv('SECRET')
@@ -248,7 +249,7 @@ class TestRest(TestCase):
        
     async def test_currencies(self):
         
-        keys = {'id', 'name', 'min_size', 'status', 'message'}
+        keys = {'id', 'name', 'min_size', 'status', 'message', 'details'}
         
         currencies = await self.client.currencies()
         self.assertIsInstance(currencies, list)
@@ -713,16 +714,16 @@ class TestRest(TestCase):
                                                       price=price, size=1)
             await asyncio.sleep(0.5)
             
-        for price in (10000, 20000, 30000):
+        for price in (20000, 30000, 40000):
             order = await self.auth_client.limit_order('sell', 'LTC-USD', 
                                                       price=price, size=0.01)
             await asyncio.sleep(0.5)    
         
         order = await self.auth_client.limit_order('buy', 'ETH-USD', 1, .01)
-        
+
         order = await self.auth_client.market_order('sell', 'LTC-USD', .02,
                                                     stop='loss', stop_price=1)
-        
+
         order = await self.auth_client.limit_order('buy', 'LTC-USD', 8000, .01,
                                                   stop='entry', stop_price=6500)
 
@@ -734,21 +735,25 @@ class TestRest(TestCase):
         
         resp = await self.auth_client.cancel_all('BTC-USD')
         self.assertEqual(len(resp), 3)
+        await asyncio.sleep(.5)
         orders, _, _ = await self.auth_client.orders(['open', 'active'])
         self.assertEqual(len(orders), 7)
         
         resp = await self.auth_client.cancel_all()
         self.assertEqual(len(resp), 4)
+        await asyncio.sleep(.5)
         orders, _, _ = await self.auth_client.orders(['open', 'active'])
         self.assertEqual(len(orders), 3)
         
         resp = await self.auth_client.cancel_all(product_id='LTC-USD', stop=True)
         self.assertEqual(len(resp), 2)
+        await asyncio.sleep(.5)
         orders, _, _ = await self.auth_client.orders(['open', 'active'])
         self.assertEqual(len(orders), 1)
         
         resp = await self.auth_client.cancel_all(stop=True)
         self.assertEqual(len(resp), 1)
+        await asyncio.sleep(.5)
         orders, _, _ = await self.auth_client.orders(['open', 'active'])
         self.assertEqual(orders, [])        
 

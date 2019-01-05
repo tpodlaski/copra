@@ -21,75 +21,6 @@ FEED_URL = 'wss://ws-feed.pro.coinbase.com:443'
 SANDBOX_FEED_URL = 'wss://ws-feed-public.sandbox.pro.coinbase.com:443'
 
 
-class Channel:
-    """A WebSocket channel.
-
-    A Channel object encapsulates the Coinbase Pro WebSocket channel name
-    *and* one or more Coinbase Pro product ids.
-
-    To read about Coinbase Pro channels and the data they return, visit:
-    https://docs.gdax.com/#channels
-    
-    :ivar str name: The name of the WebSocket channel.
-    :ivar product_ids: Product ids for the channel.
-    :vartype product_ids: set of str
-    """
-
-    def __init__(self, name, product_ids):
-        """
-        
-        :param str name: The name of the WebSocket channel. Possible values are 
-            heatbeat, ticker, level2, full, matches, or user
-
-        :param product_ids: A single product id (eg., 'BTC-USD') or list of 
-            product ids (eg., ['BTC-USD', 'ETH-EUR', 'LTC-BTC'])
-        :type product_ids: str or list of str
-        
-        :raises ValueError: If name not valid or product ids is empty.
-        """
-        self.name = name.lower()
-        if self.name not in ('heartbeat', 'ticker', 'level2',
-                             'full', 'matches', 'user'):
-            raise ValueError("invalid name {}".format(name))
-
-        if not product_ids:
-            raise ValueError("must include at least one product id")
-
-        if not isinstance(product_ids, list):
-            product_ids = [product_ids]
-        self.product_ids = set(product_ids)
-
-    def __repr__(self):
-        return str(self._as_dict())
-
-    def _as_dict(self):
-        """Returns the Channel as a dictionary.
-        
-        :returns dict: The Channel as a dict with keys name & value list
-            of product_ids.
-        """
-        return {'name': self.name, 'product_ids': list(self.product_ids)}
-
-    def __eq__(self, other):
-        if self.name != other.name:
-            raise TypeError('Channels need the same name to be compared.')
-        return (self.name == other.name and
-                self.product_ids == other.product_ids)
-
-    def __add__(self, other):
-        if self.name != other.name:
-            raise TypeError('Channels need the same name to be added.')
-        return Channel(self.name, list(self.product_ids | other.product_ids))
-
-    def __sub__(self, other):
-        if self.name != other.name:
-            raise TypeError('Channels need the same name to be subtracted.')
-        product_ids = self.product_ids - other.product_ids
-        if not product_ids:
-            return None
-        return Channel(self.name, list(product_ids))
-
-
 class ClientProtocol(WebSocketClientProtocol):
     """Websocket client protocol.
 
@@ -186,9 +117,14 @@ class Client(WebSocketClientFactory):
         :raises ValueError: If auth is True and key, secret, and passphrase are
             not provided.
         """
-        self.connected = False
 
         self.loop = loop
+        
+        self.connected = asyncio.Event()
+        self.disconnected = asyncio.Event()
+        self.disconnected.set()
+        self.closing = False
+        
         if not isinstance(channels, list):
             channels = [channels]
 
@@ -211,11 +147,11 @@ class Client(WebSocketClientFactory):
         self.name = name
 
         super().__init__(self.feed_url)
-
+        
         if self.auto_connect:
             self.add_as_task_to_loop()
 
-    def _get_subscribe_message(self, channels, unsubscribe=False):
+    def _get_subscribe_message(self, channels, unsubscribe=False, timestamp=None):
         """Create and return the subscription message for the provided channels.
         
         :param channels: List of channels to be subscribed to.
@@ -232,7 +168,8 @@ class Client(WebSocketClientFactory):
                'channels': [channel._as_dict() for channel in channels]}
 
         if self.auth:
-            timestamp = str(time.time())
+            if not timestamp:
+                timestamp = str(time.time())
             message = timestamp + 'GET' + '/users/self/verify'
             message = message.encode('ascii')
             hmac_key = base64.b64decode(self.secret)
@@ -269,12 +206,12 @@ class Client(WebSocketClientFactory):
                 self.channels[channel.name] = channel
                 sub_channels.append(channel)
 
-        if self.connected:
+        if self.connected.is_set():
             msg = self._get_subscribe_message(sub_channels)
             self.protocol.sendMessage(msg)
 
     def unsubscribe(self, channels):
-        """Unsubscribe from the given channels.
+        """Unsubscribe from the given channels. 
         
         :param channels: The channels to subscribe to.
         :type channels: Channel or list of Channels
@@ -288,7 +225,7 @@ class Client(WebSocketClientFactory):
                 if not self.channels[channel.name]:
                     del self.channels[channel.name]
 
-        if self.connected:
+        if self.connected.is_set():
             msg = self._get_subscribe_message(channels, unsubscribe=True)
             self.protocol.sendMessage(msg)
 
@@ -310,7 +247,8 @@ class Client(WebSocketClientFactory):
         The WebSocket is open. This method sends the subscription message to
         the server.
         """
-        self.connected = True
+        self.connected.set()
+        self.disconnected.clear()
         self.closing = False
         logger.info('{} connected to {}'.format(self.name, self.url))
         msg = self._get_subscribe_message(self.channels.values())
@@ -330,7 +268,8 @@ class Client(WebSocketClientFactory):
         :param reason: Close reason as sent by the WebSocket peer.
         :type reason: str or None
         """
-        self.connected = False
+        self.connected.clear()
+        self.disconnected.set()
 
         msg = '{} connection to {} {}closed. {}'
         expected = 'unexpectedly ' if self.closing is False else ''
@@ -366,7 +305,7 @@ class Client(WebSocketClientFactory):
         """
         self.closing = True
         self.protocol.sendClose()
-
+        await self.disconnected.wait()
 
 if __name__ == '__main__':
     # A sanity check.
