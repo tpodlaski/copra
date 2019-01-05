@@ -67,7 +67,7 @@ History
   classes and attributes can still be imported as they were before.
 * Rewrote and completed unit tests from copra.websocket.
 
-1.2.4 (2019-01-05)
+1.2.5 (2019-01-05)
 ------------------
 * Updated copra.websocket.client unit tests to ignore those that are 
   incompatible with Python 3.5 due to Mock methods that were not yet 
