@@ -33,7 +33,7 @@ class TestClientProtocol(TestCase):
         
     def test_onOpen(self):
         self.protocol.onOpen()
-        self.protocol.factory.on_open.assert_called_once()
+        self.protocol.factory.on_open.assert_called()
     
     def test_onClose(self):
         self.protocol.onClose(True, 200, 'OK')
@@ -147,7 +147,7 @@ class TestClient(TestCase):
             self.assertFalse(client.connected.is_set())
             self.assertTrue(client.disconnected.is_set())
             self.assertFalse(client.closing)
-            mock_attl.assert_called_once()
+            mock_attl.assert_called()
         
                         
     def test__get_subscribe_message(self):
@@ -300,7 +300,7 @@ class TestClient(TestCase):
         self.assertFalse(client.connected.is_set())
         self.assertTrue(client.disconnected.is_set())
         self.assertFalse(client.closing)
-        client.add_as_task_to_loop.assert_called_once()
+        client.add_as_task_to_loop.assert_called()
         
         
     async def test_close(self):
@@ -312,6 +312,6 @@ class TestClient(TestCase):
         
         await client.close()
         self.assertTrue(client.closing)
-        client.protocol.sendClose.assert_called_once()
+        client.protocol.sendClose.assert_called()
         
         

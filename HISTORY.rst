@@ -70,3 +70,8 @@ History
 1.2.1 (2019-01-04)
 ------------------
 * Fixed bug in copra.rest.client unit test.
+
+1.2.3 (2019-01-04)
+------------------
+* Removed assert_called_once calls from MagicMock objects in the copra.websocket
+  unit tests to maintain Python 3.5 compatibility.
