@@ -75,3 +75,7 @@ History
 ------------------
 * Removed assert_called_once calls from MagicMock objects in the copra.websocket
   unit tests to maintain Python 3.5 compatibility.
+  
+1.2.3 (2019-01-04)
+------------------
+* Removed tests incompatible with Python 3.5 from copra.websocket unit tests.
