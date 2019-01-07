@@ -99,6 +99,7 @@ class TestRest(TestCase):
     async def test_get(self):
         async with Client(self.loop, HTTPBIN) as client:
             headers, body = await client.get('/get')
+            body['args'].pop('no-cache', None)
             self.assertEqual(body['args'], {})
             self.assertEqual(body['headers']['User-Agent'], USER_AGENT)
             self.assertIsInstance(headers, dict)
@@ -372,7 +373,7 @@ class TestRest(TestCase):
     @skipUnless(TEST_AUTH, "Auth credentials required")
     async def test_limit_order(self):
         # Assumes cancel works
-        for side, base_price in (('buy', 1), ('sell', 10000)):
+        for side, base_price in (('buy', 1), ('sell', 50000)):
             # default time_in_force
             price = base_price + (random.randint(1, 9) / 10)
             size = random.randint(1, 10) / 1000

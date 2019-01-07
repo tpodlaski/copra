@@ -4,6 +4,7 @@
 """
 
 import json
+import functools
 from unittest import mock
 from urllib.parse import parse_qsl, urlparse
 
@@ -38,24 +39,36 @@ class MockTestCase(TestCase):
     def setUp(self):
         mock_get_patcher = patch('aiohttp.ClientSession.get', new_callable=MockRequest)
         self.mock_get = mock_get_patcher.start()
+        self.mock_get.method = 'GET'
         self.mock_get.return_value.json = CoroutineMock()
         self.mock_get.return_value.status = 200
         self.addCleanup(mock_get_patcher.stop)
         
         mock_post_patcher = patch('aiohttp.ClientSession.post', new_callable=MockRequest)
         self.mock_post = mock_post_patcher.start()
+        self.mock_post.method = 'POST'
         self.mock_post.return_value.json = CoroutineMock()
         self.mock_post.return_value.status = 200
         self.addCleanup(mock_post_patcher.stop)
         
         mock_del_patcher = patch('aiohttp.ClientSession.delete', new_callable=MockRequest)
+        
         self.mock_del = mock_del_patcher.start()
+        self.mock_del.method = 'DEL'
         self.mock_del.return_value.json = CoroutineMock()
         self.mock_del.return_value.status = 200
         self.addCleanup(mock_del_patcher.stop)
 
     
-    def check_req(self, mock_req, url='', query={}, data={}, headers={}):
+    def check_req(self, mock_req, url='', query=None, data=None, headers=None):
+        if not query:
+            query = {}
+        if not data:
+            data = {}
+        if not headers:
+            headers = {}
+        if mock_req.method == 'GET':
+            query['no-cache'] = mock_req.query['no-cache']
         self.assertEqual(mock_req.url, url)
         self.assertEqual(mock_req.query.items(), MultiDict(query).items())
         

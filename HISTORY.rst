@@ -72,3 +72,10 @@ History
 * Updated copra.websocket.client unit tests to ignore those that are 
   incompatible with Python 3.5 due to Mock methods that were not yet 
   implemented.
+  
+1.2.6 (2019-01-07)
+------------------
+* Updated the REST client to attach an additional query string parameter 
+  to all GET requests. The parameter, 'no-cache', is a timestamp and ensures
+  that the Coinbase server responds to all GET requests with fresh and not
+  cached content.
