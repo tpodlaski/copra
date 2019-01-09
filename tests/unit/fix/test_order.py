@@ -6,7 +6,7 @@
 from decimal import Decimal
 import uuid
 
-from asynctest import TestCase
+from asynctest import TestCase, MagicMock
 
 from copra.fix.message import Message
 from copra.fix.order import Order
@@ -38,6 +38,7 @@ class TestOrder(TestCase):
         self.assertEqual(order._executed_value, Decimal('0'))
         self.assertEqual(order.executed_value, Decimal('0'))
         self.assertFalse(order.received.is_set())
+        self.assertIsNone(order.fill_callback(1,2))
         self.assertFalse(order.done.is_set())
     
         expected_msg = Message(TEST_KEY, 1, 'D', {22: '1', 54: '1', 55: 'BTC-USD'})
@@ -366,6 +367,7 @@ class TestOrder(TestCase):
         
     def test_fix_update_fill(self):
         order, _ = Order.market_order(TEST_KEY, 1, 'buy', 'BTC-USD', 1)
+        order.fill_callback = MagicMock()
         
         msg = Message(TEST_KEY, 1, 8, {39: 1, 150: 1, 31: 3000, 32: .5})
         order.fix_update(msg)
@@ -374,6 +376,7 @@ class TestOrder(TestCase):
         self.assertEqual(order.filled_size, Decimal('.5'))
         self.assertEqual(order._executed_value, Decimal('1500'))
         self.assertEqual(order.executed_value, Decimal('1500'))
+        order.fill_callback.assert_called_with(Decimal('.5'), Decimal('3000'))
         
         msg = Message(TEST_KEY, 2, 8, {39: 1, 150: 1, 31: 3001.50, 32: .25})
         order.fix_update(msg)
@@ -382,6 +385,7 @@ class TestOrder(TestCase):
         self.assertEqual(order.filled_size, Decimal('.75'))
         self.assertEqual(order._executed_value, Decimal('2250.375'))
         self.assertEqual(order.executed_value, Decimal('2250.38'))
+        order.fill_callback.assert_called_with(Decimal('.25'), Decimal('3001.50'))
 
         
     def test_fix_update_done(self):
