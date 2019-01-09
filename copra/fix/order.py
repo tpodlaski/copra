@@ -57,8 +57,9 @@ class Order:
         order.filled_size = Decimal('0')
         order._executed_value = Decimal('0')
         order.last_fill = Decimal('0')
-        order.received = asyncio.Event()
         order.fill_callback = lambda x, y: None
+        order.done_callback = lambda x, y: None
+        order.received = asyncio.Event()
         order.done = asyncio.Event()
         
         return order, msg
@@ -288,7 +289,9 @@ class Order:
             
         elif msg[150] == '3':       # ExecType done
             self.done.set()
+            self.done_callback(self.filled_size, self.executed_value)
             
         elif msg[150] == '4':       # ExecType canceled
             self.done.set()
+            self.done_callback(self.filled_size, self.executed_value)
             

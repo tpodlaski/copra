@@ -390,24 +390,32 @@ class TestOrder(TestCase):
         
     def test_fix_update_done(self):
         order, _ = Order.market_order(TEST_KEY, 1, 'buy', 'BTC-USD', 1)
+        order.done_callback = MagicMock()
         self.assertIsNone(order.status)
         self.assertFalse(order.done.is_set())
         
+        order.filled_size = Decimal('1')
+        order._executed_value = Decimal('400.76')
         msg = Message(TEST_KEY, 1, 8, {39: 3, 150: 3})
         order.fix_update(msg)
         
         self.assertEqual(order.status, 'done')
         self.assertTrue(order.done.is_set())
+        order.done_callback.assert_called_with(Decimal('1'), Decimal('400.76'))
         
     
     def test_fix_update_canceled(self):
         order, _ = Order.limit_order(TEST_KEY, 1, 'buy', 'BTC-USD', 1, 10)
+        order.done_callback = MagicMock()
         self.assertIsNone(order.status)
         self.assertFalse(order.done.is_set())
         
+        order.filled_size = Decimal('.35')
+        order._executed_value = Decimal('99.32')
         msg = Message(TEST_KEY, 1, 8, {39: 4, 150: 4})
         order.fix_update(msg)
         
         self.assertEqual(order.status, 'canceled')
         self.assertTrue(order.done.is_set())
+        order.done_callback.assert_called_with(Decimal('.35'), Decimal('99.32'))
         
