@@ -353,7 +353,6 @@ class Client:
             * The time_in_force is not GTC, IOC, FOK, or PO.
             * A stop_order has post_only set to True
         """
-
         self.seq_num += 1
         
         order, msg = Order.limit_order(self.key, self.seq_num, side, product_id,
@@ -406,7 +405,7 @@ class Client:
         return order
         
         
-    async def cancel(self, order_id=None, client_oid=None):
+    async def cancel(self, order_id):
         """Cancel a previously placed order.
 
         :param str order_id: The id of the order to cancel.
@@ -416,7 +415,6 @@ class Client:
         """
 
         self.seq_num += 1
-        
         order = self.orders[order_id]
         self.send(Message(self.key, self.seq_num, 'F', {37: order.id}))
         
