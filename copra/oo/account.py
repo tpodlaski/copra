@@ -1,4 +1,4 @@
-from Decimal import Decimal, ROUND_FLOOR
+from decimal import Decimal, ROUND_FLOOR
 
 class Account():
     def __init__(self, rest_resp, currency):
