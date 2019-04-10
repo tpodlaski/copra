@@ -14,7 +14,7 @@ class Order:
     """
     
     @classmethod
-    def _create(cls, key, seq_num, side, product_id):
+    def _create(cls, key, seq_num, side, product):
         """Factory to create the base of an order and FIX message.
         
         Creates an order and FIX message with the attributes and fields
@@ -27,7 +27,7 @@ class Order:
 
         :param str side: Either buy or sell
         
-        :param str product_id: The product id to be bought or sold.
+        :param Product product: The product to be bought or sold.
         
         
         returns: A tuple consisting of the Order object and the FIX message
@@ -49,8 +49,8 @@ class Order:
         order.side = side
         msg[54] = '2' if side == 'sell' else '1'
         
-        order.product_id = product_id
-        msg[55] = product_id
+        order.product = product
+        msg[55] = order.product.base_currency.id
         
         order.id = None
         order.status = None
@@ -66,7 +66,7 @@ class Order:
 
     
     @classmethod
-    def limit_order(cls, key, seq_num, side, product_id, size, price, 
+    def limit_order(cls, key, seq_num, side, product, size, price, 
                                           time_in_force='GTC', stop_price=None):
         """
         Factory method to create a new limit order.
@@ -80,7 +80,7 @@ class Order:
 
         :param str side: Either buy or sell
         
-        :param str product_id: The product id to be bought or sold.
+        :param Product product: The product to be bought or sold.
 
         :param float size: The quantity of the cryptocurrency to buy or sell. 
             This parameter may also be a string.
@@ -112,7 +112,7 @@ class Order:
         if stop_price and time_in_force == 'PO':
             raise ValueError('Stop orders cannot be Post Only.')
             
-        order, msg = cls._create(key, seq_num, side, product_id)
+        order, msg = cls._create(key, seq_num, side, product)
 
         if stop_price:
             order.type = 'stop limit'
@@ -138,7 +138,7 @@ class Order:
 
        
     @classmethod
-    def market_order(cls, key, seq_num, side, product_id, size=None, funds=None, 
+    def market_order(cls, key, seq_num, side, product, size=None, funds=None, 
                                                                stop_price=None):
         """Factory method to create a new market order.
         
@@ -151,7 +151,7 @@ class Order:
 
         :param str side: Either buy or sell
         
-        :param str product_id: The product id to be bought or sold.
+        :param Product product: The product to be bought or sold.
 
         :param float size: The quantity of the cryptocurrency to buy or sell. 
             Either size or funds must be set for a market order but not both.  
@@ -182,7 +182,7 @@ class Order:
         if size and funds:
                 raise ValueError("Market orders can't have both size and funds set.")
                 
-        order, msg = cls._create(key, seq_num, side, product_id)
+        order, msg = cls._create(key, seq_num, side, product)
 
         if stop_price:
             order.type = 'stop market'
@@ -232,11 +232,11 @@ class Order:
     def __str__(self):
         if self.type == 'market' or self.type == 'stop market':
             if self.size:
-                size_price = '{} {}'.format(self.size, self.product_id)
+                size_price = '{} {}'.format(self.size, self.product.base_currency.id)
             else:
-                size_price = '${} {}'.format(self.funds, self.product_id)
+                size_price = '${} {}'.format(self.funds, self.product.base_currency.id)
         else:
-            size_price = '{} {} @ ${:.2f}'.format(self.size, self.product_id, self.price )
+            size_price = '{} {} @ ${:.2f}'.format(self.size, self.product.base_currency.id, self.price )
 
         str_ = '{} {} {}'.format(self.type.upper(), self.side.upper(), size_price)
         if self.type == 'limit' or self.type == 'stop limit':

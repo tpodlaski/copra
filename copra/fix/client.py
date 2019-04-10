@@ -15,7 +15,7 @@ import time
 
 from copra.fix.message import Message
 from copra.fix.names import VALUES
-from copra.fix.order import Order
+from copra.oo.order import Order
 
 logger = logging.getLogger(__name__)
 
@@ -332,13 +332,13 @@ class Client:
         self.keep_alive_task = None
 
 
-    async def limit_order(self, side, product_id, size, price, 
+    async def limit_order(self, side, product, size, price, 
                                           time_in_force='GTC', stop_price=None):
         """Place a limit order or a stop entry/loss limit order.
         
         :param str side: Either buy or sell
         
-        :param str product_id: The product id to be bought or sold.
+        :param Product product: The product to be bought or sold.
             
         :param float size: The quantity of the cryptocurrency to buy or sell. 
             This parameter may also be a string.
@@ -362,7 +362,7 @@ class Client:
         """
         self.seq_num += 1
         
-        order, msg = Order.limit_order(self.key, self.seq_num, side, product_id,
+        order, msg = Order.limit_order(self.key, self.seq_num, side, product,
                                          size, price, time_in_force, stop_price)
                                          
         self.orders[order.client_oid] = order
@@ -373,13 +373,13 @@ class Client:
         return order
         
                 
-    async def market_order(self, side, product_id, size=None, funds=None,
+    async def market_order(self, side, product, size=None, funds=None,
                                                               stop_price=None):
         """Place a market order or a stop entry/loss market order.
         
         :param str side: Either buy or sell
         
-        :param str product_id: The product id to be bought or sold.
+        :param Product product: The product to be bought or sold.
 
         :param float size: The quantity of the cryptocurrency to buy or sell. 
             Either size or funds must be set for a market order but not both.  
@@ -403,7 +403,7 @@ class Client:
         
         self.seq_num += 1
              
-        order, msg = Order.market_order(self.key, self.seq_num, side, product_id, size, funds, stop_price)
+        order, msg = Order.market_order(self.key, self.seq_num, side, product, size, funds, stop_price)
         self.orders[order.client_oid] = order
         self.send(msg)
        
