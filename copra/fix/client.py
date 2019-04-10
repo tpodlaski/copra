@@ -4,6 +4,7 @@
 
 import asyncio
 import base64
+from decimal import Decimal
 import hashlib
 import hmac
 import logging
@@ -28,7 +29,7 @@ SANDBOX_CERT_FILE = os.path.join(os.path.dirname(__file__), 'certs',
                                       
 class Client:
 
-    def __init__(self, loop, key, secret, passphrase, url=URL, 
+    def __init__(self, loop, key, secret, passphrase, maker_fee, taker_fee, url=URL, 
                 cert_file=CERT_FILE, max_connect_attempts=5, connect_timeout=10,
                 reconnect=True):
         """FIX client initialization.
@@ -43,6 +44,10 @@ class Client:
             
         :param str passphrase: The passphrase for the API key used for 
             authentication.
+            
+        :param str maker_fee: The fee for orders that make liquidity.
+        
+        :param str taker_fee: The fee for orders that take liquidity.
             
         :param str url: (optional) The url of the FIX server. This should 
             include the port but not the protocol.
@@ -68,6 +73,8 @@ class Client:
         self.key = key
         self.secret = secret
         self.passphrase = passphrase
+        self.maker_fee = Decimal(str(maker_fee))
+        self.taker_fee = Decimal(str(taker_fee))
         self.url = url
         
         self.ssl_context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
