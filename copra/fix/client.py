@@ -171,7 +171,7 @@ class Client:
                         
                     order.fix_update(msg)
                     
-                    logging.info('\n{}\n'.format(order))
+                    #logging.info('\n{}\n'.format(order))
                     
                 except KeyError:
                     # log error message here
@@ -332,7 +332,7 @@ class Client:
         self.keep_alive_task = None
 
 
-    async def limit_order(self, side, product, size, price, 
+    async def limit_order(self, side, product, size, price,
                                           time_in_force='GTC', stop_price=None):
         """Place a limit order or a stop entry/loss limit order.
         
@@ -363,12 +363,15 @@ class Client:
         self.seq_num += 1
         
         order, msg = Order.limit_order(self.key, self.seq_num, side, product,
-                                         size, price, time_in_force, stop_price)
+                                                    size, price, self.maker_fee, 
+                                                    time_in_force, stop_price)
                                          
         self.orders[order.client_oid] = order
         self.send(msg)
        
         await order.received.wait()
+            
+        logger.info(order)
         
         return order
         
@@ -403,7 +406,8 @@ class Client:
         
         self.seq_num += 1
              
-        order, msg = Order.market_order(self.key, self.seq_num, side, product, size, funds, stop_price)
+        order, msg = Order.market_order(self.key, self.seq_num, side, product, 
+                                        self.taker_fee, size, funds, stop_price)
         self.orders[order.client_oid] = order
         self.send(msg)
        
