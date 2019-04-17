@@ -4,6 +4,7 @@
 
 import asyncio
 import base64
+from collections import deque
 from decimal import Decimal
 import hashlib
 import hmac
@@ -26,7 +27,9 @@ CERT_FILE = os.path.join(os.path.dirname(__file__), 'certs',
                                                     'fix.pro.coinbase.com.pem')
 SANDBOX_CERT_FILE = os.path.join(os.path.dirname(__file__), 'certs', 
                                       'fix-public.sandbox.pro.coinbase.com.pem')
-                                      
+
+MESSAGE_QUEUE_SIZE = 25                                     
+
 class Client:
 
     def __init__(self, loop, key, secret, passphrase, maker_fee, taker_fee, url=URL, 
@@ -100,6 +103,8 @@ class Client:
         self.keep_alive_task = None
         
         self.orders = {}
+        
+        self.message_queue = deque(maxlen=MESSAGE_QUEUE_SIZE)
 
 
     @property
@@ -182,6 +187,10 @@ class Client:
             
             elif msg[35] == '1':            #test
                 self.heartbeat(msg[112])
+                
+            elif msg[35] == '2':
+                logger.info('resend request:\n{}'.format(msg))
+                self.replay(msg[7])
             
             elif msg[35] == 'A':            #login
                 self.logged_in.set()
@@ -212,6 +221,19 @@ class Client:
         :param Message msg: The message to send.
         """
         self.transport.write(bytes(msg))
+        self.message_queue.append(msg)
+
+        
+    def replay(self, from_id):
+        new_msg_queue = deque(maxlen=MESSAGE_QUEUE_SIZE)
+        
+        for msg in self.message_queue:
+            if msg[34] >= from_id:
+                self.transport.write(bytes(msg))
+                new_msg_queue.append(msg)
+
+        self.message_queue = new_msg_queue
+        logger.info('resend request processed')
 
 
     async def connect(self):
