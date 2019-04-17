@@ -37,14 +37,17 @@ class Fill:
         return (self.adj_executed_value / self.size).quantize(self.product.quote_currency.min_size)
         
     def __str__(self):
-        str_ = "[FILL] {} {} {} @ {} {}  Fee: {}  Adj Val: {}".format(
-                                             self.side.upper(), 
-                                             self.size,
-                                             self.product.base_currency.id, 
-                                             self.price, 
-                                             self.product.quote_currency.id,
-                                             self.fee,
-                                             self.adj_executed_value)
+        str_ = '\n\t   [FILL] {} {} {} @ {} {}'.format(self.side.upper(),
+                                                 self.size,
+                                                 self.product.base_currency.id,
+                                                 self.price,
+                                                 self.product.quote_currency.id)
+        str_ += '\n\t   ' + '-' * 69
+        str_ += '\n\t        Value: {}\t      Fee: {}'.format(self.executed_value,
+                                                              self.fee)
+        str_ += '\n\t   Adj. Value: {}\tAdj Price: {}'.format(self.adj_executed_value,
+                                                              self.adj_price)
+        str_ += '\n\t   ' + '-' * 69 
     
         return str_
 
@@ -309,15 +312,15 @@ class Order:
         if self.executed_value:
             str_ = '\n\t   ' + str_ + '\n\t   ' + '-' * 69 + '\n'
             
-            str_ += '\t   Filled: {} ({} remaining)\tFee: {}\n'.format(
-                                                               self.filled_size, 
-                                                               self.remaining,
-                                                               self.fee)
-            str_ += '\t   Value: {}\tAdj Value: {}\tAvg Price: {}'.format(
+            str_ += '\t       Filled: {}\tRemaining: {}\n'.format(self.filled_size, 
+                                                               self.remaining)
+            str_ += '\t        Value: {}\t      Fee: {}\n'.format(
                                                         self.executed_value,
+                                                        self.fee)
+            str_ += '\t    Adj Value: {}\tAdj Price: {}\n'.format(
                                                         self.adj_executed_value,
                                                         self.avg_price)
-            str_ += '\n\t   ' + '-' * 69
+            str_ += '\t   ' + '-' * 69
         
         return str_
 
