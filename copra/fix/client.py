@@ -247,10 +247,10 @@ class Client:
         attempts = 0
         
         while attempts < self.max_connect_attempts:
+            fut = self.loop.create_connection(self, self.host, self.port,
+                                                           ssl=self.ssl_context)
             try: 
-                (self.transport, _) = await asyncio.wait_for(
-                            self.loop.create_connection(self, self.host, self.port,
-                                       ssl=self.ssl_context), self.connect_timeout)
+                (self.transport, _) = await asyncio.wait_for(fut, self.connect_timeout)
                                        
                 self.connected.set()
                 self.disconnected.clear()
