@@ -208,7 +208,7 @@ class Client:
             elif msg[35] == '3':            #reject
                 reason = ''
                 if 58 in msg:
-                    reasson = ' ' + msg[38] + '.'
+                    reason = ' ' + msg[38] + '.'
                 logger.warning("Message rejected.{}".format(reason))
             
             else:
