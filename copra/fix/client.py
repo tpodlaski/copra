@@ -225,6 +225,7 @@ class Client:
 
         
     def replay(self, from_id):
+        from_id = int(from_id)
         new_msg_queue = deque(maxlen=MESSAGE_QUEUE_SIZE)
         
         for msg in self.message_queue:
