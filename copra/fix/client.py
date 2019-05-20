@@ -229,9 +229,10 @@ class Client:
         new_msg_queue = deque(maxlen=MESSAGE_QUEUE_SIZE)
         
         for msg in self.message_queue:
-            if msg[34] >= from_id:
+            if int(msg[34]) >= from_id:
                 self.transport.write(bytes(msg))
                 new_msg_queue.append(msg)
+                logger.info('resending\n{}'.format(msg))
 
         self.message_queue = new_msg_queue
         logger.info('resend request processed')
