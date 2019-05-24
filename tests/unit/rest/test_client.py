@@ -356,29 +356,29 @@ class TestRest(MockTestCase):
         with self.assertRaises(ValueError):
             rates = await self.client.historic_rates('BTC-USD', granularity=100)
         
-        stop = datetime.utcnow()
-        start = stop - timedelta(days=1)
+        end = datetime.utcnow()
+        start = end - timedelta(days=1)
         
-        # start, no stop
+        # start, no end
         with self.assertRaises(ValueError):
             rates = await self.client.historic_rates('BTC-USD', start=start)
             
-        #stop, no start
+        #end, no start
         with self.assertRaises(ValueError):
-            rates = await self.client.historic_rates('BTC-USD', stop=stop)
+            rates = await self.client.historic_rates('BTC-USD', end=end)
             
         # Default granularity
         rates = await self.client.historic_rates('BTC-USD')
         self.check_req(self.mock_get, '{}/products/BTC-USD/candles'.format(URL),
                       query={'granularity': '3600'}, headers=UNAUTH_HEADERS)
 
-        # Custom granularity, start, stop
+        # Custom granularity, start, end
         rates = await self.client.historic_rates('BTC-USD', 900, 
                                                  start.isoformat(), 
-                                                 stop.isoformat())
+                                                 end.isoformat())
         self.check_req(self.mock_get, '{}/products/BTC-USD/candles'.format(URL),
                       query={'granularity': '900', 'start': start.isoformat(),
-                              'stop': stop.isoformat()},
+                              'end': end.isoformat()},
                       headers=UNAUTH_HEADERS)
                        
     async def test_get_24hour_stats(self):
@@ -1065,4 +1065,3 @@ class TestRest(MockTestCase):
         self.check_req(self.mock_get, 
                       '{}/users/self/trailing-volume'.format(URL),
                       headers=AUTH_HEADERS)
-    
