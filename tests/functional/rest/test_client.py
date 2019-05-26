@@ -230,9 +230,9 @@ class TestRest(TestCase):
         self.assertEqual(len(rates[0]), 6)
         self.assertEqual(rates[0][0] - rates[1][0], 900)
                 
-        stop = datetime.utcnow()
-        start = stop - timedelta(days=1)
-        rates = await self.client.historic_rates('LTC-USD', 3600, start.isoformat(), stop.isoformat())
+        end = datetime.utcnow()
+        start = end - timedelta(days=1)
+        rates = await self.client.historic_rates('LTC-USD', 3600, start.isoformat(), end.isoformat())
         self.assertIsInstance(rates, list)
         self.assertEqual(len(rates), 24)
         self.assertEqual(len(rates[0]), 6)
