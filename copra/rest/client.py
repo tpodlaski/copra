@@ -1426,7 +1426,7 @@ class Client:
                 status = [status]
                 
             for value in status:
-                if value not in ('active', 'all', 'open', 'pending'):
+                if value not in ('active', 'all', 'open', 'pending', 'done'):
                     raise ValueError("Invalid status: {}".format(value))
                
             params.update([('status', value) for value in status])
