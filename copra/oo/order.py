@@ -6,12 +6,15 @@ import asyncio
 from decimal import Decimal, ROUND_CEILING
 import uuid
 
+import pandas as pd
+
 from copra.fix.message import Message
 from copra.fix.names import VALUES
 
 class Fill:
     
-    def __init__(self, product, side, size, price, fee_rate):
+    def __init__(self, created_at, product, side, size, price, fee_rate):
+        self.created_at = pd.to_datetime(created_at, utc=True)
         self.product = product
         self.side = side
         self.size = Decimal(size)
@@ -35,6 +38,14 @@ class Fill:
     @property
     def adj_price(self):
         return (self.adj_executed_value / self.size).quantize(self.product.quote_currency.min_size)
+
+    def breakeven_price(self, fee_rate):
+        fee_rate = Decimal(str(fee_rate))
+        if self.side == 'buy':
+            return (self.adj_price / (1 - fee_rate)).quantize(self.product.quote_currency.min_size) 
+
+        return (self.adj_price / (1 + fee_rate)).quantize(self.product.quote_currency.min_size) 
+        
         
     def __str__(self):
         str_ = '\n\t   [FILL] {} {} {} @ {} {}'.format(self.side.upper(),
@@ -43,8 +54,8 @@ class Fill:
                                                  self.price,
                                                  self.product.quote_currency.id)
         str_ += '\n\t   ' + '-' * 69
-        str_ += '\n\t        Value: {}\t      Fee: {}'.format(self.executed_value,
-                                                              self.fee)
+        str_ += '\n\t        Value: {}\t      Fee: {}({})'.format(self.executed_value,
+                                                              self.fee, self.fee_rate)
         str_ += '\n\t   Adj. Value: {}\tAdj Price: {}'.format(self.adj_executed_value,
                                                               self.adj_price)
         str_ += '\n\t   ' + '-' * 69 
@@ -183,6 +194,9 @@ class Order:
 
         order.time_in_force = time_in_force
         msg[59] = {'GTC': '1', 'IOC': '3', 'FOK': '4', 'PO': 'P'}[order.time_in_force]
+        
+        order.orders_ahead = set()
+        order.size_ahead = Decimal('0')
               
         return (order, msg)
 
@@ -374,7 +388,7 @@ class Order:
             self.done.set()
             
         elif msg[150] == '1':       # ExecType fill
-            fill = Fill(self.product, self.side, msg[32], msg[31], self.fee_rate)
+            fill = Fill(msg[60], self.product, self.side, msg[32], msg[31], self.fee_rate)
             self.fills.append(fill)
             
             size = Decimal(msg[32])

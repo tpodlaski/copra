@@ -153,10 +153,12 @@ class Client:
         :param bytes data: ascii-encoded byte string of key=value pairs
             representing the fix message.
         """
+        msgs = []
         for f_msg in re.split(r'8=FIX\.4\.2.', data.decode('ascii'))[1:]:
             
             msg = Message.from_formatted(f_msg)
-    
+            msgs.append(msg)
+            
             logger.debug(msg)
             #print(msg)
 
@@ -213,7 +215,8 @@ class Client:
             
             else:
                 logger.warning("Uncaught message:\n{}".format(msg))
-            
+        
+        return msgs    
         
     def send(self, msg):
         """Send a message to the FIX server.

@@ -10,6 +10,7 @@ class Currency():
         if min_size.endswith('.'):
             min_size = min_size[:-1]
         self.min_size = Decimal(min_size)
+        
 
     def __str__(self):
         name_id = '{} [{}]'.format(self.name, self.id)
