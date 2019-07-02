@@ -36,7 +36,7 @@ setup(
     include_package_data=True,
     keywords='copra coinbase pro gdax api bitcoin litecoin etherium rest websocket client',
     name='copra',
-    packages=find_packages(include=['copra']),
+    packages=['copra', 'copra.rest', 'copra.websocket'],
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,
