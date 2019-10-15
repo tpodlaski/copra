@@ -1030,6 +1030,17 @@ class TestRest(TestCase):
         self.assertEqual(resp['from'], 'USD')
         self.assertEqual(resp['to'], 'USDC')
         
+    @expectedFailure
+    @skipUnless(TEST_AUTH, "AUTH credentials required")
+    async def test_fees(self):
+        #As of 10/15/19, the Sandbox server returns a 500 error:
+        #"Internal server error"
+        keys = {'maker_fee_rate', 'taker_fee_rate', 'usd_volume'}
+        
+        fees  = await self.auth_client.fees()
+        self.assertIsInstance(tick, dict)
+        self.assertEqual(tick.keys(), keys)        
+
 
     @skipUnless(TEST_AUTH and TEST_BTC_ACCOUNT, "Auth credentials and test BTC account ID required")
     async def test_reports(self):

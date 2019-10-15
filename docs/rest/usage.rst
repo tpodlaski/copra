@@ -274,6 +274,13 @@ Payment Methods
     | ``payment_methods()`` [:meth:`API Documentation <copra.rest.Client.payment_methods>`]
     | Get a list of the payment methods you have on file.
 
+Fees
++++++++++++++++
+
+*
+    | ``fees()`` [:meth:`API Documentation <copra.rest.Client.fees>`]
+    | Get your current maker & taker fee rates and 30-day trailing volume.
+
 Coinbase Accounts
 +++++++++++++++++
 

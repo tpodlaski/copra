@@ -991,7 +991,17 @@ class TestRest(MockTestCase):
         self.check_req(self.mock_post, '{}/conversions'.format(URL),
                        data={'from': 'USD', 'to': 'USDC', 'amount': 19.72}, 
                        headers=AUTH_HEADERS)                       
+
     
+    async def test_fees(self):
+        
+        # Unauthorized client
+        with self.assertRaises(ValueError):
+            fees = await self.client.fees()        
+        
+        fees = await self.auth_client.fees()
+        self.check_req(self.mock_get, '{}/fees'.format(URL), headers=AUTH_HEADERS)    
+
 
     async def test_create_report(self):
         
