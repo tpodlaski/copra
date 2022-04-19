@@ -33,15 +33,18 @@ class RateLimitedSession(ClientSession):
 
     async def get(self, *args, **kwargs):
         await self.wait_for_token()
-        return super().get(*args, **kwargs)
+        resp = await super().get(*args, **kwargs)
+        return resp
 
     async def delete(self, *args, **kwargs):
         await self.wait_for_token()
-        return super().delete(*args, **kwargs)
+        resp = await super().delete(*args, **kwargs)
+        return resp
 
     async def post(self, *args, **kwargs):
         await self.wait_for_token()
-        return super().post(*args, **kwargs)
+        resp = await super().post(*args, **kwargs)
+        return resp
 
 
 if __name__ == '__main__':
