@@ -104,6 +104,21 @@ class TestRest(MockTestCase):
         await client.close()
         self.assertTrue(client.session.closed)
         self.assertTrue(client.closed)
+    
+    async def test_rate_limit(self):
+        rate = 10
+        requests = rate * 2
+        client = Client(self.loop, rate=rate, burst=1)
+
+        path = '/mypath'
+        query = {'key1': 'item1', 'key2': 'item2'}
+
+        start = time.monotonic()
+        await asyncio.gather(*[client.get(path, query) for i in range(requests)])
+        time_passed = time.monotonic() - start
+        self.assertTrue(requests / time_passed <= rate)
+
+        await client.close()
         
         
     async def test_context_manager(self):
