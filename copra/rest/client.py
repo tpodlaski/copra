@@ -74,7 +74,7 @@ class Client:
         
     """
     
-    def __init__(self, loop, url=URL, auth=False, key='', secret='', passphrase=''):
+    def __init__(self, loop, url=URL, auth=False, key='', secret='', passphrase='', rate=10, burst=15):
         """
         
         :param loop: The asyncio loop that the client runs in.
@@ -112,7 +112,7 @@ class Client:
         self.secret = secret
         self.passphrase = passphrase
 
-        self.session = RateLimitedSession(loop=loop)
+        self.session = RateLimitedSession(loop=loop, rate=rate, burst=burst)
 
 
     @property
