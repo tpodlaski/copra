@@ -14,7 +14,7 @@ import sys
 import time
 import urllib.parse
 
-import aiohttp
+from copra.rest.rate_limited_session import RateLimitedSession
 import dateutil.parser
 from multidict import CIMultiDict
 
@@ -74,7 +74,7 @@ class Client:
         
     """
     
-    def __init__(self, loop, url=URL, auth=False, key='', secret='', passphrase=''):
+    def __init__(self, loop, url=URL, auth=False, key='', secret='', passphrase='', rate=10, burst=15):
         """
         
         :param loop: The asyncio loop that the client runs in.
@@ -97,6 +97,12 @@ class Client:
             
         :param str passphrase: (optional) The passphrase for the API key used 
             for authentication. Required if auth is True. The default is ''.
+
+        :param int rate: (optional) The rate limit (requests per second) applied
+            when making requests to the API.
+
+        :param int burst: (optional) The burst limit applied when making requests
+            to the API.
             
         :raises ValueError: If auth is True and key, secret, and passphrase are
             not provided.
@@ -112,7 +118,7 @@ class Client:
         self.secret = secret
         self.passphrase = passphrase
 
-        self.session = aiohttp.ClientSession(loop=loop)
+        self.session = RateLimitedSession(loop=loop, rate=rate, burst=burst)
 
 
     @property
