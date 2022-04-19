@@ -15,7 +15,6 @@ import time
 import urllib.parse
 
 from copra.rest.rate_limited_session import RateLimitedSession
-from aiohttp import ClientSession
 import dateutil.parser
 from multidict import CIMultiDict
 
