@@ -14,7 +14,8 @@ import sys
 import time
 import urllib.parse
 
-import aiohttp
+# import aiohttp
+from copra.rest.rate_limited_session import RateLimitedSession
 import dateutil.parser
 from multidict import CIMultiDict
 
@@ -112,7 +113,7 @@ class Client:
         self.secret = secret
         self.passphrase = passphrase
 
-        self.session = aiohttp.ClientSession(loop=loop)
+        self.session = RateLimitedSession(loop=loop)
 
 
     @property
