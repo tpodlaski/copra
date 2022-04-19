@@ -13,8 +13,7 @@ import aiohttp
 from asynctest import CoroutineMock
 from multidict import MultiDict
 
-from copra.rest import APIRequestError, URL
-from copra.rest.rate_limited_session import RateLimitedSession as Client
+from copra.rest import APIRequestError, Client, URL
 from copra.rest.client import HEADERS
 from tests.unit.rest.util import MockTestCase
 
