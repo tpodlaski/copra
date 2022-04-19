@@ -97,6 +97,12 @@ class Client:
             
         :param str passphrase: (optional) The passphrase for the API key used 
             for authentication. Required if auth is True. The default is ''.
+
+        :param int rate: (optional) The rate limit (requests per second) applied
+            when making requests to the API.
+
+        :param int burst: (optional) The burst limit applied when making requests
+            to the API.
             
         :raises ValueError: If auth is True and key, secret, and passphrase are
             not provided.
